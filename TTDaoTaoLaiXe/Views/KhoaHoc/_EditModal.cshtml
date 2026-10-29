@@ -1,0 +1,265 @@
+﻿@model TTDaoTaoLaiXe.Models.KhoaHoc
+
+<div class="modal-header">
+    <div>
+        <h5 class="modal-title fw-semibold">
+            Chỉnh sửa khóa học
+        </h5>
+
+        <div class="small text-muted mt-1">
+            Cập nhật thông tin khóa học
+        </div>
+    </div>
+
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Đóng"></button>
+</div>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="modal-body">
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"
+             role="alert"></div>
+
+        <!-- MÃ KHÓA HỌC -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                Mã khóa học
+            </label>
+
+            <input asp-for="MaKhoaHoc"
+                   class="form-control bg-light"
+                   readonly />
+
+            <div class="form-text">
+                Mã khóa học không được thay đổi.
+            </div>
+        </div>
+
+        <!-- TÊN KHÓA HỌC -->
+        <div class="mb-3">
+            <label asp-for="TenKhoaHoc"
+                   class="form-label fw-semibold">
+                Tên khóa học
+            </label>
+
+            <input asp-for="TenKhoaHoc"
+                   class="form-control"
+                   maxlength="200"
+                   autocomplete="off" />
+
+            <span asp-validation-for="TenKhoaHoc"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="row g-3">
+
+            <!-- HẠNG GPLX -->
+            <div class="col-md-6">
+                <label asp-for="HangGplx"
+                       class="form-label fw-semibold">
+                    Hạng GPLX
+                </label>
+
+                <select asp-for="HangGplx"
+                        class="form-select">
+
+                    <option value="">
+                        -- Chọn hạng GPLX --
+                    </option>
+
+                    @if (ViewBag.HangGplxes != null)
+                    {
+                        foreach (var hang in ViewBag.HangGplxes)
+                        {
+                            <option value="@hang.MaHang">
+                                @hang.MaHang - @hang.TenHang
+                            </option>
+                        }
+                    }
+
+                </select>
+
+                <span asp-validation-for="HangGplx"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- TỔNG THỜI GIAN -->
+            <div class="col-md-6">
+                <label asp-for="ThoiGianDaoTao"
+                       class="form-label fw-semibold">
+                    Tổng thời gian đào tạo
+                </label>
+
+                <div class="input-group">
+                    <input asp-for="ThoiGianDaoTao"
+                           type="number"
+                           min="1"
+                           class="form-control" />
+
+                    <span class="input-group-text">
+                        giờ
+                    </span>
+                </div>
+
+                <span asp-validation-for="ThoiGianDaoTao"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- LÝ THUYẾT -->
+            <div class="col-md-4">
+                <label asp-for="SoGioLyThuyet"
+                       class="form-label fw-semibold">
+                    Lý thuyết
+                </label>
+
+                <div class="input-group">
+                    <input asp-for="SoGioLyThuyet"
+                           type="number"
+                           min="0"
+                           class="form-control" />
+
+                    <span class="input-group-text">
+                        giờ
+                    </span>
+                </div>
+
+                <span asp-validation-for="SoGioLyThuyet"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- THỰC HÀNH -->
+            <div class="col-md-4">
+                <label asp-for="SoGioThucHanh"
+                       class="form-label fw-semibold">
+                    Thực hành
+                </label>
+
+                <div class="input-group">
+                    <input asp-for="SoGioThucHanh"
+                           type="number"
+                           min="0"
+                           class="form-control" />
+
+                    <span class="input-group-text">
+                        giờ
+                    </span>
+                </div>
+
+                <span asp-validation-for="SoGioThucHanh"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- DAT -->
+            <div class="col-md-4">
+                <label asp-for="SoGioDat"
+                       class="form-label fw-semibold">
+                    DAT
+                </label>
+
+                <div class="input-group">
+                    <input asp-for="SoGioDat"
+                           type="number"
+                           min="0"
+                           class="form-control" />
+
+                    <span class="input-group-text">
+                        giờ
+                    </span>
+                </div>
+
+                <span asp-validation-for="SoGioDat"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- NGÀY BẮT ĐẦU -->
+            <div class="col-md-6">
+                <label asp-for="NgayBatDau"
+                       class="form-label fw-semibold">
+                    Ngày bắt đầu
+                </label>
+
+                <input asp-for="NgayBatDau"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="NgayBatDau"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- NGÀY KẾT THÚC -->
+            <div class="col-md-6">
+                <label asp-for="NgayKetThuc"
+                       class="form-label fw-semibold">
+                    Ngày kết thúc
+                </label>
+
+                <input asp-for="NgayKetThuc"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="NgayKetThuc"
+                      class="text-danger"></span>
+            </div>
+
+            <!-- MÔ TẢ -->
+            <div class="col-12">
+                <label asp-for="MoTa"
+                       class="form-label fw-semibold">
+                    Mô tả
+                </label>
+
+                <textarea asp-for="MoTa"
+                          class="form-control"
+                          rows="4"
+                          maxlength="500"
+                          placeholder="Nhập mô tả khóa học..."></textarea>
+
+                <span asp-validation-for="MoTa"
+                      class="text-danger"></span>
+
+                <div class="form-text">
+                    Tối đa 500 ký tự.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TRẠNG THÁI -->
+        <div class="alert alert-info mt-4 mb-0">
+            <div class="d-flex gap-2">
+                <i class="bi bi-info-circle-fill"></i>
+
+                <div>
+                    <strong>Trạng thái khóa học</strong>
+                    <div class="small mt-1">
+                        Trạng thái không được thay đổi tại đây.
+                        Vui lòng sử dụng công tắc trạng thái ở danh sách khóa học.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+        <button type="button"
+                class="btn btn-light border"
+                data-bs-dismiss="modal">
+            Hủy
+        </button>
+
+        <button type="submit"
+                class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>
+            Lưu thay đổi
+        </button>
+
+    </div>
+</form>

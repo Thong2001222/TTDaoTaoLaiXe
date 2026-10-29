@@ -1,0 +1,1007 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.HocVien.HocVienProfileViewModel
+
+@{
+    ViewData["Title"] = "Hồ sơ học viên";
+}
+
+<div class="student-detail-page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header mb-4">
+
+        <div>
+            <div class="text-muted small mb-1">
+                Quản lý đào tạo / Học viên / Hồ sơ
+            </div>
+
+            <h1 class="page-title mb-1">
+                Hồ sơ học viên
+            </h1>
+
+            <p class="page-subtitle mb-0">
+                Xem thông tin và trạng thái đào tạo của học viên
+            </p>
+        </div>
+
+        <div class="page-actions">
+
+            <a asp-action="Index"
+               class="btn btn-light border">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Danh sách
+
+            </a>
+
+            <button type="button"
+                    class="btn btn-primary btn-edit-hocvien"
+                    data-id="@Model.MaHocVien">
+
+                <i class="bi bi-pencil me-1"></i>
+                Chỉnh sửa
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- STUDENT PROFILE HEADER -->
+    <section class="student-profile-card">
+
+        <div class="student-profile-main">
+
+            <div class="student-avatar">
+
+                @if (!string.IsNullOrWhiteSpace(Model.AnhHocVien))
+                {
+                    <img src="@Model.AnhHocVien"
+                         alt="Ảnh học viên @Model.HoTen" />
+                }
+                else
+                {
+                    <span>
+                        @Model.HoTen.Substring(0, 1).ToUpper()
+                    </span>
+                }
+
+            </div>
+
+
+            <div class="student-profile-info">
+
+                <div class="student-name">
+                    @Model.HoTen
+                </div>
+
+                <div class="student-meta">
+
+                    <span>
+                        <i class="bi bi-person-badge me-1"></i>
+                        @Model.MaHocVien
+                    </span>
+
+                    <span class="meta-divider"></span>
+
+                    <span>
+                        <i class="bi bi-telephone me-1"></i>
+                        @Model.SoDienThoai
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="student-profile-status">
+
+            @if (Model.TrangThai)
+            {
+                <span class="status-badge status-active">
+
+                    <span class="status-dot"></span>
+
+                    Đang hoạt động
+
+                </span>
+            }
+            else
+            {
+                <span class="status-badge status-inactive">
+
+                    <span class="status-dot"></span>
+
+                    Ngừng hoạt động
+
+                </span>
+            }
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="row g-4 mt-1">
+
+        <!-- LEFT -->
+        <div class="col-xl-8">
+
+            <!-- THÔNG TIN CÁ NHÂN -->
+            <section class="detail-section">
+
+                <div class="section-header">
+
+                    <div>
+                        <h2>
+                            Thông tin cá nhân
+                        </h2>
+
+                        <p>
+                            Thông tin cơ bản của học viên
+                        </p>
+                    </div>
+
+                    <div class="section-icon">
+                        <i class="bi bi-person-vcard"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Họ và tên
+                        </span>
+
+                        <span class="info-value">
+                            @Model.HoTen
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Mã học viên
+                        </span>
+
+                        <span class="info-value">
+                            @Model.MaHocVien
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Ngày sinh
+                        </span>
+
+                        <span class="info-value">
+                            @Model.NgaySinh.ToString("dd/MM/yyyy")
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Giới tính
+                        </span>
+
+                        <span class="info-value">
+                            @Model.GioiTinh
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Số điện thoại
+                        </span>
+
+                        <span class="info-value">
+                            @Model.SoDienThoai
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Email
+                        </span>
+
+                        <span class="info-value">
+                            @(string.IsNullOrWhiteSpace(Model.Email)
+                                                        ? "Chưa cập nhật"
+                                                        : Model.Email)
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item info-item-full">
+
+                        <span class="info-label">
+                            Địa chỉ
+                        </span>
+
+                        <span class="info-value">
+                            @(string.IsNullOrWhiteSpace(Model.DiaChi)
+                                                        ? "Chưa cập nhật"
+                                                        : Model.DiaChi)
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- CCCD -->
+            <section class="detail-section">
+
+                <div class="section-header">
+
+                    <div>
+                        <h2>
+                            Thông tin định danh
+                        </h2>
+
+                        <p>
+                            Thông tin căn cước công dân
+                        </p>
+                    </div>
+
+                    <div class="section-icon">
+                        <i class="bi bi-card-text"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Số CCCD
+                        </span>
+
+                        <span class="info-value info-highlight">
+                            @Model.Cccd
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="info-label">
+                            Ngày cấp
+                        </span>
+
+                        <span class="info-value">
+
+                            @(Model.NgayCapCccd.HasValue
+                                                        ? Model.NgayCapCccd.Value.ToString("dd/MM/yyyy")
+                                                        : "Chưa cập nhật")
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-item info-item-full">
+
+                        <span class="info-label">
+                            Nơi cấp
+                        </span>
+
+                        <span class="info-value">
+
+                            @(string.IsNullOrWhiteSpace(Model.NoiCapCccd)
+                                                        ? "Chưa cập nhật"
+                                                        : Model.NoiCapCccd)
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- GHI CHÚ -->
+            <section class="detail-section">
+
+                <div class="section-header">
+
+                    <div>
+                        <h2>
+                            Ghi chú
+                        </h2>
+
+                        <p>
+                            Thông tin bổ sung
+                        </p>
+                    </div>
+
+                    <div class="section-icon">
+                        <i class="bi bi-sticky"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="note-box">
+
+                    @if (string.IsNullOrWhiteSpace(Model.GhiChu))
+                    {
+                        <span class="text-muted">
+                            Chưa có ghi chú cho học viên này.
+                        </span>
+                    }
+                    else
+                    {
+                        @Model.GhiChu
+                    }
+
+                </div>
+
+            </section>
+            
+            <!-- ĐĂNG KÝ HỌC -->
+            <section class="detail-section">
+
+                <div class="section-header">
+
+                    <div>
+                        <h2>
+                            Đăng ký học
+                        </h2>
+
+                        <p>
+                            Các khóa học mà học viên đã đăng ký
+                        </p>
+                    </div>
+
+                    <div class="section-icon">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+
+                </div>
+
+
+                @if (Model.DangKyHocs.Any())
+                {
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Mã đăng ký
+                                    </th>
+
+                                    <th>
+                                        Khóa học
+                                    </th>
+
+                                    <th>
+                                        Ngày đăng ký
+                                    </th>
+
+                                    <th>
+                                        Học phí
+                                    </th>
+
+                                    <th>
+                                        Trạng thái
+                                    </th>
+
+                                    <th>
+                                        Thao tác
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in Model.DangKyHocs)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                @item.MaDangKy
+                                            </strong>
+                                        </td>
+
+
+                                        <td>
+
+                                            <div class="fw-semibold">
+                                                @item.MaKhoaHocNavigation.TenKhoaHoc
+                                            </div>
+
+                                            <small class="text-muted">
+                                                @item.MaKhoaHoc
+                                            </small>
+
+                                        </td>
+
+
+                                        <td>
+                                            @item.NgayDangKy.ToString("dd/MM/yyyy")
+                                        </td>
+
+
+                                        <td>
+                                            @item.HocPhi.ToString("N0") ₫
+                                        </td>
+
+
+                                        <td>
+
+                                            @if (item.TrangThai == "Đang học")
+                                            {
+                                                <span class="badge bg-primary">
+                                                    Đang học
+                                                </span>
+                                            }
+                                            else if (item.TrangThai == "Đã hoàn thành")
+                                            {
+                                                <span class="badge bg-success">
+                                                    Đã hoàn thành
+                                                </span>
+                                            }
+                                            else if (item.TrangThai == "Bảo lưu")
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    Bảo lưu
+                                                </span>
+                                            }
+                                            else if (item.TrangThai == "Đã nghỉ")
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    Đã nghỉ
+                                                </span>
+                                            }
+                                            else if (item.TrangThai == "Hủy")
+                                            {
+                                                <span class="badge bg-danger">
+                                                    Hủy
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    @item.TrangThai
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <a asp-controller="DangKyHoc"
+                                               asp-action="Details"
+                                               asp-route-id="@item.MaDangKy"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Xem đăng ký">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+
+                        <i class="bi bi-journal-x text-muted"
+                           style="font-size: 40px;"></i>
+
+                        <div class="mt-2 text-muted">
+                            Học viên chưa đăng ký khóa học nào.
+                        </div>
+
+                    </div>
+                }
+
+            </section>
+
+            <!-- NỘI DUNG CHƯA HOÀN THÀNH -->
+            <section class="detail-section">
+
+                <div class="section-header">
+                    <div>
+                        <h2>Các nội dung chưa hoàn thành</h2>
+                        <p>Những nội dung học viên cần bổ sung hoặc hoàn tất</p>
+                    </div>
+
+                    <div class="section-icon">
+                        <i class="bi bi-clipboard2-check"></i>
+                    </div>
+                </div>
+
+                @if (Model.NoiDungChuaHoanThanh != null
+                                && Model.NoiDungChuaHoanThanh.Any())
+                {
+                    <div class="list-group list-group-flush">
+
+                        @foreach (var noiDung in Model.NoiDungChuaHoanThanh)
+                        {
+                            <div class="list-group-item px-0 d-flex align-items-start gap-3">
+
+                                <div class="text-warning pt-1">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                </div>
+
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">@noiDung</div>
+                                    <small class="text-muted">
+                                        Cần kiểm tra và hoàn thành
+                                    </small>
+                                </div>
+
+                                <span class="badge bg-warning-subtle text-warning-emphasis">
+                                    Chưa hoàn thành
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-check-circle text-success"
+                           style="font-size: 36px;"></i>
+
+                        <div class="fw-semibold mt-2">
+                            Chưa ghi nhận nội dung chưa hoàn thành
+                        </div>
+
+                        <div class="text-muted small mt-1">
+                            Cần có dữ liệu kiểm tra đầy đủ để xác nhận học viên đã hoàn thành toàn bộ.
+                        </div>
+                    </div>
+                }
+
+            </section>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <aside class="col-xl-4">
+
+            <!-- TRẠNG THÁI -->
+            <section class="side-card">
+
+                <div class="side-card-title">
+                    Trạng thái hồ sơ
+                </div>
+
+
+                @if (Model.TrangThai)
+                {
+                    <div class="status-panel active">
+
+                        <div class="status-panel-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="status-panel-title">
+                                Đang hoạt động
+                            </div>
+
+                            <div class="status-panel-description">
+                                Hồ sơ đang được sử dụng trong hệ thống.
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="status-panel inactive">
+
+                        <div class="status-panel-icon">
+                            <i class="bi bi-pause-lg"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="status-panel-title">
+                                Ngừng hoạt động
+                            </div>
+
+                            <div class="status-panel-description">
+                                Hồ sơ hiện không còn hoạt động.
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </section>
+
+
+            <!-- THÔNG TIN LIÊN HỆ -->
+            <section class="side-card">
+
+                <div class="side-card-title">
+                    Liên hệ
+                </div>
+
+
+                <div class="contact-list">
+
+                    <div class="contact-item">
+
+                        <div class="contact-icon">
+                            <i class="bi bi-telephone"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="contact-label">
+                                Điện thoại
+                            </div>
+
+                            <div class="contact-value">
+                                @Model.SoDienThoai
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contact-item">
+
+                        <div class="contact-icon">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="contact-label">
+                                Email
+                            </div>
+
+                            <div class="contact-value">
+
+                                @(string.IsNullOrWhiteSpace(Model.Email)
+                                                                ? "Chưa cập nhật"
+                                                                : Model.Email)
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- THAO TÁC -->
+            <section class="side-card">
+
+                <div class="side-card-title">
+                    Thao tác
+                </div>
+
+
+                <div class="action-list">
+
+                    <button type="button"
+                            class="btn btn-primary btn-edit-hocvien"
+                            data-id="@Model.MaHocVien">
+
+                        <i class="bi bi-pencil me-1"></i>
+                        Chỉnh sửa thông tin
+
+                    </button>
+
+
+                    <a asp-action="Index"
+                       class="action-item">
+
+                        <span class="action-item-icon gray">
+                            <i class="bi bi-people"></i>
+                        </span>
+
+                        <span>
+                            Danh sách học viên
+                        </span>
+
+                        <i class="bi bi-chevron-right ms-auto"></i>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+<div class="modal fade"
+     id="editHocVienModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content">
+
+            <div class="modal-loading">
+                <div class="spinner-border text-primary"></div>
+                <span>Đang tải thông tin...</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+@section Scripts {
+
+    <script>
+        (function () {
+
+            const modalEl =
+                document.getElementById('editHocVienModal');
+
+                const modalContent =
+        modalEl.querySelector('.modal-content');
+
+            if (!modalEl || !modalContent) {
+                return;
+            }
+
+
+            function bindFormInModal() {
+
+                const form =
+                    modalContent.querySelector('form');
+
+                if (!form) {
+                    return;
+                }
+
+                if (form._editBound) {
+                    return;
+                }
+
+                form._editBound = true;
+
+
+                form.addEventListener('submit', function (e) {
+
+                    e.preventDefault();
+
+                    const formData =
+                        new FormData(form);
+
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                    .then(async function (response) {
+
+                        const contentType =
+                            response.headers.get('content-type') || '';
+
+                        if (contentType.includes('application/json')) {
+                            return {
+                                type: 'json',
+                                data: await response.json()
+                            };
+                        }
+
+                        return {
+                            type: 'html',
+                            data: await response.text()
+                        };
+
+                    })
+                    .then(function (result) {
+
+                        if (result.type === 'json') {
+
+                            if (result.data.success) {
+
+                                const modal =
+                                    bootstrap.Modal.getInstance(modalEl);
+
+                                if (modal) {
+                                    modal.hide();
+                                }
+
+                                // Tải lại trang Details
+                                location.reload();
+
+                            } else {
+
+                                alert(
+                                    result.data.message ||
+                                    'Không thể cập nhật học viên.'
+                                );
+
+                            }
+
+                            return;
+                        }
+
+
+                        // Nếu ModelState lỗi
+                        modalContent.innerHTML =
+                            result.data;
+
+                        bindFormInModal();
+
+                    })
+                    .catch(function (error) {
+
+                        console.error(error);
+
+                        modalContent.innerHTML = `
+                            <div class="p-4">
+                                <div class="alert alert-danger mb-0">
+                                    Không thể lưu dữ liệu.
+                                    Vui lòng thử lại.
+                                </div>
+                            </div>
+                        `;
+
+                    });
+
+                });
+
+            }
+
+
+            // Nút Chỉnh sửa
+            document.addEventListener('click', function (e) {
+
+                const button =
+                    e.target.closest('.btn-edit-hocvien');
+
+                if (!button) {
+                    return;
+                }
+
+
+                const id =
+                    button.getAttribute('data-id');
+
+                if (!id) {
+                    return;
+                }
+
+
+                // Loading
+                modalContent.innerHTML = `
+                    <div class="modal-loading">
+                        <div class="spinner-border text-primary"></div>
+                        <span>Đang tải thông tin...</span>
+                    </div>
+                `;
+
+
+                const modal =
+                    new bootstrap.Modal(modalEl, {
+                        backdrop: 'static'
+                    });
+
+
+                modal.show();
+
+
+                // Lấy form EditModal
+                fetch(
+                    '/HocVien/EditModal/' +
+                    encodeURIComponent(id),
+                    {
+                        method: 'GET',
+                        credentials: 'same-origin'
+                    }
+                )
+                .then(function (response) {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            'HTTP ' + response.status
+                        );
+                    }
+
+                    return response.text();
+
+                })
+                .then(function (html) {
+
+                    modalContent.innerHTML =
+                        html;
+
+                    bindFormInModal();
+
+                })
+                .catch(function (error) {
+
+                    console.error(error);
+
+                    modalContent.innerHTML = `
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                Lỗi
+                            </h5>
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal">
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="alert alert-danger mb-0">
+                                Không thể tải thông tin học viên.
+                            </div>
+                        </div>
+                    `;
+
+                });
+
+            });
+
+        })();
+    </script>
+
+}

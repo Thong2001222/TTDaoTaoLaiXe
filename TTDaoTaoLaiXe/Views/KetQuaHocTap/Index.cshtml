@@ -1,0 +1,825 @@
+﻿
+@model IEnumerable<TTDaoTaoLaiXe.Models.KetQuaHocTap>
+
+@{
+    ViewData["Title"] = "Kết quả học tập";
+
+    string tuKhoa = ViewBag.TuKhoa as string ?? "";
+    string maMonHoc = ViewBag.MaMonHoc as string ?? "";
+    string ketQuaLoc = ViewBag.KetQuaLoc as string ?? "";
+
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+
+    var monHocList = ViewBag.MonHocList;
+    var dangKyList = ViewBag.DangKyList;
+
+    var ketQuaList = ViewBag.KetQuaList as string[]
+        ?? new[] { "Đạt", "Không đạt", "Chưa thi" };
+}
+
+<div class="container-fluid py-3">
+
+    <!-- TIÊU ĐỀ VÀ CÁC NÚT CHỨC NĂNG -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-journal-check me-2"></i>Kết quả học tập
+            </h3>
+            <div class="text-secondary">
+                Quản lý điểm thi và lịch sử thi của học viên
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button"
+                    class="btn btn-outline-success"
+                    onclick="document.getElementById('fileExcel').click()">
+                <i class="bi bi-file-earmark-excel me-1"></i>
+                Import Excel
+            </button>
+
+            <form id="formImportExcel"
+                  asp-controller="KetQuaHocTap"
+                  asp-action="ImportExcel"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="d-none">
+                @Html.AntiForgeryToken()
+                <input type="file"
+                       id="fileExcel"
+                       name="file"
+                       accept=".xlsx"
+                       onchange="importExcel(this)" />
+            </form>
+
+            <a class="btn btn-success"
+               asp-controller="KetQuaHocTap"
+               asp-action="ExportExcel"
+               asp-route-tuKhoa="@tuKhoa"
+               asp-route-maMonHoc="@maMonHoc"
+               asp-route-ketQuaLoc="@ketQuaLoc">
+                <i class="bi bi-download me-1"></i>
+                Xuất Excel
+            </a>
+
+            <a class="btn btn-outline-danger"
+               asp-controller="KetQuaHocTap"
+               asp-action="ExportPdf"
+               asp-route-tuKhoa="@tuKhoa"
+               asp-route-maMonHoc="@maMonHoc"
+               asp-route-ketQuaLoc="@ketQuaLoc"
+               target="_blank">
+                <i class="bi bi-file-earmark-pdf me-1"></i>
+                Xuất PDF / In
+            </a>
+
+            <button type="button"
+                    class="btn btn-primary"
+                    onclick="moModalThem()">
+                <i class="bi bi-plus-lg me-1"></i>
+                Thêm kết quả
+            </button>
+        </div>
+    </div>
+
+    <!-- THỐNG KÊ -->
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Tổng kết quả</div>
+                    <div class="fs-3 fw-bold">@totalItems</div>
+                    <div class="small text-secondary">Theo bộ lọc hiện tại</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Trang hiện tại</div>
+                    <div class="fs-4 fw-bold">Trang (@(page) / @totalPages)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BỘ LỌC -->
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get"
+                  asp-action="Index"
+                  class="row g-3 align-items-end">
+
+                <div class="col-lg-5">
+                    <label class="form-label">Tìm kiếm</label>
+                    <input type="text"
+                           name="tuKhoa"
+                           value="@tuKhoa"
+                           class="form-control"
+                           placeholder="Mã kết quả, đăng ký, học viên, môn học..." />
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Môn học</label>
+                    <select name="maMonHoc" class="form-select">
+                        <option value="">-- Tất cả môn học --</option>
+                        @if (monHocList != null)
+                        {
+                            foreach (var mon in monHocList)
+                            {
+                                <option value="@mon.MaMonHoc"
+                                        selected="@(maMonHoc == (string)mon.MaMonHoc)">
+                                    @mon.TenMonHoc
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Kết quả</label>
+                    <select name="ketQuaLoc" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var kq in ketQuaList)
+                        {
+                            <option value="@kq"
+                                    selected="@(ketQuaLoc == kq)">
+                                @kq
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2 d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-primary flex-fill"
+                            title="Tìm kiếm">
+                        <i class="bi bi-search me-1"></i>Tìm
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary"
+                       title="Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DANH SÁCH -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span class="fw-semibold">
+                    <i class="bi bi-list-ul me-2"></i>Danh sách kết quả thi
+                </span>
+                <span class="text-secondary small">
+                    @Model.Count() bản ghi trên trang này
+                </span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã kết quả</th>
+                        <th>Học viên / Đăng ký</th>
+                        <th>Môn học</th>
+                        <th class="text-center">Lần thi</th>
+                        <th>Ngày thi</th>
+                        <th class="text-center">Điểm</th>
+                        <th>Kết quả</th>
+                        <th>Ghi chú</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-secondary">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                Không tìm thấy kết quả học tập.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            string badgeClass = item.KetQua switch
+                            {
+                                "Đạt" => "bg-success-subtle text-success",
+                                "Không đạt" => "bg-danger-subtle text-danger",
+                                "Chưa thi" => "bg-warning-subtle text-warning-emphasis",
+                                _ => "bg-secondary-subtle text-secondary"
+                            };
+
+                            <tr>
+                                <td class="fw-semibold text-nowrap">
+                                    @item.MaKetQua
+                                </td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        @(item.MaDangKyNavigation?
+                                            .MaHocVienNavigation?.HoTen ?? "—")
+                                    </div>
+                                    <div class="small text-secondary">
+                                        @item.MaDangKy
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        @(item.MaMonHocNavigation?.TenMonHoc ?? "—")
+                                    </div>
+                                    <div class="small text-secondary">
+                                        @item.MaMonHoc
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    @item.LanThi
+                                </td>
+
+                                <td class="text-nowrap">
+                                    @(item.NgayThi.HasValue
+                                        ? item.NgayThi.Value.ToString("dd/MM/yyyy")
+                                        : "—")
+                                </td>
+
+                                <td class="text-center fw-semibold">
+                                    @(item.Diem.HasValue
+                                        ? item.Diem.Value.ToString("0.##")
+                                        : "—")
+                                </td>
+
+                                <td>
+                                    <span class="badge rounded-pill @badgeClass">
+                                        @item.KetQua
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span title="@item.GhiChu">
+                                        @(string.IsNullOrWhiteSpace(item.GhiChu)
+                                            ? "—"
+                                            : item.GhiChu)
+                                    </span>
+                                </td>
+
+                                <td class="text-center text-nowrap">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Chỉnh sửa"
+                                            onclick="moModalSua(this)"
+                                            data-id="@item.MaKetQua"
+                                            data-dangky="@item.MaDangKy"
+                                            data-mon="@item.MaMonHoc"
+                                            data-lanthi="@item.LanThi"
+                                            data-ngay="@(item.NgayThi?.ToString("yyyy-MM-dd") ?? "")"
+                                            data-diem="@(item.Diem?.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                                            data-ketqua="@item.KetQua"
+                                            data-ghichu="@item.GhiChu">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PHÂN TRANG -->
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <span class="small text-secondary">
+                        Trang (@(page) / @totalPages)
+                    </span>
+
+                    <nav aria-label="Phân trang kết quả học tập">
+                        <ul class="pagination justify-content-end flex-wrap mb-0">
+                            <li class="page-item @(page <= 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@tuKhoa"
+                                   asp-route-maMonHoc="@maMonHoc"
+                                   asp-route-ketQuaLoc="@ketQuaLoc"
+                                   asp-route-page="@(page - 1)">
+                                    Trước
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(i == page ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tuKhoa="@tuKhoa"
+                                       asp-route-maMonHoc="@maMonHoc"
+                                       asp-route-ketQuaLoc="@ketQuaLoc"
+                                       asp-route-page="@i">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@tuKhoa"
+                                   asp-route-maMonHoc="@maMonHoc"
+                                   asp-route-ketQuaLoc="@ketQuaLoc"
+                                   asp-route-page="@(page + 1)">
+                                    Sau
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- MODAL THÊM / SỬA -->
+<div class="modal fade" id="modalKetQua" tabindex="-1"
+     aria-labelledby="modalKetQuaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formKetQua">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalKetQuaLabel">
+                        Thêm kết quả học tập
+                    </h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="MaKetQua">
+                                Mã kết quả *
+                            </label>
+                            <input id="MaKetQua"
+                                   name="MaKetQua"
+                                   class="form-control"
+                                   maxlength="20"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="MaDangKy">
+                                Đăng ký học *
+                            </label>
+                            <select id="MaDangKy"
+                                    name="MaDangKy"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Chọn đăng ký --</option>
+                                @if (dangKyList != null)
+                                {
+                                    foreach (var dk in dangKyList)
+                                    {
+                                        <option value="@dk.MaDangKy">
+                                            @dk.MaDangKy - @dk.HoTen
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="MaMonHoc">
+                                Môn học *
+                            </label>
+                            <select id="MaMonHoc"
+                                    name="MaMonHoc"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Chọn môn học --</option>
+                                @if (monHocList != null)
+                                {
+                                    foreach (var mon in monHocList)
+                                    {
+                                        <option value="@mon.MaMonHoc">
+                                            @mon.TenMonHoc
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="LanThi">
+                                Lần thi *
+                            </label>
+                            <input type="number"
+                                   id="LanThi"
+                                   name="LanThi"
+                                   class="form-control"
+                                   min="1"
+                                   max="999"
+                                   step="1"
+                                   value="1"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="NgayThi">
+                                Ngày thi
+                            </label>
+                            <input type="date"
+                                   id="NgayThi"
+                                   name="NgayThi"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="Diem">
+                                Điểm
+                            </label>
+                            <input type="number"
+                                   id="Diem"
+                                   name="Diem"
+                                   class="form-control"
+                                   min="0"
+                                   max="10"
+                                   step="0.01" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="KetQua">
+                                Kết quả *
+                            </label>
+                            <select id="KetQua"
+                                    name="KetQua"
+                                    class="form-select"
+                                    required>
+                                @foreach (var kq in ketQuaList)
+                                {
+                                    <option value="@kq">@kq</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label" for="GhiChu">
+                                Ghi chú
+                            </label>
+                            <textarea id="GhiChu"
+                                      name="GhiChu"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOTER LUÔN HIỂN THỊ -->
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Đóng
+                    </button>
+
+                    <button type="submit"
+                            id="btnLuuKetQua"
+                            class="btn btn-primary px-4">
+                        <i class="bi bi-save me-1"></i>Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        #modalKetQua .modal-dialog {
+            height: calc(100vh - 2rem);
+            max-height: calc(100vh - 2rem);
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        #modalKetQua .modal-content {
+            height: 100%;
+            max-height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #modalKetQua .modal-content > form {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #modalKetQua .modal-header,
+        #modalKetQua .modal-footer {
+            flex-shrink: 0;
+            background-color: #fff;
+        }
+
+        #modalKetQua .modal-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #modalKetQua .modal-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        #modalKetQua .modal-footer {
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid #dee2e6;
+            padding: 0.75rem 1rem;
+        }
+
+        #modalKetQua .modal-footer button {
+            flex-shrink: 0;
+        }
+
+        @@media (max-width: 576px) {
+            #modalKetQua .modal-dialog {
+                height: calc(100dvh - 1rem);
+                max-height: calc(100dvh - 1rem);
+                margin: 0.5rem;
+            }
+
+            #modalKetQua .modal-footer {
+                padding: 0.65rem;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        (() => {
+            'use strict';
+
+            const modalElement = document.getElementById('modalKetQua');
+            const form = document.getElementById('formKetQua');
+            const btnLuu = document.getElementById('btnLuuKetQua');
+
+            if (!modalElement || !form || typeof bootstrap === 'undefined') {
+                console.error('Không tìm thấy modal, form hoặc Bootstrap.');
+                return;
+            }
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            let dangSua = false;
+
+            const $ = id => document.getElementById(id);
+
+            function thongBaoLoi(message) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thành công',
+                        text: message || 'Đã xảy ra lỗi.'
+                    });
+                } else {
+                    console.error(message);
+                }
+            }
+
+            async function thongBaoThanhCong(message) {
+                if (typeof Swal !== 'undefined') {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: message,
+                        timer: 1300,
+                        showConfirmButton: false
+                    });
+                }
+            }
+
+            function capNhatTrangThaiNhap() {
+                const chuaThi = $('KetQua').value === 'Chưa thi';
+
+                $('Diem').disabled = chuaThi;
+                $('NgayThi').disabled = chuaThi;
+
+                if (chuaThi) {
+                    $('Diem').value = '';
+                    $('NgayThi').value = '';
+                }
+            }
+
+            $('KetQua').addEventListener('change', capNhatTrangThaiNhap);
+
+            function resetForm() {
+                form.reset();
+                $('MaKetQua').readOnly = false;
+                $('LanThi').value = '1';
+                $('KetQua').value = 'Chưa thi';
+                capNhatTrangThaiNhap();
+            }
+
+            window.moModalThem = function () {
+                dangSua = false;
+                resetForm();
+
+                $('modalKetQuaLabel').textContent = 'Thêm kết quả học tập';
+                modal.show();
+            };
+
+            window.moModalSua = function (button) {
+                if (!button) return;
+
+                dangSua = true;
+                resetForm();
+
+                const d = button.dataset;
+
+                $('modalKetQuaLabel').textContent = 'Chỉnh sửa kết quả học tập';
+                $('MaKetQua').value = d.id || '';
+                $('MaKetQua').readOnly = true;
+                $('MaDangKy').value = d.dangky || '';
+                $('MaMonHoc').value = d.mon || '';
+                $('LanThi').value = d.lanthi || '1';
+                $('NgayThi').value = d.ngay || '';
+                $('Diem').value = d.diem || '';
+                $('KetQua').value = d.ketqua || 'Chưa thi';
+                $('GhiChu').value = d.ghichu || '';
+
+                capNhatTrangThaiNhap();
+                modal.show();
+            };
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                if (!form.reportValidity()) return;
+
+                const token = form.querySelector(
+                    'input[name="__RequestVerificationToken"]'
+                )?.value;
+
+                if (!token) {
+                    thongBaoLoi('Không tìm thấy mã bảo mật. Hãy tải lại trang.');
+                    return;
+                }
+
+                const noiDungCu = btnLuu.innerHTML;
+
+                btnLuu.disabled = true;
+                btnLuu.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
+
+                try {
+                    const formData = new FormData(form);
+
+                    const response = await fetch(
+                        dangSua
+                            ? '@Url.Action("Edit", "KetQuaHocTap")'
+                            : '@Url.Action("Create", "KetQuaHocTap")',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token
+                            },
+                            body: formData
+                        }
+                    );
+
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        thongBaoLoi(result.message);
+                        return;
+                    }
+
+                    modal.hide();
+                    await thongBaoThanhCong(result.message);
+                    window.location.reload();
+                } catch (error) {
+                    console.error(error);
+                    thongBaoLoi('Không thể kết nối máy chủ. Vui lòng thử lại.');
+                } finally {
+                    btnLuu.disabled = false;
+                    btnLuu.innerHTML = noiDungCu;
+                }
+            });
+        })();
+
+        async function importExcel(input) {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            if (typeof Swal === 'undefined') {
+                input.value = '';
+                return;
+            }
+
+            const xacNhan = await Swal.fire({
+                icon: 'question',
+                title: 'Import kết quả học tập?',
+                text: `Bạn chọn file: ${file.name}`,
+                showCancelButton: true,
+                confirmButtonText: 'Import',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!xacNhan.isConfirmed) {
+                input.value = '';
+                return;
+            }
+
+            const formImport = document.getElementById('formImportExcel');
+            const formData = new FormData(formImport);
+
+            try {
+                Swal.fire({
+                    title: 'Đang nhập dữ liệu...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                const response = await fetch(formImport.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Import không thành công',
+                        text: result.message || 'Không thể đọc file Excel.'
+                    });
+                    return;
+                }
+
+                const chiTiet = Array.isArray(result.chiTiet)
+                    ? result.chiTiet
+                    : [];
+
+                const noiDungChiTiet = chiTiet.length
+                    ? '<hr><div style="max-height:220px;overflow:auto;text-align:left">'
+                        + chiTiet.map(x => {
+                            const dong = document.createElement('div');
+                            dong.textContent = x;
+                            return dong.outerHTML;
+                        }).join('')
+                        + '</div>'
+                    : '';
+
+                await Swal.fire({
+                    icon: result.loi > 0 ? 'warning' : 'success',
+                    title: 'Hoàn tất import',
+                    html: `
+                        <div class="text-start">
+                            <div>Thêm mới: <b>${Number(result.themMoi) || 0}</b> dòng</div>
+                            <div>Bỏ qua: <b>${Number(result.boQua) || 0}</b> dòng</div>
+                            <div>Dòng lỗi: <b>${Number(result.loi) || 0}</b></div>
+                            ${noiDungChiTiet}
+                        </div>
+                    `,
+                    confirmButtonText: 'Đóng'
+                });
+
+                if ((Number(result.themMoi) || 0) > 0) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error(error);
+                await Swal.fire(
+                    'Lỗi',
+                    'Không thể kết nối máy chủ. Vui lòng thử lại.',
+                    'error'
+                );
+            } finally {
+                input.value = '';
+            }
+        }
+    </script>
+}

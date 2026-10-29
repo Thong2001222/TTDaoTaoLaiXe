@@ -1,0 +1,266 @@
+﻿
+@model IEnumerable<TTDaoTaoLaiXe.Models.DangKyHoc>
+
+@{
+    ViewData["Title"] = "Học viên hoàn thành khóa học";
+
+    string tuKhoa = ViewBag.TuKhoa as string ?? "";
+    string maKhoaHoc = ViewBag.MaKhoaHoc as string ?? "";
+
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+    int pageSize = ViewBag.PageSize ?? 10;
+
+    var danhSachKhoaHoc =
+        ViewBag.DanhSachKhoaHoc
+        as IEnumerable<TTDaoTaoLaiXe.Models.KhoaHoc>
+        ?? Enumerable.Empty<TTDaoTaoLaiXe.Models.KhoaHoc>();
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                Học viên hoàn thành khóa học
+            </h3>
+            <div class="text-muted">
+                Danh sách các đăng ký đã được xác nhận hoàn thành
+            </div>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Quản lý đăng ký học
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="DaHoanThanh"
+                  method="get"
+                  class="row g-3 align-items-end">
+
+                <div class="col-lg-5 col-md-6">
+                    <label class="form-label">
+                        Tìm kiếm
+                    </label>
+                    <input type="text"
+                           name="tuKhoa"
+                           value="@tuKhoa"
+                           class="form-control"
+                           placeholder="Mã đăng ký, mã HV, họ tên..." />
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label">
+                        Khóa học
+                    </label>
+                    <select name="maKhoaHoc"
+                            class="form-select">
+                        <option value="">-- Tất cả khóa học --</option>
+                        @foreach (var khoaHoc in danhSachKhoaHoc)
+                        {
+                            if (maKhoaHoc == khoaHoc.MaKhoaHoc)
+                            {
+                                <option value="@khoaHoc.MaKhoaHoc"
+                                        selected>
+                                    @khoaHoc.MaKhoaHoc - @khoaHoc.TenKhoaHoc
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@khoaHoc.MaKhoaHoc">
+                                    @khoaHoc.MaKhoaHoc - @khoaHoc.TenKhoaHoc
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3 d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i>
+                        Tìm kiếm
+                    </button>
+
+                    <a asp-action="DaHoanThanh"
+                       class="btn btn-outline-secondary">
+                        Đặt lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3
+                    d-flex justify-content-between
+                    align-items-center">
+            <span class="fw-semibold">
+                Danh sách hoàn thành
+            </span>
+
+            <span class="badge text-bg-success">
+                @totalItems học viên
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">STT</th>
+                        <th>Mã đăng ký</th>
+                        <th>Học viên</th>
+                        <th>Khóa học</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Ngày hoàn thành</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Chi tiết</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        var stt = (page - 1) * pageSize + 1;
+
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center">@stt</td>
+
+                                <td>
+                                    <span class="fw-semibold">
+                                        @item.MaDangKy
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        @(item.MaHocVienNavigation?.HoTen
+                                          ?? "Chưa có thông tin")
+                                    </div>
+                                    <small class="text-muted">
+                                        @item.MaHocVien
+                                    </small>
+                                </td>
+
+                                <td>
+                                    <div>
+                                        @(item.MaKhoaHocNavigation?.TenKhoaHoc
+                                          ?? "Chưa có thông tin")
+                                    </div>
+                                    <small class="text-muted">
+                                        @item.MaKhoaHoc
+                                    </small>
+                                </td>
+
+                                <td>
+                                    @item.NgayDangKy.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <td>
+                                    @(item.NgayHoanThanh.HasValue
+                                        ? item.NgayHoanThanh.Value.ToString("dd/MM/yyyy")
+                                        : "Chưa ghi nhận")
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="badge text-bg-success">
+                                        Đã hoàn thành
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.MaDangKy"
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Xem chi tiết">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8"
+                                class="text-center py-5">
+                                <i class="bi bi-inbox fs-2 d-block
+                                          text-muted mb-2"></i>
+                                <div class="fw-semibold">
+                                    Chưa có học viên hoàn thành khóa học
+                                </div>
+                                <small class="text-muted">
+                                    Học viên sẽ xuất hiện khi đăng ký
+                                    được xác nhận hoàn thành.
+                                </small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white
+                        d-flex flex-wrap justify-content-between
+                        align-items-center gap-2">
+
+                <small class="text-muted">
+                    Trang @(page) / @totalPages
+                    — Tổng @totalItems hồ sơ
+                </small>
+
+                <nav aria-label="Phân trang học viên hoàn thành">
+                    <ul class="pagination pagination-sm mb-0">
+
+                        <li class="page-item @(page <= 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="DaHoanThanh"
+                               asp-route-tuKhoa="@tuKhoa"
+                               asp-route-maKhoaHoc="@maKhoaHoc"
+                               asp-route-page="@(page - 1)">
+                                Trước
+                            </a>
+                        </li>
+
+                        @for (int p = 1; p <= totalPages; p++)
+                        {
+                            <li class="page-item @(p == page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="DaHoanThanh"
+                                   asp-route-tuKhoa="@tuKhoa"
+                                   asp-route-maKhoaHoc="@maKhoaHoc"
+                                   asp-route-page="@p">
+                                    @p
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="DaHoanThanh"
+                               asp-route-tuKhoa="@tuKhoa"
+                               asp-route-maKhoaHoc="@maKhoaHoc"
+                               asp-route-page="@(page + 1)">
+                                Sau
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>

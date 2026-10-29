@@ -1,0 +1,409 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.DiemDanhRosterViewModel
+
+@{
+    ViewData["Title"] = "Điểm danh học viên";
+    Layout = "_Layout";
+
+    var gioBuoiHoc = Model.SoGioBuoiHoc.ToString(
+        System.Globalization.CultureInfo.InvariantCulture);
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Điểm danh học viên</h3>
+            <p class="text-muted mb-0">
+                Lớp: <strong>@Model.TenLopHoc</strong>
+                <span class="mx-1">·</span>
+                Mã lịch: <strong>@Model.MaLichHoc</strong>
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại lịch học
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Ngày học</div>
+                    <div class="fw-semibold">
+                        @Model.NgayHoc.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Thời gian</div>
+                    <div class="fw-semibold">
+                        @Model.GioBatDau.ToString("HH:mm")
+                        – @Model.GioKetThuc.ToString("HH:mm")
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Loại buổi học</div>
+                    <div class="fw-semibold">@Model.LoaiBuoiHoc</div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <div class="text-muted small">Thời lượng buổi học</div>
+                    <div class="fw-semibold">
+                        @Model.SoGioBuoiHoc.ToString("0.##") giờ
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Luu"
+          method="post"
+          id="formDiemDanh">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="MaLichHoc"
+               value="@Model.MaLichHoc" />
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <a asp-action="ExportExcel"
+                       asp-route-maLichHoc="@Model.MaLichHoc"
+                       class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-file-earmark-excel me-1"></i>
+                        Xuất Excel
+                    </a>
+
+                    <a asp-action="ExportPdf"
+                       asp-route-maLichHoc="@Model.MaLichHoc"
+                       class="btn btn-sm btn-outline-danger"
+                       target="_blank">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                        Xuất PDF
+                    </a>
+                    <div>
+                        <h5 class="mb-1 fw-bold">Danh sách học viên</h5>
+                        <small class="text-muted">
+                            Tổng số:
+                            <strong>@Model.HocViens.Count</strong> học viên
+                        </small>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-success"
+                                onclick="chonTatCa('Có mặt')">
+                            <i class="bi bi-check2-all me-1"></i>
+                            Tất cả có mặt
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                onclick="chonTatCa('Vắng không phép')">
+                            <i class="bi bi-person-x me-1"></i>
+                            Tất cả vắng
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3" style="min-width:150px">
+                                    Mã học viên
+                                </th>
+                                <th style="min-width:200px">
+                                    Họ và tên
+                                </th>
+                                <th style="min-width:190px">
+                                    Trạng thái
+                                </th>
+                                <th style="min-width:150px">
+                                    Số giờ tham gia
+                                </th>
+                                <th style="min-width:220px">
+                                    Ghi chú
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (Model.HocViens.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="5"
+                                        class="text-center text-muted py-5">
+                                        <i class="bi bi-people fs-2 d-block mb-2"></i>
+                                        Lớp hiện không có học viên đang học đủ
+                                        điều kiện điểm danh.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @for (var i = 0; i < Model.HocViens.Count; i++)
+                                {
+                                    var hv = Model.HocViens[i];
+
+                                    <tr>
+                                        <td class="ps-3">
+                                            <span class="fw-semibold">
+                                                @hv.MaHocVien
+                                            </span>
+
+                                            <input type="hidden"
+                                                   name="HocViens[@i].MaHocVien"
+                                                   value="@hv.MaHocVien" />
+                                        </td>
+
+                                        <td>
+                                            <div class="fw-semibold">
+                                                @hv.HoTen
+                                            </div>
+
+                                            @if (hv.DaCoDiemDanh)
+                                            {
+                                                <span class="badge bg-success-subtle text-success">
+                                                    Đã điểm danh
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-light text-dark border">
+                                                    Chưa điểm danh
+                                                </span>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            <select name="HocViens[@i].TrangThai"
+                                                    class="form-select form-select-sm trang-thai"
+                                                    onchange="capNhatSoGio(this, true)">
+
+                                                @foreach (var trangThai in new[]
+                                                                                        {
+                                                                                "Có mặt",
+                                                                                "Đi trễ",
+                                                                                "Vắng có phép",
+                                                                                "Vắng không phép"
+                                                                                })
+                                                {
+                                                    if (hv.TrangThai == trangThai)
+                                                    {
+                                                        <option value="@trangThai" selected>
+                                                            @trangThai
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@trangThai">
+                                                            @trangThai
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+
+                                        <td>
+                                            <input type="number"
+                                                   name="HocViens[@i].GioThamGia"
+                                                   value="@hv.GioThamGia.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                   class="form-control form-control-sm gio-tham-gia"
+                                                   min="0"
+                                                   max="@gioBuoiHoc"
+                                                   step="0.25"
+                                                   required />
+
+                                            <small class="text-muted">
+                                                Tối đa @Model.SoGioBuoiHoc.ToString("0.##") giờ
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            <input type="text"
+                                                   name="HocViens[@i].GhiChu"
+                                                   value="@hv.GhiChu"
+                                                   class="form-control form-control-sm"
+                                                   maxlength="500"
+                                                   placeholder="Ghi chú nếu có..." />
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <small class="text-muted">
+                        Học viên vắng được tính 0 giờ tham gia.
+                        Vui lòng kiểm tra trước khi lưu.
+                    </small>
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index"
+                           class="btn btn-light border">
+                            Hủy
+                        </a>
+
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                disabled="@(Model.HocViens == null || Model.HocViens.Count == 0)">
+                            <i class="bi bi-save me-1"></i>
+                            Lưu điểm danh
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Chọn cùng một trạng thái cho toàn bộ học viên.
+
+        function chonTatCa(trangThai) {
+            document.querySelectorAll('.trang-thai').forEach(function (select) {
+                select.value = trangThai;
+                capNhatSoGio(select, true);
+            });
+        }
+
+        // tuongTacNguoiDung = true chỉ khi người dùng đổi trạng thái.
+        function capNhatSoGio(select, tuongTacNguoiDung = false) {
+            const row = select.closest('tr');
+            const inputGio = row.querySelector('.gio-tham-gia');
+
+            if (!inputGio) return;
+
+            const vang = select.value === 'Vắng có phép'
+                || select.value === 'Vắng không phép';
+
+            if (vang) {
+                inputGio.value = '0';
+                inputGio.readOnly = true;
+                return;
+            }
+
+            inputGio.readOnly = false;
+
+            // Chỉ tự điền số giờ khi người dùng đổi từ vắng
+            // sang trạng thái có tham gia.
+            if (tuongTacNguoiDung && Number(inputGio.value) === 0) {
+                inputGio.value = '@gioBuoiHoc';
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const successMessage =
+                @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    TempData["Success"]?.ToString()));
+
+        const errorMessage =
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                                TempData["Error"]?.ToString()));
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: successMessage,
+                confirmButtonText: 'Đóng'
+            });
+        } else if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: errorMessage,
+                confirmButtonText: 'Đóng'
+            });
+        }
+
+        document.querySelectorAll('.trang-thai').forEach(function (select) {
+            capNhatSoGio(select);
+        });
+
+        const form = document.getElementById('formDiemDanh');
+
+        if (!form) return;
+
+        let dangGui = false;
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            if (dangGui) return;
+
+            const gioToiDa = Number('@gioBuoiHoc');
+
+            // Kiểm tra trạng thái và số giờ trên giao diện.
+            for (const row of form.querySelectorAll('tbody tr')) {
+                const select = row.querySelector('.trang-thai');
+                const inputGio = row.querySelector('.gio-tham-gia');
+
+                if (!select || !inputGio) continue;
+
+                const gio = Number(inputGio.value);
+                const vang = select.value === 'Vắng có phép'
+                    || select.value === 'Vắng không phép';
+
+                if (!Number.isFinite(gio) || gio < 0 || gio > gioToiDa) {
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Số giờ không hợp lệ',
+                        text: 'Số giờ tham gia phải từ 0 đến '
+                            + gioToiDa + ' giờ.',
+                        confirmButtonText: 'Kiểm tra lại'
+                    });
+
+                    inputGio.focus();
+                    return;
+                }
+
+                if (vang && gio !== 0) {
+                    inputGio.value = '0';
+                }
+            }
+
+            // Xác nhận trước khi gửi dữ liệu lên máy chủ.
+            const result = await Swal.fire({
+                icon: 'question',
+                title: 'Xác nhận lưu điểm danh?',
+                text: 'Bạn có chắc chắn muốn lưu trạng thái điểm danh hiện tại?',
+                showCancelButton: true,
+                confirmButtonText: 'Lưu điểm danh',
+                cancelButtonText: 'Kiểm tra lại',
+                reverseButtons: true,
+                focusCancel: true
+            });
+
+            if (!result.isConfirmed) return;
+
+            dangGui = true;
+
+            const nutLuu = form.querySelector('button[type="submit"]');
+
+            if (nutLuu) {
+                nutLuu.disabled = true;
+                nutLuu.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
+            }
+
+            // Gửi form theo cơ chế POST bình thường, giữ AntiForgeryToken.
+            form.submit();
+        });
+    });
+</script>
+}

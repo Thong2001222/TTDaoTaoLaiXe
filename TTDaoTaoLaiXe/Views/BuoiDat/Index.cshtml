@@ -1,0 +1,892 @@
+﻿
+@model IEnumerable<TTDaoTaoLaiXe.Models.BuoiDat>
+
+@using System.Globalization
+@using TTDaoTaoLaiXe.Models
+
+@{
+    ViewData["Title"] = "Quản lý buổi DAT";
+
+    string tuKhoa = ViewBag.TuKhoa as string ?? "";
+    string trangThaiLoc = ViewBag.TrangThaiLoc as string ?? "";
+
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+
+    var dangKyList = ViewBag.DangKyList;
+    var trangThaiList = ViewBag.TrangThaiList as string[]
+        ?? Array.Empty<string>();
+
+    var loaiDatList = ViewBag.LoaiDatList as string[]
+        ?? Array.Empty<string>();
+
+    string FDate(DateOnly value) =>
+        value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+    string FTime(TimeOnly value) =>
+        value.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+    string FNumber(decimal value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
+}
+
+<div class="container-fluid py-3">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-journal-check me-2"></i>Quản lý buổi DAT
+            </h3>
+            <div class="text-secondary">
+                Theo dõi các buổi thực hành lái xe của học viên
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary"
+                onclick="moModalThem()">
+            <i class="bi bi-plus-lg me-1"></i> Thêm buổi DAT
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get" asp-controller="BuoiDat" asp-action="Index"
+                  class="row g-3 align-items-end">
+
+                <div class="col-lg-6">
+                    <label class="form-label">Tìm kiếm</label>
+                    <input type="text" name="tuKhoa"
+                           value="@tuKhoa"
+                           class="form-control"
+                           placeholder="Mã buổi, mã học viên, họ tên, mã đăng ký..." />
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="trangThaiLoc" class="form-select">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        @foreach (var tt in trangThaiList)
+                        {
+                            <option value="@tt"
+                                    selected="@(trangThaiLoc == tt)">
+                                @tt
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Tìm kiếm
+                    </button>
+                    <a asp-controller="BuoiDat" asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Đặt lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Tổng số buổi DAT</div>
+                    <div class="fs-3 fw-bold">@totalItems</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Trang hiện tại</div>
+                    <div class="fs-3 fw-bold">@(page) / @totalPages</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Danh sách buổi DAT</span>
+                <span class="text-secondary small">
+                    @Model.Count() bản ghi trên trang này
+                </span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã buổi</th>
+                        <th>Học viên</th>
+                        <th>Đăng ký</th>
+                        <th>Ngày thực hiện</th>
+                        <th>Thời gian</th>
+                        <th>Km</th>
+                        <th>Số giờ</th>
+                        <th>Loại DAT</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center" style="min-width:100px">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-secondary">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Không tìm thấy buổi DAT nào.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        string badgeClass = item.TrangThai switch
+                        {
+                            "Đã hoàn thành" => "bg-success-subtle text-success",
+                            "Chưa thực hiện" => "bg-warning-subtle text-warning-emphasis",
+                            "Vắng mặt" => "bg-danger-subtle text-danger",
+                            "Đã hủy" => "bg-secondary-subtle text-secondary",
+                            _ => "bg-light text-dark"
+                        };
+
+                        <tr>
+                            <td class="fw-semibold text-nowrap">
+                                @item.MaBuoiDat
+                            </td>
+                            <td>
+                                <div class="fw-semibold">
+                                    @(item.MaHocVienNavigation?.HoTen ?? "—")
+                                </div>
+                                <div class="small text-secondary">
+                                    @item.MaHocVien
+                                </div>
+                            </td>
+                            <td>@item.MaDangKy</td>
+                            <td class="text-nowrap">
+                                @item.NgayThucHien.ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="text-nowrap">
+                                @FTime(item.GioBatDau) - @FTime(item.GioKetThuc)
+                            </td>
+                            <td>@FNumber(item.SoKm)</td>
+                            <td>@FNumber(item.SoGio)</td>
+                            <td>@item.LoaiDat</td>
+                            <td>
+                                <span class="badge rounded-pill @badgeClass">
+                                    @item.TrangThai
+                                </span>
+                            </td>
+                            <td class="text-center text-nowrap">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        title="Chỉnh sửa"
+                                        onclick="moModalSua(this)"
+                                        data-id="@item.MaBuoiDat"
+                                        data-hocvien="@item.MaHocVien"
+                                        data-dangky="@item.MaDangKy"
+                                        data-ngay="@FDate(item.NgayThucHien)"
+                                        data-batdau="@FTime(item.GioBatDau)"
+                                        data-ketthuc="@FTime(item.GioKetThuc)"
+                                        data-km="@FNumber(item.SoKm)"
+                                        data-sogio="@FNumber(item.SoGio)"
+                                        data-loai="@item.LoaiDat"
+                                        data-trangthai="@item.TrangThai"
+                                        data-ghichu="@item.GhiChu">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="Đổi trạng thái"
+                                        onclick="moModalTrangThai(this)"
+                                        data-id="@item.MaBuoiDat"
+                                        data-trangthai="@item.TrangThai">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white">
+                <nav aria-label="Phân trang buổi DAT">
+                    <ul class="pagination justify-content-end mb-0 flex-wrap">
+                        <li class="page-item @(page <= 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-tuKhoa="@tuKhoa"
+                               asp-route-trangThaiLoc="@trangThaiLoc"
+                               asp-route-page="@(page - 1)">
+                                Trước
+                            </a>
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@tuKhoa"
+                                   asp-route-trangThaiLoc="@trangThaiLoc"
+                                   asp-route-page="@i">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-tuKhoa="@tuKhoa"
+                               asp-route-trangThaiLoc="@trangThaiLoc"
+                               asp-route-page="@(page + 1)">
+                                Sau
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+
+<!-- Modal thêm / sửa buổi DAT -->
+<div class="modal fade" id="modalBuoiDat" tabindex="-1"
+     aria-labelledby="modalBuoiDatLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <form id="formBuoiDat">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalBuoiDatLabel">
+                        Thêm buổi DAT
+                    </h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label for="MaBuoiDat" class="form-label">
+                                Mã buổi DAT <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="MaBuoiDat" name="MaBuoiDat"
+                                   class="form-control" maxlength="20"
+                                   placeholder="Ví dụ: BDAT0001" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="MaDangKy" class="form-label">
+                                Đăng ký học <span class="text-danger">*</span>
+                            </label>
+                            <select id="MaDangKy" name="MaDangKy"
+                                    class="form-select" required>
+                                <option value="">-- Chọn đăng ký học --</option>
+                                @if (dangKyList != null)
+                                {
+                                    foreach (var dk in dangKyList)
+                                    {
+                                        <option value="@dk.MaDangKy"
+                                                data-hocvien="@dk.MaHocVien">
+                                            @dk.MaDangKy - @dk.HoTen
+                                            (@dk.MaKhoaHoc)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-text">
+                                Chọn đăng ký học để xác định học viên.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="MaHocVien" class="form-label">
+                                Mã học viên
+                            </label>
+                            <input type="text" id="MaHocVien" name="MaHocVien"
+                                   class="form-control" readonly required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="NgayThucHien" class="form-label">
+                                Ngày thực hiện <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" id="NgayThucHien"
+                                   name="NgayThucHien" class="form-control"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="GioBatDau" class="form-label">
+                                Giờ bắt đầu <span class="text-danger">*</span>
+                            </label>
+                            <input type="time" id="GioBatDau"
+                                   name="GioBatDau" class="form-control"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="GioKetThuc" class="form-label">
+                                Giờ kết thúc <span class="text-danger">*</span>
+                            </label>
+                            <input type="time" id="GioKetThuc"
+                                   name="GioKetThuc" class="form-control"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="SoKm" class="form-label">
+                                Số km <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" id="SoKm" name="SoKm"
+                                   class="form-control" min="0.01"
+                                   max="99999999.99" step="0.01"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="SoGio" class="form-label">
+                                Số giờ <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" id="SoGio" name="SoGio"
+                                   class="form-control" min="0.01"
+                                   max="999.99" step="0.01"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="LoaiDat" class="form-label">
+                                Loại DAT <span class="text-danger">*</span>
+                            </label>
+                            <select id="LoaiDat" name="LoaiDat"
+                                    class="form-select" required>
+                                <option value="">-- Chọn loại DAT --</option>
+                                @foreach (var loai in loaiDatList)
+                                {
+                                    <option value="@loai">@loai</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="TrangThai" class="form-label">
+                                Trạng thái <span class="text-danger">*</span>
+                            </label>
+                            <select id="TrangThai" name="TrangThai"
+                                    class="form-select" required>
+                                @foreach (var tt in trangThaiList)
+                                {
+                                    <option value="@tt"
+                                            selected="@(tt == "Chưa thực hiện")">
+                                        @tt
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="GhiChu" class="form-label">Ghi chú</label>
+                            <textarea id="GhiChu" name="GhiChu"
+                                      class="form-control" rows="3"
+                                      maxlength="500"
+                                      placeholder="Nhập ghi chú nếu có"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Đóng
+                    </button>
+                    <button type="submit" id="btnLuuBuoiDat"
+                            class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Lưu
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal đổi trạng thái -->
+<div class="modal fade" id="modalTrangThai" tabindex="-1"
+     aria-labelledby="modalTrangThaiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form id="formTrangThai">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTrangThaiLabel">
+                        Cập nhật trạng thái buổi DAT
+                    </h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="TrangThaiMaBuoi" />
+                    <label class="form-label">Trạng thái mới</label>
+                    <select id="TrangThaiMoi" class="form-select" required>
+                        @foreach (var tt in trangThaiList)
+                        {
+                            <option value="@tt">@tt</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">
+                        Lưu trạng thái
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Styles {
+    <style>
+        /* Giới hạn chiều cao modal theo màn hình */
+        #modalBuoiDat .modal-dialog {
+            height: calc(100vh - 2rem);
+            max-height: calc(100vh - 2rem);
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Chia modal thành header, body và footer */
+        #modalBuoiDat .modal-content {
+            height: 100%;
+            max-height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+            /* Form chiếm toàn bộ chiều cao còn lại */
+            #modalBuoiDat .modal-content > form {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+        /* Chỉ phần nội dung được phép cuộn */
+        #modalBuoiDat .modal-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        /* Header và footer luôn hiển thị */
+        #modalBuoiDat .modal-header,
+        #modalBuoiDat .modal-footer {
+            flex-shrink: 0;
+            background-color: #fff;
+        }
+
+        #modalBuoiDat .modal-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #modalBuoiDat .modal-footer {
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid #dee2e6;
+            padding: 0.75rem 1rem;
+        }
+
+            /* Đảm bảo nút không bị co hoặc khuất */
+            #modalBuoiDat .modal-footer button {
+                flex-shrink: 0;
+            }
+
+        /* Màn hình nhỏ */
+        @@media (max-width: 576px) {
+            #modalBuoiDat .modal-dialog {
+                height: calc(100dvh - 1rem);
+                max-height: calc(100dvh - 1rem);
+                margin: 0.5rem;
+            }
+
+            #modalBuoiDat .modal-footer {
+                padding: 0.65rem;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        (() => {
+            'use strict';
+
+            let dangSua = false;
+
+            const modalBuoiDatElement = document.getElementById('modalBuoiDat');
+            const modalTrangThaiElement = document.getElementById('modalTrangThai');
+            const formBuoiDat = document.getElementById('formBuoiDat');
+            const formTrangThai = document.getElementById('formTrangThai');
+
+            // Kiểm tra các phần tử cần thiết trước khi khởi tạo.
+            if (!modalBuoiDatElement || !modalTrangThaiElement ||
+                !formBuoiDat || !formTrangThai) {
+                console.error(
+                    'Không tìm thấy modal hoặc form DAT. Kiểm tra lại ID trong Index.cshtml.'
+                );
+                return;
+            }
+
+            if (typeof bootstrap === 'undefined') {
+                console.error('Bootstrap JavaScript chưa được tải.');
+                return;
+            }
+
+            const modalBuoiDat =
+                bootstrap.Modal.getOrCreateInstance(modalBuoiDatElement);
+
+            const modalTrangThai =
+                bootstrap.Modal.getOrCreateInstance(modalTrangThaiElement);
+
+            const btnLuu = document.getElementById('btnLuuBuoiDat');
+
+            // Lấy token chống giả mạo từ form thêm/sửa.
+            function layToken() {
+                return formBuoiDat.querySelector(
+                    'input[name="__RequestVerificationToken"]'
+                )?.value
+                    || document.querySelector(
+                        'input[name="__RequestVerificationToken"]'
+                    )?.value
+                    || '';
+            }
+
+            function thongBaoLoi(message) {
+                const noiDung = message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thành công',
+                        text: noiDung
+                    });
+                } else {
+                    console.error(noiDung);
+                }
+            }
+
+            function thongBaoThanhCong(message) {
+                if (typeof Swal !== 'undefined') {
+                    return Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: message || 'Đã lưu dữ liệu.',
+                        timer: 1300,
+                        showConfirmButton: false
+                    });
+                }
+
+                return Promise.resolve();
+            }
+
+            function dongBoHocVien() {
+                const selectDangKy = document.getElementById('MaDangKy');
+                const inputHocVien = document.getElementById('MaHocVien');
+
+                if (!selectDangKy || !inputHocVien) return;
+
+                const option =
+                    selectDangKy.options[selectDangKy.selectedIndex];
+
+                inputHocVien.value =
+                    option?.dataset?.hocvien || '';
+            }
+
+            const selectDangKy = document.getElementById('MaDangKy');
+
+            if (selectDangKy) {
+                selectDangKy.addEventListener('change', dongBoHocVien);
+            }
+
+            function resetForm() {
+                formBuoiDat.reset();
+
+                const maBuoi = document.getElementById('MaBuoiDat');
+                const trangThai = document.getElementById('TrangThai');
+
+                if (maBuoi) maBuoi.readOnly = false;
+
+                if (trangThai) {
+                    trangThai.value = 'Chưa thực hiện';
+                }
+
+                dongBoHocVien();
+
+                if (btnLuu) {
+                    btnLuu.disabled = false;
+                    btnLuu.innerHTML =
+                        '<i class="bi bi-save me-1"></i> Lưu';
+                }
+            }
+
+            // Mở modal thêm mới.
+            window.moModalThem = function () {
+                dangSua = false;
+                resetForm();
+
+                document.getElementById('modalBuoiDatLabel').textContent =
+                    'Thêm buổi DAT';
+
+                modalBuoiDat.show();
+            };
+
+            // Mở modal sửa.
+            window.moModalSua = function (button) {
+                if (!button) return;
+
+                dangSua = true;
+                resetForm();
+
+                const d = button.dataset;
+
+                document.getElementById('modalBuoiDatLabel').textContent =
+                    'Chỉnh sửa buổi DAT';
+
+                document.getElementById('MaBuoiDat').value = d.id || '';
+                document.getElementById('MaBuoiDat').readOnly = true;
+
+                const maDangKy = document.getElementById('MaDangKy');
+                maDangKy.value = d.dangky || '';
+
+                dongBoHocVien();
+
+                // Nếu đăng ký cũ không còn trong danh sách,
+                // giữ mã học viên để người dùng nhận biết.
+                if (maDangKy.value !== (d.dangky || '')) {
+                    document.getElementById('MaHocVien').value =
+                        d.hocvien || '';
+                } else if (!maDangKy.value) {
+                    document.getElementById('MaHocVien').value =
+                        d.hocvien || '';
+                }
+
+                document.getElementById('NgayThucHien').value =
+                    d.ngay || '';
+
+                document.getElementById('GioBatDau').value =
+                    d.batdau || '';
+
+                document.getElementById('GioKetThuc').value =
+                    d.ketthuc || '';
+
+                document.getElementById('SoKm').value =
+                    d.km || '';
+
+                document.getElementById('SoGio').value =
+                    d.sogio || '';
+
+                document.getElementById('LoaiDat').value =
+                    d.loai || '';
+
+                document.getElementById('TrangThai').value =
+                    d.trangthai || 'Chưa thực hiện';
+
+                document.getElementById('GhiChu').value =
+                    d.ghichu || '';
+
+                modalBuoiDat.show();
+            };
+
+            // Gửi form thêm/sửa.
+            formBuoiDat.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                if (!formBuoiDat.reportValidity()) return;
+
+                const token = layToken();
+
+                if (!token) {
+                    thongBaoLoi(
+                        'Không tìm thấy mã chống giả mạo. Hãy tải lại trang.'
+                    );
+                    return;
+                }
+
+                if (btnLuu) {
+                    btnLuu.disabled = true;
+                    btnLuu.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1"></span> Đang lưu...';
+                }
+
+                const formData = new FormData(formBuoiDat);
+
+                // Đảm bảo gửi token trong dữ liệu POST.
+                formData.set('__RequestVerificationToken', token);
+
+                const url = dangSua
+                    ? '@Url.Action("Edit", "BuoiDat")'
+                    : '@Url.Action("Create", "BuoiDat")';
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/x-www-form-urlencoded; charset=UTF-8',
+                            'RequestVerificationToken': token
+                        },
+                        body: new URLSearchParams(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        thongBaoLoi(
+                            result.message ||
+                            'Không thể lưu buổi DAT. Vui lòng kiểm tra dữ liệu.'
+                        );
+                        return;
+                    }
+
+                    modalBuoiDat.hide();
+
+                    await thongBaoThanhCong(result.message);
+
+                    window.location.reload();
+                } catch (error) {
+                    console.error(error);
+                    thongBaoLoi(
+                        'Không thể kết nối máy chủ hoặc máy chủ trả về dữ liệu không hợp lệ.'
+                    );
+                } finally {
+                    if (btnLuu) {
+                        btnLuu.disabled = false;
+                        btnLuu.innerHTML =
+                            '<i class="bi bi-save me-1"></i> Lưu';
+                    }
+                }
+            });
+
+            // Mở modal đổi trạng thái.
+            window.moModalTrangThai = function (button) {
+                document.getElementById('TrangThaiMaBuoi').value =
+                    button.dataset.id || '';
+
+                document.getElementById('TrangThaiMoi').value =
+                    button.dataset.trangthai || 'Chưa thực hiện';
+
+                modalTrangThai.show();
+            };
+
+            // Gửi yêu cầu cập nhật trạng thái.
+            formTrangThai.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const id =
+                    document.getElementById('TrangThaiMaBuoi').value;
+
+                const trangThai =
+                    document.getElementById('TrangThaiMoi').value;
+
+                const token = layToken();
+
+                if (!id || !trangThai || !token) {
+                    thongBaoLoi('Thiếu mã buổi DAT, trạng thái hoặc mã bảo mật.');
+                    return;
+                }
+
+                let isConfirmed = true;
+
+                if (typeof Swal !== 'undefined') {
+                    const confirmResult = await Swal.fire({
+                        icon: 'question',
+                        title: 'Xác nhận cập nhật?',
+                        text: 'Bạn có chắc muốn đổi trạng thái buổi DAT này?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: 'Hủy'
+                    });
+
+                    isConfirmed = confirmResult.isConfirmed;
+                }
+
+                if (!isConfirmed) return;
+
+                const btn = formTrangThai.querySelector(
+                    'button[type="submit"]'
+                );
+
+                if (btn) btn.disabled = true;
+
+                try {
+                    const response = await fetch(
+                        '@Url.Action("ToggleTrangThai", "BuoiDat")',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type':
+                                    'application/x-www-form-urlencoded; charset=UTF-8',
+                                'RequestVerificationToken': token
+                            },
+                            body: new URLSearchParams({
+                                id: id,
+                                trangThai: trangThai,
+                                __RequestVerificationToken: token
+                            })
+                        }
+                    );
+
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        thongBaoLoi(
+                            result.message ||
+                            'Không thể cập nhật trạng thái.'
+                        );
+                        return;
+                    }
+
+                    modalTrangThai.hide();
+
+                    await thongBaoThanhCong(result.message);
+
+                    window.location.reload();
+                } catch (error) {
+                    console.error(error);
+                    thongBaoLoi('Không thể kết nối máy chủ. Vui lòng thử lại.');
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
+
+        })();
+    </script>
+}
+

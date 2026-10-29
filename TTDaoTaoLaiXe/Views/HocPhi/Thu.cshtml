@@ -1,0 +1,303 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.HocPhi.ThanhToanHocPhiCreateViewModel
+
+@{
+    ViewData["Title"] = "Thu học phí";
+
+    var tongHocPhi = ViewBag.TongHocPhi is decimal tong ? tong : 0m;
+    var daThu = ViewBag.DaThu is decimal daThuValue ? daThuValue : 0m;
+    var conNo = ViewBag.ConNo is decimal conNoValue ? conNoValue : 0m;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Thu học phí</h3>
+            <p class="text-secondary mb-0">
+                Ghi nhận khoản thu và cập nhật công nợ học viên.
+            </p>
+        </div>
+
+        <a asp-controller="HocPhi"
+           asp-action="Details"
+           asp-route-id="@Model.MaHocPhi"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại chi tiết
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-person-vcard me-2"></i>
+                        Thông tin học viên
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">Mã học phí</div>
+                        <div class="fw-semibold">@ViewBag.MaHocPhi</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">Mã đăng ký</div>
+                        <div class="fw-semibold">@ViewBag.MaDangKy</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">Mã học viên</div>
+                        <div class="fw-semibold">@ViewBag.MaHocVien</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">Họ và tên</div>
+                        <div class="fw-semibold fs-5">@ViewBag.HoTenHocVien</div>
+                    </div>
+
+                    <div>
+                        <div class="text-secondary small mb-1">Khóa học</div>
+                        <div class="fw-semibold">@ViewBag.TenKhoaHoc</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-wallet2 me-2"></i>
+                        Tổng quan công nợ
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary">Tổng học phí</span>
+                        <strong>@tongHocPhi.ToString("N0") ₫</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary">Đã thu</span>
+                        <strong class="text-success">@daThu.ToString("N0") ₫</strong>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">Còn phải thu</span>
+                        <strong class="fs-4 text-danger">@conNo.ToString("N0") ₫</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-cash-coin me-2"></i>
+                        Thông tin thanh toán
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-controller="HocPhi"
+                          asp-action="Thu"
+                          method="post"
+                          id="formThuHocPhi">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="MaHocPhi" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="SoTien" class="form-label fw-semibold">
+                                Số tiền thu (VNĐ) <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group input-group-lg">
+                                <input asp-for="SoTien"
+                                       type="number"
+                                       class="form-control"
+                                       min="1"
+                                       max="@conNo"
+                                       step="1"
+                                       placeholder="Nhập số tiền thu"
+                                       required />
+
+                                <span class="input-group-text">₫</span>
+                            </div>
+
+                            <span asp-validation-for="SoTien"
+                                  class="text-danger small"></span>
+
+                            <div class="form-text">
+                                Số tiền tối đa có thể thu:
+                                <strong>@conNo.ToString("N0") ₫</strong>
+                            </div>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary mt-2"
+                                    id="btnThuHet">
+                                Thu toàn bộ công nợ
+                            </button>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PhuongThuc" class="form-label fw-semibold">
+                                Phương thức thanh toán
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <select asp-for="PhuongThuc" class="form-select">
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Chuyển khoản">Chuyển khoản</option>
+                            </select>
+
+                            <span asp-validation-for="PhuongThuc"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="MaGiaoDich" class="form-label fw-semibold">
+                                Mã giao dịch (nếu có)
+                            </label>
+
+                            <input asp-for="MaGiaoDich"
+                                   class="form-control"
+                                   maxlength="100"
+                                   placeholder="Nhập mã giao dịch chuyển khoản" />
+
+                            <span asp-validation-for="MaGiaoDich"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="GhiChu" class="form-label fw-semibold">
+                                Ghi chú
+                            </label>
+
+                            <textarea asp-for="GhiChu"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="500"
+                                      placeholder="Ví dụ: Thu học phí đợt 1"></textarea>
+
+                            <span asp-validation-for="GhiChu"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="alert alert-light border small">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Kiểm tra số tiền và phương thức thanh toán trước khi xác nhận.
+                            Sau khi ghi nhận, giao dịch sẽ được lưu vào lịch sử thanh toán.
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-end gap-2">
+                            <a asp-controller="HocPhi"
+                               asp-action="Details"
+                               asp-route-id="@Model.MaHocPhi"
+                               class="btn btn-light border">
+                                Hủy
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    id="btnXacNhanThu"
+                                    disabled="@(conNo <= 0)">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Xác nhận thu tiền
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputSoTien = document.getElementById("SoTien");
+            const btnThuHet = document.getElementById("btnThuHet");
+            const form = document.getElementById("formThuHocPhi");
+            const btnXacNhan = document.getElementById("btnXacNhanThu");
+
+            const conNo = @conNo.ToString(
+                            System.Globalization.CultureInfo.InvariantCulture);
+
+        if (btnThuHet && inputSoTien) {
+            btnThuHet.addEventListener("click", function () {
+                inputSoTien.value = conNo;
+                inputSoTien.dispatchEvent(new Event("input", {
+                    bubbles: true
+                }));
+            });
+        }
+
+            if (inputSoTien) {
+                inputSoTien.addEventListener("input", function () {
+                    const soTien = Number(inputSoTien.value);
+
+                    inputSoTien.setCustomValidity("");
+
+                    if (inputSoTien.value !== "" &&
+                        (!Number.isFinite(soTien) ||
+                         soTien <= 0 ||
+                         soTien > conNo)) {
+                        inputSoTien.setCustomValidity(
+                            "Số tiền phải lớn hơn 0 và không vượt quá công nợ.");
+                    }
+                });
+            }
+
+            if (form && btnXacNhan) {
+                form.addEventListener("submit", function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        form.reportValidity();
+                        return;
+                    }
+
+                    if (btnXacNhan.disabled) {
+                        event.preventDefault();
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    if (typeof Swal === "undefined") {
+                        if (confirm("Bạn xác nhận ghi nhận khoản thu này?")) {
+                            form.submit();
+                        }
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: "Xác nhận thu học phí?",
+                        text: "Vui lòng kiểm tra số tiền trước khi ghi nhận.",
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonText: "Xác nhận thu",
+                        cancelButtonText: "Kiểm tra lại",
+                        confirmButtonColor: "#0d6efd"
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            btnXacNhan.disabled = true;
+                            btnXacNhan.innerHTML =
+                                '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
+                            form.submit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+}

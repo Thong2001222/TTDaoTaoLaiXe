@@ -1,0 +1,1238 @@
+﻿@model IEnumerable<TTDaoTaoLaiXe.Models.GiaoVien>
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Quản lý giáo viên";
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalItems = ViewBag.TotalItems ?? 0;
+
+    string searchString = ViewBag.SearchString as string ?? "";
+    string? hang = ViewBag.Hang as string;
+    bool? trangThai = ViewBag.TrangThai as bool?;
+
+    var danhSachHang =
+        ViewBag.DanhSachHang as IEnumerable<SelectListItem>
+        ?? Enumerable.Empty<SelectListItem>();
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Quản lý giáo viên</h3>
+            <div class="text-muted">
+                Quản lý hồ sơ, chuyên môn và hạng giấy phép giảng dạy
+            </div>
+        </div>
+
+
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalThemGiaoVien">
+                <i class="bi bi-person-plus me-1"></i>
+                Thêm giáo viên
+            </button>
+
+            <button type="button"
+                    class="btn btn-outline-success"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalImportExcel">
+                <i class="bi bi-file-earmark-excel me-1"></i>
+                Nhập từ Excel
+            </button>
+        </div>
+
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-center">
+
+                <div class="col-md-4">
+                    <div class="text-muted small">Số giáo viên phù hợp bộ lọc</div>
+                    <div class="fs-3 fw-bold">@totalItems</div>
+                </div>
+
+                <div class="col-md-8 text-md-end">
+                    <a asp-action="ExportExcel"
+                       asp-route-searchString="@searchString"
+                       asp-route-trangThai="@trangThai"
+                       asp-route-hang="@hang"
+                       class="btn btn-outline-success me-2 mb-2">
+                        <i class="bi bi-file-earmark-excel me-1"></i>
+                        Xuất Excel
+                    </a>
+
+                    <a asp-action="ExportPdf"
+                       asp-route-searchString="@searchString"
+                       asp-route-trangThai="@trangThai"
+                       asp-route-hang="@hang"
+                       class="btn btn-outline-danger mb-2">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                        Xuất PDF
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Index" method="get" class="row g-3 mb-4">
+                @Html.AntiForgeryToken()
+                <div class="col-lg-4 col-md-6">
+                    <label for="searchString" class="form-label">
+                        Từ khóa
+                    </label>
+                    <input id="searchString"
+                           name="searchString"
+                           value="@searchString"
+                           class="form-control"
+                           placeholder="Mã GV, họ tên, CCCD, điện thoại..." />
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label for="trangThai" class="form-label">
+                        Trạng thái
+                    </label>
+                    <select id="trangThai" name="trangThai" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="true" selected="@(trangThai == true)">
+                            Đang hoạt động
+                        </option>
+                        <option value="false" selected="@(trangThai == false)">
+                            Ngừng hoạt động
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">Hạng được phép dạy</label>
+                    <select name="hang" class="form-select">
+                        <option value="">-- Chọn hạng GPLX --</option>
+                        @foreach (var hang in ViewBag.DanhSachHangGplx)
+                        {
+                            <option value="@hang.MaHang">
+                                @hang.TenHang
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-6 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search me-1"></i>Lọc
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary"
+                       title="Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã giáo viên</th>
+                            <th>Họ và tên</th>
+                            <th>Chuyên môn</th>
+                            <th>Hạng được phép dạy</th>
+                            <th>Điện thoại</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            foreach (var gv in Model)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">
+                                        @gv.MaGiaoVien
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">@gv.HoTen</div>
+                                        <div class="small text-muted">
+                                            @(gv.Email ?? "Chưa có email")
+                                        </div>
+                                    </td>
+
+                                    <td>@(gv.ChuyenMon ?? "—")</td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(gv.HangDuocPhepDay))
+                                        {
+                                            foreach (var itemHang in gv.HangDuocPhepDay.Split(
+                                                ',',
+                                                StringSplitOptions.RemoveEmptyEntries))
+                                            {
+                                                <span class="badge text-bg-light border me-1">
+                                                    @itemHang.Trim()
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Chưa cập nhật</span>
+                                        }
+                                    </td>
+
+                                    <td>@(gv.SoDienThoai ?? "—")</td>
+
+                                    <td>
+                                        @if (gv.TrangThai)
+                                        {
+                                            <span class="badge text-bg-success">
+                                                Đang hoạt động
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge text-bg-secondary">
+                                                Ngừng hoạt động
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end text-nowrap">
+                                        <a asp-action="Details"
+                                           asp-route-id="@gv.MaGiaoVien"
+                                           class="btn btn-sm btn-outline-info"
+                                           title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary btn-sua-giao-vien"
+                                                data-id="@gv.MaGiaoVien"
+                                                title="Sửa thông tin"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalSuaGiaoVien">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+
+                                        @if (gv.TrangThai)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger btn-xoa-giao-vien"
+                                                    data-id="@gv.MaGiaoVien"
+                                                    data-name="@gv.HoTen"
+                                                    title="Ngừng hoạt động">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-success btn-kich-hoat-giao-vien"
+                                                    data-id="@gv.MaGiaoVien"
+                                                    data-name="@gv.HoTen"
+                                                    title="Kích hoạt lại">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        }
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <i class="bi bi-search fs-2 text-muted"></i>
+                                    <div class="fw-semibold mt-2">
+                                        Không tìm thấy giáo viên
+                                    </div>
+                                    <div class="text-muted small">
+                                        Hãy thử thay đổi từ khóa hoặc bộ lọc.
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (totalItems > 0)
+            {
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+
+                    <div class="text-muted small">
+                        Hiển thị @Model.Count() / @totalItems giáo viên phù hợp.
+                        Trang @currentPage / @Math.Max(totalPages, 1).
+                    </div>
+
+                    @if (totalPages > 1)
+                    {
+                        <nav aria-label="Phân trang giáo viên">
+                            <ul class="pagination mb-0">
+
+                                <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-searchString="@searchString"
+                                       asp-route-trangThai="@trangThai"
+                                       asp-route-hang="@hang"
+                                       asp-route-page="@(currentPage - 1)">
+                                        Trước
+                                    </a>
+                                </li>
+
+                                @for (int p = 1; p <= totalPages; p++)
+                                {
+                                    <li class="page-item @(p == currentPage ? "active" : "")">
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-searchString="@searchString"
+                                           asp-route-trangThai="@trangThai"
+                                           asp-route-hang="@hang"
+                                           asp-route-page="@p">
+                                            @p
+                                        </a>
+                                    </li>
+                                }
+
+                                <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-searchString="@searchString"
+                                       asp-route-trangThai="@trangThai"
+                                       asp-route-hang="@hang"
+                                       asp-route-page="@(currentPage + 1)">
+                                        Sau
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm giáo viên -->
+<div class="modal fade" id="modalThemGiaoVien" tabindex="-1"
+     aria-labelledby="modalThemGiaoVienLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formThemGiaoVien"
+                  asp-controller="GiaoVien"
+                  asp-action="CreateModal"
+                  method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalThemGiaoVienLabel">
+                        <i class="bi bi-person-plus me-2"></i>Thêm giáo viên
+                    </h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mã giáo viên <span class="text-danger">*</span></label>
+                            <input name="MaGiaoVien" maxlength="20"
+                                   class="form-control" required
+                                   placeholder="Nhập mã giáo viên" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input name="HoTen" maxlength="100"
+                                   class="form-control" required
+                                   placeholder="Nhập họ và tên" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày sinh</label>
+                            <input name="NgaySinh" type="date"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Giới tính</label>
+                            <select name="GioiTinh" class="form-select">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">CCCD</label>
+                            <input name="Cccd" maxlength="12"
+                                   inputmode="numeric"
+                                   class="form-control"
+                                   placeholder="Nhập số CCCD" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input name="SoDienThoai" type="tel" maxlength="15"
+                                   class="form-control"
+                                   placeholder="Nhập số điện thoại" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input name="Email" type="email" maxlength="100"
+                                   class="form-control"
+                                   placeholder="example@email.com" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Số giấy phép lái xe</label>
+                            <input name="SoGiayPhepLaiXe" maxlength="20"
+                                   class="form-control"
+                                   placeholder="Nhập số GPLX" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Địa chỉ</label>
+                            <input name="DiaChi" maxlength="255"
+                                   class="form-control"
+                                   placeholder="Nhập địa chỉ" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Chuyên môn</label>
+                            <select name="ChuyenMon" class="form-select">
+                                <option value="">-- Chọn chuyên môn --</option>
+                                <option value="Giáo viên lý thuyết">
+                                    Giáo viên lý thuyết
+                                </option>
+                                <option value="Giáo viên thực hành">
+                                    Giáo viên thực hành
+                                </option>
+                                <option value="Giáo viên lý thuyết và thực hành">
+                                    Giáo viên lý thuyết và thực hành
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                Hạng giấy phép được phép đào tạo
+                            </label>
+
+                            <div class="border rounded-3 p-3">
+                                <div class="row g-3">
+
+                                    @foreach (var hang in ViewBag.DanhSachHangGplx)
+                                    {
+                                        <div class="col-md-4 col-sm-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="DanhSachHangDuocPhepDay"
+                                                       value="@hang.MaHang"
+                                                       id="hang_@hang.MaHang" />
+
+                                                <label class="form-check-label"
+                                                       for="hang_@hang.MaHang">
+                                                    @hang.TenHang
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+
+                            <small class="text-muted">
+                                Có thể tích chọn nhiều hạng giấy phép phù hợp với hồ sơ giáo viên.
+                            </small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="GhiChu" maxlength="500"
+                                      class="form-control" rows="2"
+                                      placeholder="Thông tin bổ sung (nếu có)"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i> Hủy
+                    </button>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i> Lưu giáo viên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal nhập Excel -->
+<div class="modal fade" id="modalImportExcel" tabindex="-1"
+     aria-labelledby="modalImportExcelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formImportExcel"
+                  asp-controller="GiaoVien"
+                  asp-action="ImportExcel"
+                  method="post"
+                  enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalImportExcelLabel">
+                        <i class="bi bi-file-earmark-excel me-2"></i>
+                        Nhập danh sách giáo viên từ Excel
+                    </h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="alert alert-light border">
+                        <div class="fw-semibold mb-1">Yêu cầu file</div>
+                        <ul class="mb-0">
+                            <li>Định dạng .xlsx, tối đa 5 MB.</li>
+                            <li>Dòng đầu tiên phải có đúng 12 tiêu đề cột theo mẫu.</li>
+                            <li>Mã giáo viên và CCCD không được trùng.</li>
+                            <li>Hạng giảng dạy sử dụng B, B11, C1.</li>
+                        </ul>
+                    </div>
+
+                    <label class="form-label">Chọn file Excel *</label>
+                    <input type="file" name="file" class="form-control"
+                           accept=".xlsx" required />
+                    <div class="form-text">
+                        Nếu có bất kỳ dòng dữ liệu lỗi, hệ thống sẽ từ chối
+                        toàn bộ lần nhập và thông báo các dòng cần sửa.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light"
+                            data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-upload me-1"></i>Kiểm tra và nhập
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal sửa giáo viên -->
+<div class="modal fade" id="modalSuaGiaoVien" tabindex="-1"
+     aria-labelledby="modalSuaGiaoVienLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formSuaGiaoVien"
+                  asp-controller="GiaoVien"
+                  asp-action="EditModal"
+                  method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalSuaGiaoVienLabel">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Sửa thông tin giáo viên
+                    </h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                    <div id="suaGiaoVienLoading" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <div class="mt-2 text-muted">Đang tải thông tin...</div>
+                    </div>
+
+                    <div id="suaGiaoVienFields" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã giáo viên</label>
+                            <input name="MaGiaoVien" id="sua_MaGiaoVien"
+                                   class="form-control" readonly />
+                            <div class="form-text">Mã giáo viên không thể thay đổi.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input name="HoTen" id="sua_HoTen"
+                                   maxlength="100" class="form-control" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày sinh</label>
+                            <input name="NgaySinh" id="sua_NgaySinh"
+                                   type="date" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Giới tính</label>
+                            <select name="GioiTinh" id="sua_GioiTinh" class="form-select">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">CCCD</label>
+                            <input name="Cccd" id="sua_Cccd"
+                                   maxlength="12" inputmode="numeric"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input name="SoDienThoai" id="sua_SoDienThoai"
+                                   type="tel" maxlength="15" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input name="Email" id="sua_Email"
+                                   type="email" maxlength="100" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Số giấy phép lái xe</label>
+                            <input name="SoGiayPhepLaiXe" id="sua_SoGiayPhepLaiXe"
+                                   maxlength="20" class="form-control" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Địa chỉ</label>
+                            <input name="DiaChi" id="sua_DiaChi"
+                                   maxlength="255" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Chuyên môn</label>
+                            <select name="ChuyenMon" id="sua_ChuyenMon" class="form-select">
+                                <option value="">-- Chọn chuyên môn --</option>
+                                <option value="Giáo viên lý thuyết">Giáo viên lý thuyết</option>
+                                <option value="Giáo viên thực hành">Giáo viên thực hành</option>
+                                <option value="Giáo viên lý thuyết và thực hành">
+                                    Giáo viên lý thuyết và thực hành
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                Hạng giấy phép được phép đào tạo
+                            </label>
+
+                            <div class="border rounded-3 p-3">
+                                <div class="row g-3">
+                                    @foreach (var item in danhSachHang)
+                                    {
+                                        <div class="col-md-4 col-sm-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input sua-hang-gplx"
+                                                       type="checkbox"
+                                                       name="DanhSachHangDuocPhepDay"
+                                                       value="@item.Value"
+                                                       id="sua_hang_@item.Value" />
+                                                <label class="form-check-label"
+                                                       for="sua_hang_@item.Value">
+                                                    @item.Text
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="GhiChu" id="sua_GhiChu"
+                                      maxlength="500" rows="2"
+                                      class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+                    <button type="submit" id="btnLuuSuaGiaoVien"
+                            class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function escapeHtml(value) {
+                return String(value ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            async function postAjax(url, data) {
+                const tokenInput = document.querySelector(
+                    'input[name="__RequestVerificationToken"]'
+                );
+
+                if (!tokenInput) {
+                    throw new Error(
+                        "Không tìm thấy mã xác thực bảo mật. Vui lòng tải lại trang."
+                    );
+                }
+
+                const formData = new FormData();
+
+                Object.keys(data).forEach(function (key) {
+                    formData.append(key, data[key]);
+                });
+
+                formData.append(
+                    "__RequestVerificationToken",
+                    tokenInput.value
+                );
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    }
+                });
+
+                const contentType =
+                    response.headers.get("content-type") || "";
+
+                if (!contentType.includes("application/json")) {
+                    throw new Error(
+                        "Máy chủ không trả về JSON. Hãy kiểm tra Controller, đường dẫn hoặc đăng nhập."
+                    );
+                }
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.message || "Không thể thực hiện thao tác."
+                    );
+                }
+
+                return result;
+            }
+
+            function submitAjaxForm(form, modalId) {
+                if (!form) return;
+
+                form.addEventListener("submit", async function (event) {
+                    event.preventDefault();
+
+                    if (!form.reportValidity()) return;
+
+                    const submitButton = form.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                    if (!submitButton || submitButton.disabled) return;
+
+                    const oldText = submitButton.innerHTML;
+
+                    submitButton.disabled = true;
+                    submitButton.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: "POST",
+                            body: new FormData(form),
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest",
+                                "Accept": "application/json"
+                            }
+                        });
+
+                        const contentType =
+                            response.headers.get("content-type") || "";
+
+                        if (!contentType.includes("application/json")) {
+                            throw new Error(
+                                "Máy chủ không trả về JSON. Hãy kiểm tra Controller, đường dẫn hoặc lỗi đăng nhập."
+                            );
+                        }
+
+                        const result = await response.json();
+
+                        if (!response.ok || !result.success) {
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Không thể thực hiện",
+                                text: result.message ||
+                                    "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại."
+                            });
+                            return;
+                        }
+
+                        const modalElement =
+                            document.getElementById(modalId);
+
+                        if (modalElement) {
+                            bootstrap.Modal
+                                .getOrCreateInstance(modalElement)
+                                .hide();
+                        }
+
+                        await Swal.fire({
+                            icon: "success",
+                            title: "Thành công",
+                            text: result.message ||
+                                "Đã lưu dữ liệu thành công.",
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+
+                        window.location.reload();
+
+                    } catch (error) {
+                        console.error("Lỗi gửi form:", error);
+
+                        await Swal.fire({
+                            icon: "error",
+                            title: "Lỗi xử lý",
+                            text: error.message ||
+                                "Không thể gửi dữ liệu. Vui lòng thử lại."
+                        });
+
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = oldText;
+                    }
+                });
+            }
+
+            const formThem =
+                document.getElementById("formThemGiaoVien");
+
+            const modalThem =
+                document.getElementById("modalThemGiaoVien");
+
+            submitAjaxForm(formThem, "modalThemGiaoVien");
+
+            if (modalThem) {
+                modalThem.addEventListener("hidden.bs.modal", function () {
+                    if (formThem) formThem.reset();
+                });
+            }
+
+            const formExcel =
+                document.getElementById("formImportExcel");
+
+            const modalExcel =
+                document.getElementById("modalImportExcel");
+
+            submitAjaxForm(formExcel, "modalImportExcel");
+
+            if (modalExcel) {
+                modalExcel.addEventListener("hidden.bs.modal", function () {
+                    if (formExcel) formExcel.reset();
+                });
+            }
+
+            const formSua =
+                document.getElementById("formSuaGiaoVien");
+
+            const modalSua =
+                document.getElementById("modalSuaGiaoVien");
+
+            const fieldsSua =
+                document.getElementById("suaGiaoVienFields");
+
+            const loadingSua =
+                document.getElementById("suaGiaoVienLoading");
+
+            const btnLuuSua =
+                document.getElementById("btnLuuSuaGiaoVien");
+
+            const urlEdit =
+                '@Url.Action("EditModal", "GiaoVien")';
+
+            document.querySelectorAll(".btn-sua-giao-vien")
+                .forEach(function (button) {
+
+                    button.addEventListener("click", async function () {
+                        if (!formSua || !modalSua ||
+                            !fieldsSua || !loadingSua || !btnLuuSua) {
+                            console.error(
+                                "Không tìm thấy thành phần modal sửa giáo viên."
+                            );
+                            return;
+                        }
+
+                        const id = this.dataset.id;
+
+                        if (!id) {
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Thiếu mã giáo viên",
+                                text: "Không xác định được giáo viên cần sửa."
+                            });
+                            return;
+                        }
+
+                        formSua.reset();
+
+                        formSua.querySelectorAll(".sua-hang-gplx")
+                            .forEach(function (checkbox) {
+                                checkbox.checked = false;
+                            });
+
+                        fieldsSua.classList.add("d-none");
+                        loadingSua.classList.remove("d-none");
+                        btnLuuSua.disabled = true;
+
+                        try {
+                            const response = await fetch(
+                                urlEdit + "?id=" + encodeURIComponent(id),
+                                {
+                                    method: "GET",
+                                    headers: {
+                                        "X-Requested-With": "XMLHttpRequest",
+                                        "Accept": "application/json"
+                                    }
+                                }
+                            );
+
+                            const contentType =
+                                response.headers.get("content-type") || "";
+
+                            if (!contentType.includes("application/json")) {
+                                throw new Error(
+                                    "EditModal không trả về JSON. Kiểm tra action EditModal trong GiaoVienController."
+                                );
+                            }
+
+                            const result = await response.json();
+
+                            if (!response.ok || !result.success) {
+                                throw new Error(
+                                    result.message ||
+                                    "Không tìm thấy thông tin giáo viên."
+                                );
+                            }
+
+                            const gv = result.data;
+
+                            if (!gv) {
+                                throw new Error(
+                                    "Phản hồi không có dữ liệu giáo viên."
+                                );
+                            }
+
+                            function ganGiaTri(idPhanTu, value) {
+                                const element =
+                                    document.getElementById(idPhanTu);
+
+                                if (element) {
+                                    element.value = value ?? "";
+                                }
+                            }
+
+                            ganGiaTri("sua_MaGiaoVien", gv.maGiaoVien);
+                            ganGiaTri("sua_HoTen", gv.hoTen);
+                            ganGiaTri("sua_NgaySinh", gv.ngaySinh);
+                            ganGiaTri("sua_GioiTinh", gv.gioiTinh);
+                            ganGiaTri("sua_Cccd", gv.cccd);
+                            ganGiaTri("sua_SoDienThoai", gv.soDienThoai);
+                            ganGiaTri("sua_Email", gv.email);
+                            ganGiaTri(
+                                "sua_SoGiayPhepLaiXe",
+                                gv.soGiayPhepLaiXe
+                            );
+                            ganGiaTri("sua_DiaChi", gv.diaChi);
+                            ganGiaTri("sua_GhiChu", gv.ghiChu);
+
+                            const selectChuyenMon =
+                                document.getElementById("sua_ChuyenMon");
+
+                            if (selectChuyenMon) {
+                                const chuyenMon = gv.chuyenMon ?? "";
+
+                                const tonTai = Array.from(
+                                    selectChuyenMon.options
+                                ).some(function (option) {
+                                    return option.value === chuyenMon;
+                                });
+
+                                if (chuyenMon && !tonTai) {
+                                    selectChuyenMon.add(
+                                        new Option(chuyenMon, chuyenMon)
+                                    );
+                                }
+
+                                selectChuyenMon.value = chuyenMon;
+                            }
+
+                            const danhSachHang =
+                                gv.danhSachHangDuocPhepDay || [];
+
+                            const hangDaChon = new Set(
+                                danhSachHang.map(function (maHang) {
+                                    return String(maHang)
+                                        .trim()
+                                        .toLowerCase();
+                                })
+                            );
+
+                            formSua.querySelectorAll(".sua-hang-gplx")
+                                .forEach(function (checkbox) {
+                                    checkbox.checked = hangDaChon.has(
+                                        checkbox.value
+                                            .trim()
+                                            .toLowerCase()
+                                    );
+                                });
+
+                            fieldsSua.classList.remove("d-none");
+
+                        } catch (error) {
+                            console.error(
+                                "Lỗi tải hồ sơ giáo viên:",
+                                error
+                            );
+
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Không tải được hồ sơ",
+                                text: error.message ||
+                                    "Vui lòng kiểm tra Controller và thử lại."
+                            });
+
+                        } finally {
+                            loadingSua.classList.add("d-none");
+                            btnLuuSua.disabled = false;
+                        }
+                    });
+                });
+
+            submitAjaxForm(formSua, "modalSuaGiaoVien");
+
+            if (modalSua) {
+                modalSua.addEventListener("hidden.bs.modal", function () {
+                    if (formSua) {
+                        formSua.reset();
+
+                        formSua.querySelectorAll(".sua-hang-gplx")
+                            .forEach(function (checkbox) {
+                                checkbox.checked = false;
+                            });
+                    }
+
+                    if (fieldsSua) {
+                        fieldsSua.classList.remove("d-none");
+                    }
+
+                    if (loadingSua) {
+                        loadingSua.classList.add("d-none");
+                    }
+
+                    if (btnLuuSua) {
+                        btnLuuSua.disabled = false;
+                    }
+                });
+            }
+
+            const urlXoaGiaoVien =
+                '@Url.Action("Xoa", "GiaoVien")';
+
+            document.querySelectorAll(".btn-xoa-giao-vien")
+                .forEach(function (button) {
+
+                    button.addEventListener("click", async function () {
+                        const id = this.dataset.id;
+                        const hoTen = this.dataset.name;
+
+                        if (!id) {
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Không thể thực hiện",
+                                text: "Không xác định được mã giáo viên."
+                            });
+                            return;
+                        }
+
+                        const confirmResult = await Swal.fire({
+                            icon: "warning",
+                            title: "Xác nhận ngừng hoạt động?",
+                            html:
+                                `Bạn có chắc muốn ngừng hoạt động giáo viên <strong>${escapeHtml(hoTen || id)}</strong>?`,
+                            showCancelButton: true,
+                            confirmButtonText: "Đồng ý",
+                            cancelButtonText: "Hủy",
+                            confirmButtonColor: "#dc3545",
+                            reverseButtons: true,
+                            focusCancel: true
+                        });
+
+                        if (!confirmResult.isConfirmed) return;
+
+                        const oldHtml = this.innerHTML;
+                        this.disabled = true;
+                        this.innerHTML =
+                            '<span class="spinner-border spinner-border-sm"></span>';
+
+                        try {
+                            const result = await postAjax(
+                                urlXoaGiaoVien,
+                                { id: id }
+                            );
+
+                            await Swal.fire({
+                                icon: "success",
+                                title: "Thành công",
+                                text: result.message ||
+                                    "Đã ngừng hoạt động giáo viên."
+                            });
+
+                            window.location.reload();
+
+                        } catch (error) {
+                            console.error(
+                                "Lỗi ngừng hoạt động giáo viên:",
+                                error
+                            );
+
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Không thể ngừng hoạt động",
+                                text: error.message ||
+                                    "Vui lòng thử lại."
+                            });
+
+                        } finally {
+                            this.disabled = false;
+                            this.innerHTML = oldHtml;
+                        }
+                    });
+                });
+
+            const urlToggleTrangThai =
+                '@Url.Action("ToggleTrangThai", "GiaoVien")';
+
+            document.querySelectorAll(".btn-kich-hoat-giao-vien")
+                .forEach(function (button) {
+
+                    button.addEventListener("click", async function () {
+                        const id = this.dataset.id;
+                        const hoTen = this.dataset.name;
+
+                        if (!id) {
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Không thể thực hiện",
+                                text: "Không xác định được mã giáo viên."
+                            });
+                            return;
+                        }
+
+                        const confirmResult = await Swal.fire({
+                            icon: "question",
+                            title: "Kích hoạt lại giáo viên?",
+                            html:
+                                `Bạn có muốn kích hoạt lại giáo viên <strong>${escapeHtml(hoTen || id)}</strong>?`,
+                            showCancelButton: true,
+                            confirmButtonText: "Kích hoạt",
+                            cancelButtonText: "Hủy",
+                            confirmButtonColor: "#198754",
+                            reverseButtons: true,
+                            focusCancel: true
+                        });
+
+                        if (!confirmResult.isConfirmed) return;
+
+                        const oldHtml = this.innerHTML;
+                        this.disabled = true;
+                        this.innerHTML =
+                            '<span class="spinner-border spinner-border-sm"></span>';
+
+                        try {
+                            const result = await postAjax(
+                                urlToggleTrangThai,
+                                { id: id }
+                            );
+
+                            await Swal.fire({
+                                icon: "success",
+                                title: "Thành công",
+                                text: result.message ||
+                                    "Đã kích hoạt lại giáo viên."
+                            });
+
+                            window.location.reload();
+
+                        } catch (error) {
+                            console.error(
+                                "Lỗi kích hoạt giáo viên:",
+                                error
+                            );
+
+                            await Swal.fire({
+                                icon: "error",
+                                title: "Không thể kích hoạt",
+                                text: error.message ||
+                                    "Vui lòng thử lại."
+                            });
+
+                        } finally {
+                            this.disabled = false;
+                            this.innerHTML = oldHtml;
+                        }
+                    });
+                });
+        });
+    </script>
+}
+
+
+

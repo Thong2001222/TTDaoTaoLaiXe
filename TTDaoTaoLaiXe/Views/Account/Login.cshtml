@@ -1,0 +1,712 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Đăng nhập - Trung tâm đào tạo lái xe</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+
+        /* =========================================================
+                   GLOBAL
+                ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #d9ad45;
+            --primary-dark: #b88a27;
+            --primary-light: #f8edcf;
+            --primary-soft: #fcf7e9;
+            --dark: #20242a;
+            --text: #343a40;
+            --muted: #747b83;
+            --border: #e7e3d8;
+            --background: #f7f7f5;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* =========================================================
+                   PAGE
+                ========================================================= */
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            background: #fff;
+        }
+
+        /* =========================================================
+                   LEFT - IMAGE
+                ========================================================= */
+
+        .login-image {
+            position: relative;
+            width: 57%;
+            min-height: 100vh;
+            background-image: linear-gradient( 135deg, rgba(24, 27, 31, 0.30), rgba(24, 27, 31, 0.78) ), url('/images/login-driver.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 65px;
+            overflow: hidden;
+        }
+
+            /*
+                   Lớp ánh sáng vàng nhẹ
+                */
+
+            .login-image::after {
+                content: "";
+                position: absolute;
+                width: 450px;
+                height: 450px;
+                right: -180px;
+                top: -180px;
+                background: rgba(229, 190, 91, 0.18);
+                border-radius: 50%;
+                filter: blur(10px);
+            }
+
+        .login-image-content {
+            position: relative;
+            z-index: 2;
+            max-width: 620px;
+            color: #fff;
+        }
+
+        .brand-mark {
+            width: 62px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 16px;
+            font-size: 29px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(8px);
+        }
+
+            .brand-mark i {
+                color: #f1d27d;
+            }
+
+        .login-image-content h1 {
+            margin: 0 0 18px;
+            font-size: clamp(34px, 3.3vw, 50px);
+            line-height: 1.12;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+            .login-image-content h1 span {
+                color: #f0d27c;
+            }
+
+        .login-image-content p {
+            max-width: 570px;
+            margin: 0;
+            font-size: 17px;
+            line-height: 1.75;
+            color: rgba(255,255,255,0.86);
+        }
+
+        /* =========================================================
+                   FEATURE
+                ========================================================= */
+
+        .login-features {
+            display: flex;
+            gap: 28px;
+            margin-top: 35px;
+        }
+
+        .login-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+
+            .login-feature i {
+                color: #f0d27c;
+                font-size: 17px;
+            }
+
+        /* =========================================================
+                   RIGHT
+                ========================================================= */
+
+        .login-form-wrapper {
+            width: 43%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            background: #fff;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        /* =========================================================
+                   LOGO
+                ========================================================= */
+
+        .login-logo {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: var(--primary-soft);
+            border: 1px solid #f0dfb0;
+            color: var(--primary-dark);
+            font-size: 31px;
+        }
+
+        /* =========================================================
+                   TITLE
+                ========================================================= */
+
+        .login-title {
+            text-align: center;
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0 0 8px;
+        }
+
+        .login-description {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin: 0 0 35px;
+        }
+
+        /* =========================================================
+                   FORM
+                ========================================================= */
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 8px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group-text {
+            width: 48px;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-right: none;
+            color: #96928a;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .form-control {
+            height: 50px;
+            border: 1px solid var(--border);
+            border-radius: 0 10px 10px 0;
+            font-size: 14px;
+            color: var(--dark);
+            box-shadow: none;
+        }
+
+            .form-control::placeholder {
+                color: #aaa8a3;
+            }
+
+            .form-control:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(217, 173, 69, 0.13);
+            }
+
+        .input-group:focus-within .input-group-text {
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        /* Password button */
+
+        #togglePassword {
+            height: 50px;
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            color: #858585;
+            background: #fff;
+        }
+
+            #togglePassword:hover {
+                color: var(--primary-dark);
+                background: #fffdf7;
+            }
+
+        /* =========================================================
+                   VALIDATION
+                ========================================================= */
+
+        .text-danger {
+            font-size: 12px;
+        }
+
+        .validation-summary-errors {
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        /* =========================================================
+                   CHECKBOX
+                ========================================================= */
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-check-input {
+            width: 17px;
+            height: 17px;
+            margin-top: 0;
+            border-color: #d4d0c7;
+            cursor: pointer;
+        }
+
+            .form-check-input:checked {
+                background-color: var(--primary-dark);
+                border-color: var(--primary-dark);
+            }
+
+        .form-check-label {
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* =========================================================
+                   LOGIN BUTTON
+                ========================================================= */
+
+        .login-button {
+            height: 52px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: .1px;
+            transition: all .2s ease;
+            box-shadow: 0 5px 15px rgba(184, 138, 39, 0.16);
+        }
+
+            .login-button:hover {
+                background: var(--primary-dark);
+                color: #fff;
+                transform: translateY(-1px);
+                box-shadow: 0 8px 20px rgba(184, 138, 39, 0.22);
+            }
+
+            .login-button:active {
+                transform: translateY(0);
+            }
+
+        /* =========================================================
+                   FOOTER
+                ========================================================= */
+
+        .login-footer {
+            text-align: center;
+            color: #a09d97;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0eee9;
+        }
+
+        /* =========================================================
+                   SECURITY NOTE
+                ========================================================= */
+
+        .security-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            margin-top: 18px;
+            color: #9a9892;
+            font-size: 11px;
+        }
+
+            .security-note i {
+                color: var(--primary-dark);
+            }
+
+        /* =========================================================
+                   RESPONSIVE
+                ========================================================= */
+
+        @@media (max-width: 1000px) {
+
+            .login-image {
+                width: 50%;
+                padding: 45px;
+            }
+
+            .login-form-wrapper {
+                width: 50%;
+                padding: 35px;
+            }
+
+            .login-image-content h1 {
+                font-size: 38px;
+            }
+
+            .login-features {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+
+            .login-image {
+                display: none;
+            }
+
+            .login-form-wrapper {
+                width: 100%;
+                min-height: 100vh;
+                padding: 30px 22px;
+                background: linear-gradient( 180deg, #fcfaf5 0%, #ffffff 35% );
+            }
+
+            .login-box {
+                max-width: 430px;
+            }
+
+            .login-logo {
+                width: 62px;
+                height: 62px;
+            }
+
+            .login-title {
+                font-size: 27px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="login-page">
+
+        <!-- =====================================================
+             LEFT SIDE
+        ====================================================== -->
+
+        <div class="login-image">
+
+            <div class="login-image-content">
+
+                <div class="brand-mark">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+
+                <h1>
+                    Hệ thống quản lý<br />
+                    <span>đào tạo lái xe</span>
+                </h1>
+
+                <p>
+                    Quản lý học viên, khóa học, lịch học,
+                    tiến độ đào tạo và các nghiệp vụ
+                    của trung tâm trên một hệ thống thống nhất.
+                </p>
+
+                <div class="login-features">
+
+                    <div class="login-feature">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Quản lý học viên</span>
+                    </div>
+
+                    <div class="login-feature">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Quản lý đào tạo</span>
+                    </div>
+
+                    <div class="login-feature">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Quản lý tiến độ</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             RIGHT SIDE
+        ====================================================== -->
+
+        <div class="login-form-wrapper">
+
+            <div class="login-box">
+
+                <!-- Logo -->
+
+                <div class="login-logo">
+                    <i class="bi bi-person-lock"></i>
+                </div>
+
+
+                <!-- Title -->
+
+                <h2 class="login-title">
+                    Chào mừng trở lại
+                </h2>
+
+                <p class="login-description">
+                    Đăng nhập để tiếp tục sử dụng hệ thống
+                </p>
+
+
+                <!-- FORM -->
+
+                <form asp-action="Login" method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <!-- Validation -->
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger py-2 mb-3">
+                    </div>
+
+
+                    <!-- =================================================
+                         USERNAME
+                    ================================================== -->
+
+                    <div class="mb-4">
+
+                        <label asp-for="TenDangNhap"
+                               class="form-label">
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-person"></i>
+                            </span>
+
+                            <input asp-for="TenDangNhap"
+                                   class="form-control"
+                                   placeholder="Nhập tên đăng nhập"
+                                   autocomplete="username" />
+
+                        </div>
+
+                        <span asp-validation-for="TenDangNhap"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PASSWORD
+                    ================================================== -->
+
+                    <div class="mb-3">
+
+                        <label asp-for="MatKhau"
+                               class="form-label">
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-lock"></i>
+                            </span>
+
+                            <input asp-for="MatKhau"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Nhập mật khẩu"
+                                   autocomplete="current-password" />
+
+                            <button type="button"
+                                    class="btn"
+                                    id="togglePassword"
+                                    tabindex="-1"
+                                    aria-label="Hiện hoặc ẩn mật khẩu">
+
+                                <i class="bi bi-eye"
+                                   id="passwordIcon">
+                                </i>
+
+                            </button>
+
+                        </div>
+
+                        <span asp-validation-for="MatKhau"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         REMEMBER
+                    ================================================== -->
+
+                    <div class="form-check mb-4">
+
+                        <input asp-for="GhiNho"
+                               class="form-check-input" />
+
+                        <label asp-for="GhiNho"
+                               class="form-check-label">
+                        </label>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         BUTTON
+                    ================================================== -->
+
+                    <button type="submit"
+                            class="btn w-100 login-button">
+
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+
+                        Đăng nhập
+
+                    </button>
+
+                </form>
+
+
+                <!-- Security -->
+
+                <div class="security-note">
+
+                    <i class="bi bi-shield-check"></i>
+
+                    <span>
+                        Thông tin đăng nhập được bảo mật
+                    </span>
+
+                </div>
+
+
+                <!-- Footer -->
+
+                <div class="login-footer">
+
+                    © @DateTime.Now.Year
+                    Trung tâm đào tạo lái xe
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         PASSWORD SCRIPT
+    ========================================================== -->
+
+    <script>
+
+        const togglePassword =
+            document.getElementById("togglePassword");
+
+        const password =
+            document.getElementById("MatKhau");
+
+        const passwordIcon =
+            document.getElementById("passwordIcon");
+
+
+        if (togglePassword && password && passwordIcon) {
+
+            togglePassword.addEventListener("click", function () {
+
+                if (password.type === "password") {
+
+                    password.type = "text";
+
+                    passwordIcon.classList.remove("bi-eye");
+
+                    passwordIcon.classList.add("bi-eye-slash");
+
+                } else {
+
+                    password.type = "password";
+
+                    passwordIcon.classList.remove("bi-eye-slash");
+
+                    passwordIcon.classList.add("bi-eye");
+
+                }
+
+            });
+
+        }
+
+    </script>
+
+</body>
+</html>

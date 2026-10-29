@@ -1,0 +1,506 @@
+﻿@model TTDaoTaoLaiXe.Controllers.DashboardViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Tổng quan";
+
+    var jsonOptions = new JsonSerializerOptions
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+}
+
+<div class="container-fluid py-3 dashboard-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Tổng quan</h2>
+            <p class="text-secondary mb-0">
+                Tình hình hoạt động phòng đào tạo lái xe
+            </p>
+        </div>
+
+        <div class="text-secondary small">
+            <i class="bi bi-calendar3 me-1"></i>
+            @DateTime.Today.ToString("dd/MM/yyyy")
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card dashboard-kpi h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small mb-2">Tổng học viên</div>
+                            <div class="display-6 fw-bold">@Model.TongHocVien</div>
+                            <div class="small text-success mt-2">
+                                <i class="bi bi-check-circle me-1"></i>
+                                @Model.HocVienDangHoatDong đang hoạt động
+                            </div>
+                        </div>
+                        <div class="kpi-icon kpi-blue">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card dashboard-kpi h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small mb-2">Khóa học</div>
+                            <div class="display-6 fw-bold">@Model.TongKhoaHoc</div>
+                            <div class="small text-success mt-2">
+                                @Model.KhoaHocDangHoatDong khóa đang hoạt động
+                            </div>
+                        </div>
+                        <div class="kpi-icon kpi-purple">
+                            <i class="bi bi-journal-bookmark"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card dashboard-kpi h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small mb-2">Lớp học</div>
+                            <div class="display-6 fw-bold">@Model.TongLopHoc</div>
+                            <div class="small text-success mt-2">
+                                @Model.LopHocDangHoatDong lớp đang mở hoặc học
+                            </div>
+                        </div>
+                        <div class="kpi-icon kpi-orange">
+                            <i class="bi bi-mortarboard"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card dashboard-kpi h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small mb-2">Giáo viên</div>
+                            <div class="display-6 fw-bold">@Model.TongGiaoVien</div>
+                            <div class="small text-success mt-2">
+                                @Model.GiaoVienDangHoatDong đang hoạt động
+                            </div>
+                        </div>
+                        <div class="kpi-icon kpi-green">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-8">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">Tình hình tuyển sinh</h5>
+                        <p class="text-secondary small mb-0">
+                            Số lượt đăng ký học theo tháng trong 12 tháng gần nhất
+                        </p>
+                    </div>
+                    <div class="chart-container chart-tall">
+                        <canvas id="enrollmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">Trạng thái học viên</h5>
+                        <p class="text-secondary small mb-0">
+                            Phân loại theo trạng thái tài khoản học viên
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="studentStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-8">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">Doanh thu học phí</h5>
+                        <p class="text-secondary small mb-0">
+                            Tổng các giao dịch đã thanh toán thành công theo tháng
+                        </p>
+                    </div>
+                    <div class="chart-container chart-tall">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">Trạng thái lớp học</h5>
+                        <p class="text-secondary small mb-0">
+                            Phân bố lớp theo trạng thái hiện tại
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="classStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">Tình hình điểm danh</h5>
+                        <p class="text-secondary small mb-0">
+                            Số lượt điểm danh được ghi nhận trong hệ thống
+                        </p>
+                    </div>
+                    <div class="chart-container chart-tall">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="fw-bold mb-1">Tình trạng học phí</h5>
+                        <p class="text-secondary small mb-0">
+                            Số hồ sơ học phí theo trạng thái được lưu
+                        </p>
+                    </div>
+                    <div class="chart-container chart-tall">
+                        <canvas id="feeStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small mb-2">Tổng học phí phải thu</div>
+                    <div class="fs-4 fw-bold">
+                        @Model.TongHocPhi.ToString("N0") đ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small mb-2">Tổng giao dịch đã thu thành công</div>
+                    <div class="fs-4 fw-bold text-success">
+                        @Model.TongDaThu.ToString("N0") đ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small mb-2">Công nợ ước tính</div>
+                    <div class="fs-4 fw-bold text-danger">
+                        @Model.TongConNo.ToString("N0") đ
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-page {
+        color: #172033;
+    }
+
+    .dashboard-kpi,
+    .dashboard-card {
+        border: 1px solid #e8edf4;
+        border-radius: 16px;
+        box-shadow: 0 3px 14px rgba(20, 35, 60, .04);
+        background: #fff;
+    }
+
+        .dashboard-kpi .card-body,
+        .dashboard-card .card-body {
+            padding: 1.25rem;
+        }
+
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+
+    .kpi-blue {
+        background: #eaf2ff;
+        color: #2563eb;
+    }
+
+    .kpi-purple {
+        background: #f1eaff;
+        color: #7c3aed;
+    }
+
+    .kpi-orange {
+        background: #fff1e6;
+        color: #ea580c;
+    }
+
+    .kpi-green {
+        background: #e7f8ef;
+        color: #16834a;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 280px;
+        width: 100%;
+    }
+
+    .chart-tall {
+        height: 320px;
+    }
+
+    @@media (max-width: 576px) {
+        .chart-container,
+        .chart-tall {
+            height: 260px;
+        }
+
+        .dashboard-kpi .display-6 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                console.error('Không tải được Chart.js. Kiểm tra kết nối mạng hoặc CDN.');
+                return;
+            }
+
+            const labelsMonth = @Html.Raw(JsonSerializer.Serialize(Model.NhanThang, jsonOptions));
+            const enrollmentData = @Html.Raw(JsonSerializer.Serialize(Model.SoHocVienDangKy));
+            const revenueData = @Html.Raw(JsonSerializer.Serialize(Model.DoanhThuTheoThang));
+
+            const studentLabels = @Html.Raw(JsonSerializer.Serialize(Model.NhanTrangThaiHocVien, jsonOptions));
+            const studentData = @Html.Raw(JsonSerializer.Serialize(Model.SoLuongTrangThaiHocVien));
+
+            const classLabels = @Html.Raw(JsonSerializer.Serialize(Model.NhanTrangThaiLopHoc, jsonOptions));
+            const classData = @Html.Raw(JsonSerializer.Serialize(Model.SoLuongTrangThaiLopHoc));
+
+            const attendanceLabels = @Html.Raw(JsonSerializer.Serialize(Model.NhanDiemDanh, jsonOptions));
+            const attendanceData = @Html.Raw(JsonSerializer.Serialize(Model.SoLuongDiemDanh));
+
+            const feeLabels = @Html.Raw(JsonSerializer.Serialize(Model.NhanTrangThaiHocPhi, jsonOptions));
+            const feeData = @Html.Raw(JsonSerializer.Serialize(Model.SoLuongTrangThaiHocPhi));
+
+            Chart.defaults.font.family = "system-ui, -apple-system, Segoe UI, sans-serif";
+            Chart.defaults.color = "#64748b";
+
+            const gridColor = "#edf1f7";
+
+            new Chart(document.getElementById('enrollmentChart'), {
+                type: 'line',
+                data: {
+                    labels: labelsMonth,
+                    datasets: [{
+                        label: 'Lượt đăng ký',
+                        data: enrollmentData,
+                        borderColor: '#3978f6',
+                        backgroundColor: 'rgba(57,120,246,.12)',
+                        fill: true,
+                        tension: .35,
+                        borderWidth: 3,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 },
+                            grid: { color: gridColor }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            function createDoughnut(id, labels, data, colors) {
+                new Chart(document.getElementById(id), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: '#ffffff',
+                            borderWidth: 3,
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '66%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 16
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            createDoughnut(
+                'studentStatusChart',
+                studentLabels,
+                studentData,
+                ['#16a34a', '#cbd5e1']
+            );
+
+            createDoughnut(
+                'classStatusChart',
+                classLabels,
+                classData,
+                ['#3978f6', '#16a34a', '#f59e0b', '#94a3b8', '#8b5cf6', '#ef4444']
+            );
+
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: labelsMonth,
+                    datasets: [{
+                        label: 'Doanh thu (đồng)',
+                        data: revenueData,
+                        backgroundColor: '#16a34a',
+                        borderRadius: 6,
+                        maxBarThickness: 32
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return Number(context.raw).toLocaleString('vi-VN') + ' đ';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: {
+                                callback: function (value) {
+                                    return Number(value).toLocaleString('vi-VN');
+                                }
+                            }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('attendanceChart'), {
+                type: 'bar',
+                data: {
+                    labels: attendanceLabels,
+                    datasets: [{
+                        label: 'Lượt điểm danh',
+                        data: attendanceData,
+                        backgroundColor: [
+                            '#16a34a', '#f59e0b', '#ef4444',
+                            '#64748b', '#3978f6', '#8b5cf6'
+                        ],
+                        borderRadius: 6,
+                        maxBarThickness: 44
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 },
+                            grid: { color: gridColor }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            createDoughnut(
+                'feeStatusChart',
+                feeLabels,
+                feeData,
+                ['#16a34a', '#3978f6', '#f59e0b', '#ef4444', '#94a3b8']
+            );
+        });
+    </script>
+}

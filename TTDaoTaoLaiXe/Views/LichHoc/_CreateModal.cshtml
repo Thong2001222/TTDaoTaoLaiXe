@@ -1,0 +1,193 @@
+﻿@model TTDaoTaoLaiXe.Models.LichHoc
+
+<style>
+    #lichHocModalContent .lh-form {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    #lichHocModalContent .lh-modal-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 1.25rem;
+    }
+
+    #lichHocModalContent .lh-modal-header,
+    #lichHocModalContent .lh-modal-footer {
+        flex: 0 0 auto;
+        background: var(--bs-modal-bg, #fff);
+        position: relative;
+        z-index: 2;
+    }
+
+    #lichHocModalContent .lh-modal-footer {
+        border-top: 1px solid var(--bs-border-color, #dee2e6);
+    }
+</style>
+
+<div class="modal-header lh-modal-header px-4 py-3">
+    <div>
+        <h5 class="modal-title fw-bold" id="lichHocModalLabel">
+            <i class="bi bi-calendar-plus text-primary me-2"></i>
+            Thêm lịch học
+        </h5>
+        <div class="text-muted small mt-1">
+            Nhập thông tin buổi học mới.
+        </div>
+    </div>
+    <button type="button" class="btn-close"
+            data-bs-dismiss="modal" aria-label="Đóng"></button>
+</div>
+
+<form id="formLichHoc"
+      class="lh-form"
+      action="@Url.Action("Create", "LichHoc")"
+      method="post">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="TrangThai" value="Đã lên lịch" />
+
+    <div class="lh-modal-body">
+        <div id="formErrorMessage"
+             class="alert alert-danger d-none" role="alert"></div>
+        <ul id="formValidationErrors" class="text-danger small"></ul>
+
+        <div class="alert alert-info border-0 rounded-3 small">
+            <i class="bi bi-info-circle me-2"></i>
+            Hệ thống tự sinh mã lịch và tính số giờ từ thời gian bắt đầu,
+            kết thúc. Các lịch trùng giáo viên, phòng hoặc xe sẽ bị từ chối.
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <label asp-for="MaLopHoc" class="form-label fw-semibold">
+                    Lớp học <span class="text-danger">*</span>
+                </label>
+                <select asp-for="MaLopHoc"
+                        asp-items="ViewBag.DanhSachLopHoc"
+                        class="form-select">
+                    <option value="">-- Chọn lớp học --</option>
+                </select>
+                <span asp-validation-for="MaLopHoc" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="MaGiaoVien" class="form-label fw-semibold">
+                    Giáo viên <span class="text-danger">*</span>
+                </label>
+                <select asp-for="MaGiaoVien"
+                        asp-items="ViewBag.DanhSachGiaoVien"
+                        class="form-select">
+                    <option value="">-- Chọn giáo viên --</option>
+                </select>
+                <span asp-validation-for="MaGiaoVien" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="NgayHoc" class="form-label fw-semibold">
+                    Ngày học <span class="text-danger">*</span>
+                </label>
+                <input asp-for="NgayHoc" type="date" class="form-control" />
+                <span asp-validation-for="NgayHoc" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="LoaiBuoiHoc" class="form-label fw-semibold">
+                    Loại buổi học <span class="text-danger">*</span>
+                </label>
+                <select asp-for="LoaiBuoiHoc"
+                        asp-items="ViewBag.DanhSachLoaiBuoiHoc"
+                        class="form-select">
+                    <option value="">-- Chọn loại buổi học --</option>
+                </select>
+                <span asp-validation-for="LoaiBuoiHoc" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="GioBatDau" class="form-label fw-semibold">
+                    Giờ bắt đầu <span class="text-danger">*</span>
+                </label>
+                <input asp-for="GioBatDau" type="time" step="60" class="form-control" />
+                <span asp-validation-for="GioBatDau" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="GioKetThuc" class="form-label fw-semibold">
+                    Giờ kết thúc <span class="text-danger">*</span>
+                </label>
+                <input asp-for="GioKetThuc" type="time" step="60" class="form-control" />
+                <span asp-validation-for="GioKetThuc" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="MaPhong" class="form-label fw-semibold">Phòng học</label>
+                <select asp-for="MaPhong"
+                        asp-items="ViewBag.DanhSachPhongHoc"
+                        class="form-select">
+                    <option value="">-- Chưa xếp phòng --</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="MaXe" class="form-label fw-semibold">Xe đào tạo</label>
+                <select asp-for="MaXe"
+                        asp-items="ViewBag.DanhSachXe"
+                        class="form-select">
+                    <option value="">-- Chưa xếp xe --</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="NoiDung" class="form-label fw-semibold">Nội dung buổi học</label>
+                <textarea asp-for="NoiDung" class="form-control"
+                          rows="3" maxlength="500"
+                          placeholder="Ví dụ: Học thực hành bài xuất phát, dừng xe..."></textarea>
+                <span asp-validation-for="NoiDung" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="GhiChu" class="form-label fw-semibold">Ghi chú</label>
+                <textarea asp-for="GhiChu" class="form-control"
+                          rows="2" maxlength="500"
+                          placeholder="Thông tin bổ sung nếu có"></textarea>
+                <span asp-validation-for="GhiChu" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer lh-modal-footer px-4 py-3">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">
+            Hủy
+        </button>
+        <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check2-circle me-1"></i>
+            Lưu lịch học
+        </button>
+    </div>
+</form>
+
+<script>
+    (function () {
+        const content = document.getElementById('lichHocModalContent');
+        if (!content) return;
+
+        const dialog = content.closest('.modal-dialog');
+        if (dialog) {
+            dialog.style.height = 'calc(100vh - 2rem)';
+            dialog.style.maxHeight = 'calc(100vh - 2rem)';
+        }
+
+        const modalContent = content;
+        modalContent.style.height = '100%';
+        modalContent.style.maxHeight = '100%';
+        modalContent.style.display = 'flex';
+        modalContent.style.flexDirection = 'column';
+        modalContent.style.overflow = 'hidden';
+    })();
+</script>

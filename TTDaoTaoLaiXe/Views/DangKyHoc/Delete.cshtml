@@ -1,0 +1,234 @@
+﻿@model TTDaoTaoLaiXe.Models.DangKyHoc
+
+@{
+    ViewData["Title"] = "Xóa đăng ký học";
+}
+
+<div class="container-fluid">
+
+    <!-- Tiêu đề -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            <i class="bi bi-trash3 text-danger me-2"></i>
+            Xóa đăng ký học
+        </h2>
+
+        <p class="text-muted mb-0">
+            Kiểm tra thông tin trước khi thực hiện xóa hoặc hủy đăng ký.
+        </p>
+    </div>
+
+    <!-- Cảnh báo -->
+    <div class="alert alert-warning d-flex align-items-start">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+
+        <div>
+            <strong>Lưu ý</strong>
+            <div>
+                Nếu đăng ký đã phát sinh dữ liệu liên quan,
+                hệ thống sẽ không xóa dữ liệu mà chuyển trạng thái thành
+                <strong>Hủy</strong> để bảo toàn lịch sử đào tạo.
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin đăng ký -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-person-vcard me-2"></i>
+                Thông tin đăng ký
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <!-- Mã đăng ký -->
+                <div class="col-md-6">
+                    <label class="text-muted small">
+                        Mã đăng ký
+                    </label>
+
+                    <div class="fw-bold">
+                        @Model.MaDangKy
+                    </div>
+                </div>
+
+                <!-- Ngày đăng ký -->
+                <div class="col-md-6">
+                    <label class="text-muted small">
+                        Ngày đăng ký
+                    </label>
+
+                    <div class="fw-bold">
+                        @Model.NgayDangKy.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+
+                <!-- Học viên -->
+                <div class="col-md-6">
+                    <label class="text-muted small">
+                        Học viên
+                    </label>
+
+                    <div class="fw-bold">
+                        @Model.MaHocVienNavigation.HoTen
+                    </div>
+
+                    <small class="text-muted">
+                        @Model.MaHocVien
+                    </small>
+                </div>
+
+                <!-- Khóa học -->
+                <div class="col-md-6">
+                    <label class="text-muted small">
+                        Khóa học
+                    </label>
+
+                    <div class="fw-bold">
+                        @Model.MaKhoaHocNavigation.TenKhoaHoc
+                    </div>
+
+                    <small class="text-muted">
+                        @Model.MaKhoaHoc
+                    </small>
+                </div>
+
+                <!-- Học phí -->
+                <div class="col-md-6">
+                    <label class="text-muted small">
+                        Học phí
+                    </label>
+
+                    <div class="fw-bold">
+                        @Model.HocPhi.ToString("N0") ₫
+                    </div>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="col-md-6">
+                    <label class="text-muted small d-block">
+                        Trạng thái
+                    </label>
+
+                    @if (Model.TrangThai == "Đang học")
+                    {
+                        <span class="badge bg-primary">
+                            Đang học
+                        </span>
+                    }
+                    else if (Model.TrangThai == "Đã hoàn thành")
+                    {
+                        <span class="badge bg-success">
+                            Đã hoàn thành
+                        </span>
+                    }
+                    else if (Model.TrangThai == "Bảo lưu")
+                    {
+                        <span class="badge bg-warning text-dark">
+                            Bảo lưu
+                        </span>
+                    }
+                    else if (Model.TrangThai == "Đã nghỉ")
+                    {
+                        <span class="badge bg-secondary">
+                            Đã nghỉ
+                        </span>
+                    }
+                    else if (Model.TrangThai == "Hủy")
+                    {
+                        <span class="badge bg-danger">
+                            Hủy
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            @Model.TrangThai
+                        </span>
+                    }
+                </div>
+
+                <!-- Ngày hoàn thành -->
+                <div class="col-md-6">
+                    <label class="text-muted small">
+                        Ngày hoàn thành
+                    </label>
+
+                    <div>
+                        @if (Model.NgayHoanThanh.HasValue)
+                        {
+                            @Model.NgayHoanThanh.Value.ToString("dd/MM/yyyy")
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Chưa có
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Ghi chú -->
+                <div class="col-12">
+                    <label class="text-muted small">
+                        Ghi chú
+                    </label>
+
+                    <div>
+                        @if (!string.IsNullOrWhiteSpace(Model.GhiChu))
+                        {
+                            @Model.GhiChu
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Không có
+                            </span>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Xác nhận -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Delete" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.MaDangKy" />
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <a asp-action="Index"
+                       class="btn btn-light border">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Quay lại
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa hoặc hủy đăng ký này không?');">
+
+                        <i class="bi bi-trash3 me-1"></i>
+                        Xác nhận xóa / hủy
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

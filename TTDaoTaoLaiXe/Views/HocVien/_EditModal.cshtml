@@ -1,0 +1,370 @@
+﻿@model TTDaoTaoLaiXe.Models.HocVien
+
+<div class="modal-header">
+
+    <div>
+        <h5 class="modal-title fw-bold mb-1">
+            Chỉnh sửa học viên
+        </h5>
+
+        <small class="text-muted">
+            Cập nhật thông tin học viên @Model.MaHocVien
+        </small>
+    </div>
+
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal">
+    </button>
+
+</div>
+
+
+<form asp-action="EditModal"
+      asp-controller="HocVien"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <div class="modal-body edit-modal-body">
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+
+        <!-- THÔNG TIN CƠ BẢN -->
+
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-person me-2"></i>
+            Thông tin cơ bản
+        </h6>
+        <!-- ẢNH HỌC VIÊN -->
+
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-image me-2"></i>
+            Ảnh học viên
+        </h6>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+
+                <div class="text-center">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.AnhHocVien))
+                    {
+                        <img id="previewAnhHocVien"
+                             src="@Model.AnhHocVien"
+                             alt="Ảnh học viên @Model.MaHocVien"
+                             class="img-thumbnail"
+                             style="width: 140px; height: 180px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div id="khongCoAnh"
+                             class="border rounded d-flex align-items-center justify-content-center text-muted"
+                             style="width: 140px; height: 180px; margin: 0 auto;">
+
+                            <div class="text-center">
+                                <i class="bi bi-person fs-1"></i>
+                                <div>Chưa có ảnh</div>
+                            </div>
+
+                        </div>
+
+                        <img id="previewAnhHocVien"
+                             src=""
+                             alt="Ảnh xem trước"
+                             class="img-thumbnail d-none"
+                             style="width: 140px; height: 180px; object-fit: cover;" />
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-8">
+
+                <label class="form-label">
+                    Chọn ảnh học viên
+                </label>
+
+                <input type="file"
+                       name="AnhFile"
+                       id="AnhFile"
+                       class="form-control"
+                       accept="image/jpeg,image/png,image/webp" />
+
+                <div class="form-text">
+                    Chọn ảnh JPG, PNG hoặc WEBP. Nên dùng ảnh chân dung rõ mặt.
+                </div>
+
+            </div>
+
+        </div>
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+
+                <label asp-for="MaHocVien"
+                       class="form-label">
+                    Mã học viên
+                </label>
+
+                <input asp-for="MaHocVien"
+                       class="form-control"
+                       readonly />
+
+            </div>
+
+
+            <div class="col-md-8">
+
+                <label asp-for="HoTen"
+                       class="form-label">
+                    Họ và tên
+                </label>
+
+                <input asp-for="HoTen"
+                       class="form-control" />
+
+                <span asp-validation-for="HoTen"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label asp-for="NgaySinh"
+                       class="form-label">
+                    Ngày sinh
+                </label>
+
+                <input asp-for="NgaySinh"
+                       type="date"
+                       class="form-control" />
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label asp-for="GioiTinh"
+                       class="form-label">
+                    Giới tính
+                </label>
+
+                <select asp-for="GioiTinh"
+                        class="form-select">
+
+                    <option value="Nam">
+                        Nam
+                    </option>
+
+                    <option value="Nữ">
+                        Nữ
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label asp-for="Cccd"
+                       class="form-label">
+                    CCCD
+                </label>
+
+                <input asp-for="Cccd"
+                       class="form-control"
+                       maxlength="12" />
+
+                <span asp-validation-for="Cccd"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- THÔNG TIN LIÊN HỆ -->
+
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-telephone me-2"></i>
+            Thông tin liên hệ
+        </h6>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+
+                <label asp-for="SoDienThoai"
+                       class="form-label">
+                    Số điện thoại
+                </label>
+
+                <input asp-for="SoDienThoai"
+                       class="form-control" />
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label asp-for="Email"
+                       class="form-label">
+                    Email
+                </label>
+
+                <input asp-for="Email"
+                       type="email"
+                       class="form-control" />
+
+            </div>
+
+
+            <div class="col-12">
+
+                <label asp-for="DiaChi"
+                       class="form-label">
+                    Địa chỉ
+                </label>
+
+                <input asp-for="DiaChi"
+                       class="form-control" />
+
+            </div>
+
+        </div>
+
+
+        <!-- CCCD -->
+
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-card-text me-2"></i>
+            Thông tin CCCD
+        </h6>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+
+                <label asp-for="NgayCapCccd"
+                       class="form-label">
+                    Ngày cấp CCCD
+                </label>
+
+                <input asp-for="NgayCapCccd"
+                       type="date"
+                       class="form-control" />
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label asp-for="NoiCapCccd"
+                       class="form-label">
+                    Nơi cấp CCCD
+                </label>
+
+                <input asp-for="NoiCapCccd"
+                       class="form-control" />
+
+            </div>
+
+        </div>
+
+
+        <!-- TRẠNG THÁI -->
+
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-toggle-on me-2"></i>
+            Trạng thái
+        </h6>
+
+        <div class="form-check form-switch mb-4">
+
+            <input asp-for="TrangThai"
+                   class="form-check-input"
+                   type="checkbox" />
+
+            <label asp-for="TrangThai"
+                   class="form-check-label">
+                Đang hoạt động
+            </label>
+
+        </div>
+
+
+        <!-- GHI CHÚ -->
+
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-sticky me-2"></i>
+            Ghi chú
+        </h6>
+
+        <textarea asp-for="GhiChu"
+                  class="form-control"
+                  rows="3"></textarea>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+        <button type="button"
+                class="btn btn-light border"
+                data-bs-dismiss="modal">
+
+            Hủy
+
+        </button>
+
+
+        <button type="submit"
+                class="btn btn-primary">
+
+            <i class="bi bi-check-lg me-1"></i>
+
+            Lưu thay đổi
+
+        </button>
+
+    </div>
+
+</form>
+<script>
+    const anhFile = document.getElementById("AnhFile");
+    const preview = document.getElementById("previewAnhHocVien");
+    const khongCoAnh = document.getElementById("khongCoAnh");
+
+    if (anhFile) {
+
+        anhFile.addEventListener("change", function () {
+
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const imageUrl = URL.createObjectURL(file);
+
+            preview.src = imageUrl;
+            preview.classList.remove("d-none");
+
+            if (khongCoAnh) {
+                khongCoAnh.classList.add("d-none");
+            }
+        });
+
+    }
+</script>

@@ -1,0 +1,456 @@
+﻿
+
+
+.lop-detail-page {
+    color: #212529;
+}
+
+    /* Tiêu đề trang */
+
+    .lop-detail-page .page-heading {
+        margin-bottom: 1.5rem;
+    }
+
+    .lop-detail-page .page-title {
+        font-size: 1.8rem;
+        font-weight: 750;
+        letter-spacing: -.025em;
+    }
+
+    .lop-detail-page .breadcrumb-text {
+        font-size: .85rem;
+        color: #6c757d;
+    }
+
+        .lop-detail-page .breadcrumb-text a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+            .lop-detail-page .breadcrumb-text a:hover {
+                text-decoration: underline;
+            }
+
+    /* Card */
+
+    .lop-detail-page .detail-card,
+    .lop-detail-page .stat-card {
+        border: 1px solid #edf0f3;
+        border-radius: 15px;
+        background: #fff;
+        box-shadow: 0 3px 14px rgba(25, 35, 50, .045);
+        overflow: hidden;
+    }
+
+    .lop-detail-page .detail-card-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px 24px;
+        background: #fff;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .lop-detail-page .detail-card > .card-body {
+        background: #fff;
+    }
+
+    .lop-detail-page .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .lop-detail-page .section-divider {
+        border-color: #edf0f3;
+        opacity: 1;
+    }
+
+    .lop-detail-page .description-text {
+        color: #495057;
+        white-space: pre-line;
+        line-height: 1.65;
+    }
+
+    /* Thông tin lớp */
+
+    .lop-detail-page .info-label {
+        margin-bottom: 6px;
+        color: #7b8490;
+        font-size: .8rem;
+        font-weight: 500;
+    }
+
+    .lop-detail-page .info-value {
+        color: #212529;
+        font-size: .95rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .lop-detail-page .code-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        color: #344054;
+        background: #f5f7fa;
+        border: 1px solid #e6eaf0;
+        border-radius: 7px;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+    /* Trạng thái */
+
+    .lop-detail-page .status-badge {
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .lop-detail-page .status-select {
+        width: auto;
+        min-width: 180px;
+        max-width: 100%;
+        border-color: #dee2e6;
+        border-radius: 9px;
+    }
+
+        .lop-detail-page .status-select:focus,
+        .lop-detail-page .form-control:focus,
+        .lop-detail-page .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
+        }
+
+    /* Thẻ thống kê */
+
+    .lop-detail-page .stat-card {
+        transition: box-shadow .2s ease, transform .2s ease;
+    }
+
+        .lop-detail-page .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 22px rgba(25, 35, 50, .08);
+        }
+
+    .lop-detail-page .stat-label {
+        margin-bottom: 8px;
+        color: #6c757d;
+        font-size: .86rem;
+    }
+
+    .lop-detail-page .stat-number {
+        color: #212529;
+        font-size: 2rem;
+        font-weight: 750;
+        line-height: 1.2;
+    }
+
+        .lop-detail-page .stat-number span {
+            color: #6c757d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+    .lop-detail-page .stat-footnote {
+        color: #7b8490;
+        font-size: .82rem;
+        line-height: 1.5;
+    }
+
+    .lop-detail-page .stat-icon {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+        font-size: 1.35rem;
+    }
+
+    .lop-detail-page .icon-blue {
+        color: #0d6efd;
+        background: #eaf2ff;
+    }
+
+    .lop-detail-page .icon-green {
+        color: #198754;
+        background: #e8f7ef;
+    }
+
+    .lop-detail-page .icon-purple {
+        color: #6f42c1;
+        background: #f1eaff;
+    }
+
+    .lop-detail-page .progress {
+        height: 8px;
+        overflow: hidden;
+        background: #edf0f3;
+        border-radius: 99px;
+    }
+
+    .lop-detail-page .progress-bar {
+        border-radius: 99px;
+        transition: width .3s ease;
+    }
+
+    /* Bảng dữ liệu */
+
+    .lop-detail-page .table-modern {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+        .lop-detail-page .table-modern thead th {
+            padding: 13px 16px;
+            color: #707986;
+            background: #f8f9fb;
+            border-bottom: 1px solid #e9edf2;
+            font-size: .74rem;
+            font-weight: 700;
+            letter-spacing: .035em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .lop-detail-page .table-modern tbody td {
+            padding: 13px 16px;
+            border-color: #f0f2f5;
+            font-size: .88rem;
+        }
+
+        .lop-detail-page .table-modern tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .lop-detail-page .table-modern tbody tr {
+            transition: background-color .15s ease;
+        }
+
+            .lop-detail-page .table-modern tbody tr:hover > * {
+                background-color: #f8faff;
+            }
+
+    .lop-detail-page .student-avatar {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 37px;
+        height: 37px;
+        margin-right: 11px;
+        color: #0d6efd;
+        background: #edf4ff;
+        border-radius: 11px;
+        font-size: 1rem;
+    }
+
+    .lop-detail-page .student-name {
+        color: #212529;
+        font-weight: 650;
+    }
+
+    .lop-detail-page .history-row > * {
+        color: #6c757d;
+    }
+
+    /* Trạng thái rỗng */
+
+    .lop-detail-page .empty-state {
+        padding: 42px 20px;
+        text-align: center;
+    }
+
+    .lop-detail-page .empty-state-icon {
+        margin-bottom: 14px;
+        color: #aeb7c2;
+        font-size: 2.5rem;
+    }
+
+    .lop-detail-page .empty-state h6 {
+        color: #343a40;
+    }
+
+    .lop-detail-page .empty-state p {
+        font-size: .88rem;
+    }
+
+    /* Nút và biểu mẫu */
+
+    .lop-detail-page .btn {
+        border-radius: 9px;
+        font-weight: 550;
+        transition: background-color .15s ease, box-shadow .15s ease;
+    }
+
+    .lop-detail-page .btn-primary {
+        box-shadow: 0 2px 5px rgba(13, 110, 253, .12);
+    }
+
+        .lop-detail-page .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 4px 10px rgba(13, 110, 253, .18);
+        }
+
+    .lop-detail-page .form-control,
+    .lop-detail-page .form-select,
+    .lop-detail-page .input-group-text {
+        min-height: 40px;
+        border-radius: 9px;
+    }
+
+    .lop-detail-page .input-group > .input-group-text {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .lop-detail-page .input-group > .form-control {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+/* Modal xếp học viên */
+
+#modalXepHocVien .modal-content {
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 15px 55px rgba(0, 0, 0, .15);
+    overflow: hidden;
+}
+
+#modalXepHocVien .modal-header,
+#modalXepHocVien .modal-footer {
+    padding: 18px 24px;
+    background: #fff;
+    border-color: #edf0f3;
+}
+
+#modalXepHocVien .modal-body {
+    padding: 22px 24px;
+}
+
+#modalXepHocVien .modal-title {
+    font-size: 1.1rem;
+}
+
+#modalXepHocVien .assignment-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 16px;
+    background: #f8faff;
+    border: 1px solid #e7eef9;
+    border-radius: 12px;
+}
+
+    #modalXepHocVien .assignment-summary > div {
+        min-width: 0;
+    }
+
+    #modalXepHocVien .assignment-summary .fw-bold {
+        margin-top: 4px;
+        overflow-wrap: anywhere;
+    }
+
+#modalXepHocVien .assignment-table-wrap {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid #edf0f3;
+    border-radius: 10px;
+}
+
+#modalXepHocVien .table-modern thead {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+}
+
+    #modalXepHocVien .table-modern thead th {
+        padding: 12px;
+    }
+
+#modalXepHocVien .table-modern tbody td {
+    padding: 12px;
+}
+
+#modalXepHocVien .student-select-row {
+    cursor: pointer;
+}
+
+    #modalXepHocVien .student-select-row.selected > * {
+        background-color: #edf4ff;
+    }
+
+#modalXepHocVien .form-check-input {
+    width: 17px;
+    height: 17px;
+    margin-top: 0;
+    cursor: pointer;
+}
+
+    #modalXepHocVien .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+#modalXepHocVien .alert {
+    border-radius: 10px;
+    font-size: .88rem;
+}
+
+#modalXepHocVien .modal-footer .btn {
+    min-height: 40px;
+}
+
+/* Responsive */
+
+@media (max-width: 767.98px) {
+    .lop-detail-page {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+        .lop-detail-page .page-title {
+            font-size: 1.45rem;
+        }
+
+        .lop-detail-page .detail-card-header {
+            padding: 16px;
+        }
+
+        .lop-detail-page .detail-card > .card-body {
+            padding: 16px !important;
+        }
+
+        .lop-detail-page .stat-number {
+            font-size: 1.7rem;
+        }
+
+        .lop-detail-page .status-select {
+            width: 100%;
+        }
+
+    #modalXepHocVien .modal-header,
+    #modalXepHocVien .modal-footer {
+        padding: 15px;
+    }
+
+    #modalXepHocVien .modal-body {
+        padding: 15px;
+    }
+
+    #modalXepHocVien .assignment-summary {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+        #modalXepHocVien .assignment-summary > div + div {
+            padding-top: 12px;
+            border-top: 1px solid #e7eef9;
+        }
+}

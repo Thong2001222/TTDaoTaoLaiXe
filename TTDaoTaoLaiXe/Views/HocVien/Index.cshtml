@@ -1,0 +1,634 @@
+﻿@model IEnumerable<TTDaoTaoLaiXe.Models.HocVien>
+
+@{
+    ViewData["Title"] = "Quản lý học viên";
+}
+
+<div class="container-fluid">
+    @Html.AntiForgeryToken()
+    <!-- Tiêu đề -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">Quản lý học viên</h2>
+            <p class="text-muted mb-0">
+                Quản lý thông tin học viên của trung tâm
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Thêm học viên
+        </a>
+
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <form asp-action="Index" method="get">
+
+                <div class="row g-3">
+
+                    <div class="col-md-5">
+                        <label class="form-label">
+                            Tìm kiếm
+                        </label>
+
+                        <input type="text"
+                               name="searchString"
+                               class="form-control"
+                               placeholder="Mã học viên, họ tên, CCCD..."
+                               value="@Context.Request.Query["searchString"]" />
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Trạng thái
+                        </label>
+
+                        <select name="trangThai"
+                                class="form-select">
+
+                            <option value="">
+                                Tất cả
+                            </option>
+
+                            <option value="true"
+                                    selected="@(Context.Request.Query["trangThai"] == "true")">
+                                Đang hoạt động
+                            </option>
+
+                            <option value="false"
+                                    selected="@(Context.Request.Query["trangThai"] == "false")">
+                                Ngừng hoạt động
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Tìm kiếm
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Xóa lọc
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- Danh sách -->
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold mb-0">
+                    Danh sách học viên
+                </h5>
+
+                <span class="text-muted">
+                    Tổng:
+                    <strong>@Model.Count()</strong> học viên
+                </span>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Mã HV</th>
+                            <th>Họ tên</th>
+                            <th>Ngày sinh</th>
+                            <th>CCCD</th>
+                            <th>Số điện thoại</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7"
+                                    class="text-center text-muted py-5">
+
+                                    Không tìm thấy học viên.
+
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            @item.MaHocVien
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @item.HoTen
+                                    </td>
+
+                                    <td>
+                                        @item.NgaySinh.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @item.Cccd
+                                    </td>
+
+                                    <td>
+                                        @item.SoDienThoai
+                                    </td>
+
+                                    <td>
+
+                                        @if (item.TrangThai)
+                                        {
+                                            <span class="badge bg-success">
+                                                Đang hoạt động
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Ngừng hoạt động
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.MaHocVien"
+                                           class="btn btn-sm btn-outline-info">
+                                            Xem
+                                        </a>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary btn-edit-hocvien"
+                                                data-id="@item.MaHocVien">
+
+                                            <i class="bi bi-pencil me-1"></i>
+                                            Sửa
+
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger btn-delete-hocvien"
+                                                data-id="@item.MaHocVien"
+                                                data-name="@item.HoTen">
+                                            <i class="bi bi-trash me-1"></i>
+                                            Xóa
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="modal fade"
+     id="editHocVienModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content">
+
+            <div id="editHocVienModalContent">
+
+                <div class="modal-loading">
+                    <div class="spinner-border text-primary"></div>
+                    <span>Đang tải thông tin...</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- MODAL XÁC NHẬN XÓA -->
+<div class="modal fade"
+     id="deleteHocVienModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                    Xác nhận xóa
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p class="mb-2">
+                    Bạn có chắc chắn muốn xóa học viên:
+                </p>
+
+                <div class="alert alert-light border mb-3">
+                    <div class="fw-bold"
+                         id="deleteHocVienName">
+                    </div>
+
+                    <div class="text-muted small"
+                         id="deleteHocVienId">
+                    </div>
+                </div>
+
+                <div class="text-muted small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Nếu học viên đã có dữ liệu đào tạo, hệ thống sẽ
+                    chuyển sang <strong>Ngừng hoạt động</strong>
+                    thay vì xóa dữ liệu.
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-light border"
+                        data-bs-dismiss="modal">
+                    Hủy
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger"
+                        id="btnConfirmDeleteHocVien">
+                    <i class="bi bi-trash me-1"></i>
+                    Xác nhận
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+@section Scripts {
+
+    <script>
+        (function () {
+            // Find form in .modal-content and bind submit
+            function bindFormInModal(modalEl) {
+                const modalContent = modalEl.querySelector('.modal-content');
+                if (!modalContent) return;
+
+                const form = modalContent.querySelector('form');
+                if (!form) return;
+
+                if (form._editBound) return;
+                form._editBound = true;
+
+                form.addEventListener('submit', function (ev) {
+                    ev.preventDefault();
+
+                    const action = form.getAttribute('action') || window.location.pathname;
+                    const method = (form.getAttribute('method') || 'post').toUpperCase();
+                    const formData = new FormData(form);
+
+                    fetch(action, {
+                        method: method,
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                    .then(function (response) {
+                        const contentType = response.headers.get('content-type') || '';
+                        if (contentType.indexOf('application/json') !== -1) {
+                            return response.json().then(function (json) { return { json: json }; });
+                        } else {
+                            return response.text().then(function (html) { return { html: html }; });
+                        }
+                    })
+                    .then(function (result) {
+                        if (result.json) {
+                            if (result.json.success) {
+                                const bsModal = bootstrap.Modal.getInstance(modalEl);
+                                if (bsModal) bsModal.hide();
+                                location.reload();
+                            } else {
+                                if (modalContent) {
+                                    modalContent.innerHTML = '<div class="p-3 text-danger">Đã xảy ra lỗi: ' + (result.json.message || 'Không xác định') + '</div>';
+                                }
+                            }
+                        } else if (result.html) {
+                            if (modalContent) {
+                                modalContent.innerHTML = result.html;
+                                bindFormInModal(modalEl);
+                            }
+                        }
+                    })
+                    .catch(function (err) {
+                        if (modalContent) {
+                            modalContent.innerHTML = '<div class="p-3 text-danger">Lỗi mạng hoặc máy chủ: ' + (err && err.message ? err.message : '') + '</div>';
+                        }
+                    });
+                });
+            }
+
+            // Delegate click for edit buttons
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.btn-edit-hocvien');
+                if (!btn) return;
+
+                const id = btn.getAttribute('data-id');
+                if (!id) return;
+
+                const modalEl = document.getElementById('editHocVienModal');
+                const modalContent = modalEl.querySelector('.modal-content');
+
+                // Show loading inside modal-content
+                if (modalContent) {
+                    modalContent.innerHTML = '<div class="modal-loading"><div class="spinner-border text-primary"></div><span>Đang tải thông tin...</span></div>';
+                }
+
+                // Fetch partial and replace .modal-content (so header/body/footer are direct children)
+                fetch('/HocVien/EditModal/' + encodeURIComponent(id), {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.text();
+                })
+                .then(function (html) {
+                    if (modalContent) {
+                        // Replace content so Bootstrap layout rules apply correctly
+                        modalContent.innerHTML = html;
+                    }
+
+                    const bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+                    bsModal.show();
+
+                    bindFormInModal(modalEl);
+                })
+                .catch(function (err) {
+                    if (modalContent) {
+                        modalContent.innerHTML = '<div class="p-3 text-danger">Không thể tải form sửa: ' + (err && err.message ? err.message : '') + '</div>';
+                    }
+                    const bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+                    bsModal.show();
+                });
+            });
+        })();
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const deleteModalElement =
+                document.getElementById("deleteHocVienModal");
+
+            const deleteName =
+                document.getElementById("deleteHocVienName");
+
+            const deleteId =
+                document.getElementById("deleteHocVienId");
+
+            const confirmButton =
+                document.getElementById("btnConfirmDeleteHocVien");
+
+            if (!deleteModalElement ||
+                !deleteName ||
+                !deleteId ||
+                !confirmButton) {
+                return;
+            }
+
+            const deleteModal =
+                new bootstrap.Modal(deleteModalElement);
+
+            let selectedHocVienId = null;
+
+            /*
+             * Bấm nút Xóa
+             */
+            document.addEventListener("click", function (e) {
+
+                const button =
+                    e.target.closest(".btn-delete-hocvien");
+
+                if (!button) {
+                    return;
+                }
+
+                selectedHocVienId =
+                    button.getAttribute("data-id");
+
+                const name =
+                    button.getAttribute("data-name");
+
+                deleteName.textContent =
+                    name || "Không xác định";
+
+                deleteId.textContent =
+                    "Mã học viên: " +
+                    (selectedHocVienId || "");
+
+                deleteModal.show();
+            });
+
+
+            /*
+             * Xác nhận xóa
+             */
+            confirmButton.addEventListener("click", async function () {
+
+                if (!selectedHocVienId) {
+                    return;
+                }
+
+                const originalHtml =
+                    confirmButton.innerHTML;
+
+                confirmButton.disabled = true;
+
+                confirmButton.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                    Đang xử lý...
+                `;
+
+                try {
+
+                    const token =
+                        document.querySelector(
+                            'input[name="__RequestVerificationToken"]'
+                        )?.value;
+
+                    const formData =
+                        new FormData();
+
+                    formData.append(
+                        "id",
+                        selectedHocVienId
+                    );
+
+                    if (token) {
+                        formData.append(
+                            "__RequestVerificationToken",
+                            token
+                        );
+                    }
+
+                    const response =
+                        await fetch(
+                            "/HocVien/Delete",
+                            {
+                                method: "POST",
+                                body: formData,
+                                credentials: "same-origin"
+                            }
+                        );
+
+                            const responseText =
+            await response.text();
+
+        console.log(
+            "HTTP Status:",
+            response.status
+        );
+
+        console.log(
+            "Server Response:",
+            responseText
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " +
+                response.status +
+                "\n" +
+                responseText
+            );
+        }
+
+        let result;
+
+        try {
+
+            result = JSON.parse(responseText);
+
+        }
+        catch {
+
+            throw new Error(
+                "Server không trả về JSON hợp lệ:\n" +
+                responseText
+            );
+        }
+
+                    if (!result.success) {
+
+                        alert(
+                            result.message ||
+                            "Không thể xử lý học viên."
+                        );
+
+                        return;
+                    }
+
+                    deleteModal.hide();
+
+                    /*
+                     * Xóa dòng khỏi bảng
+                     */
+                    const row =
+                        document.querySelector(
+                            `.btn-delete-hocvien[data-id="${CSS.escape(selectedHocVienId)}"]`
+                        )?.closest("tr");
+
+                    if (row) {
+                        row.remove();
+                    }
+
+                    alert(
+                        result.message ||
+                        "Đã xử lý học viên thành công."
+                    );
+                        location.reload();
+
+        return;
+
+                }
+                        catch (error) {
+
+            console.error(
+                "Lỗi xóa học viên:",
+                error
+            );
+
+            alert(
+                "Không thể xử lý học viên.\n\n" +
+                error.message
+            );
+        }
+                finally {
+
+                    confirmButton.disabled = false;
+
+                    confirmButton.innerHTML =
+                        originalHtml;
+
+                    selectedHocVienId = null;
+                }
+
+            });
+
+        });
+    </script>
+}

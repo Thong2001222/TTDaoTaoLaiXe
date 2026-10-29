@@ -1,0 +1,386 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.HocPhi.HocPhiIndexPageViewModel
+
+@{
+    ViewData["Title"] = "Quản lý học phí";
+
+    string FormatMoney(decimal amount) =>
+        amount.ToString("N0") + " đ";
+
+    string StatusClass(string status) => status switch
+    {
+        "Đã thanh toán" => "bg-success-subtle text-success",
+        "Thanh toán một phần" => "bg-info-subtle text-info-emphasis",
+        "Quá hạn" => "bg-danger-subtle text-danger",
+        _ => "bg-warning-subtle text-warning-emphasis"
+    };
+}
+
+<div class="container-fluid py-3">
+
+    <!-- Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-wallet2 me-2 text-primary"></i>
+                Quản lý học phí
+            </h3>
+            <div class="text-muted">
+                Theo dõi khoản phải thu, thanh toán và công nợ học viên
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông báo -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- Thống kê -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-2">Tổng phải thu</div>
+                            <h5 class="fw-bold mb-0 text-primary">
+                                @FormatMoney(Model.TongPhaiThu)
+                            </h5>
+                        </div>
+                        <div class="rounded-3 bg-primary-subtle text-primary p-3">
+                            <i class="bi bi-cash-stack fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-2">Tổng đã thu</div>
+                            <h5 class="fw-bold mb-0 text-success">
+                                @FormatMoney(Model.TongDaThu)
+                            </h5>
+                        </div>
+                        <div class="rounded-3 bg-success-subtle text-success p-3">
+                            <i class="bi bi-check-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-2">Tổng còn nợ</div>
+                            <h5 class="fw-bold mb-0 text-warning">
+                                @FormatMoney(Model.TongConNo)
+                            </h5>
+                        </div>
+                        <div class="rounded-3 bg-warning-subtle text-warning p-3">
+                            <i class="bi bi-hourglass-split fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-2">Công nợ quá hạn</div>
+                            <h5 class="fw-bold mb-0 text-danger">
+                                @FormatMoney(Model.TongQuaHan)
+                            </h5>
+                        </div>
+                        <div class="rounded-3 bg-danger-subtle text-danger p-3">
+                            <i class="bi bi-exclamation-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-controller="HocPhi"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-12 col-lg-4">
+                        <label class="form-label fw-semibold">Tìm kiếm</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text"
+                                   name="tuKhoa"
+                                   value="@Model.TuKhoa"
+                                   class="form-control"
+                                   placeholder="Mã học phí, học viên, khóa học..." />
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label class="form-label fw-semibold">Trạng thái</label>
+                        <select name="trangThaiLoc" class="form-select">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Chưa thanh toán"
+                                    selected="@(Model.TrangThaiLoc == "Chưa thanh toán")">
+                                Chưa thanh toán
+                            </option>
+                            <option value="Thanh toán một phần"
+                                    selected="@(Model.TrangThaiLoc == "Thanh toán một phần")">
+                                Thanh toán một phần
+                            </option>
+                            <option value="Đã thanh toán"
+                                    selected="@(Model.TrangThaiLoc == "Đã thanh toán")">
+                                Đã thanh toán
+                            </option>
+                            <option value="Quá hạn"
+                                    selected="@(Model.TrangThaiLoc == "Quá hạn")">
+                                Quá hạn
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label class="form-label fw-semibold">Hạn từ ngày</label>
+                        <input type="date"
+                               name="tuNgay"
+                               value="@(Model.TuNgay?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label class="form-label fw-semibold">Hạn đến ngày</label>
+                        <input type="date"
+                               name="denNgay"
+                               value="@(Model.DenNgay?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-funnel me-1"></i> Lọc
+                        </button>
+                        <a asp-controller="HocPhi"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary"
+                           title="Xóa bộ lọc">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng học phí -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white py-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h5 class="fw-bold mb-0">Danh sách khoản học phí</h5>
+                <span class="text-muted small">
+                    Tổng @Model.TotalRecords khoản học phí
+                </span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">STT</th>
+                        <th>Mã học phí</th>
+                        <th>Học viên</th>
+                        <th>Khóa học</th>
+                        <th class="text-end">Tổng học phí</th>
+                        <th class="text-end">Đã thu</th>
+                        <th class="text-end">Còn nợ</th>
+                        <th>Hạn thanh toán</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Số lần thu</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.DanhSach.Any())
+                    {
+                        var stt = (Model.Page - 1) * Model.PageSize + 1;
+
+                        foreach (var item in Model.DanhSach)
+                        {
+                            <tr>
+                                <td class="ps-3 text-muted">@stt</td>
+                                <td>
+                                    <span class="fw-semibold text-primary">
+                                        @item.MaHocPhi
+                                    </span>
+                                    <div class="text-muted small">
+                                        ĐK: @item.MaDangKy
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@item.HoTenHocVien</div>
+                                    <div class="text-muted small">@item.MaHocVien</div>
+                                </td>
+                                <td>@item.TenKhoaHoc</td>
+                                <td class="text-end text-nowrap">
+                                    @FormatMoney(item.TongHocPhi)
+                                </td>
+                                <td class="text-end text-success text-nowrap">
+                                    @FormatMoney(item.DaThu)
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <span class="fw-semibold @(item.ConNo > 0 ? "text-danger" : "text-success")">
+                                        @FormatMoney(item.ConNo)
+                                    </span>
+                                </td>
+                                <td class="text-nowrap">
+                                    @if (item.HanThanhToan.HasValue)
+                                    {
+                                        @item.HanThanhToan.Value.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa đặt</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill @StatusClass(item.TrangThai)">
+                                        @item.TrangThai
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border">
+                                        @item.SoLanThanhToan
+                                    </span>
+                                </td>
+
+                                
+                                <td class="text-center">
+                                    <a asp-controller="HocPhi"
+                                       asp-action="Details"
+                                       asp-route-id="@item.MaHocPhi"
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Xem chi tiết học phí">
+                                        <i class="bi bi-eye me-1"></i> Chi tiết
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-5">
+                                <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                                <div class="fw-semibold">Không tìm thấy khoản học phí</div>
+                                <div class="text-muted small">
+                                    Thử thay đổi từ khóa hoặc điều kiện lọc.
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="card-footer bg-white">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div class="text-muted small">
+                        Trang @Model.Page / @Model.TotalPages
+                        · @Model.TotalRecords khoản học phí
+                    </div>
+
+                    <nav aria-label="Phân trang học phí">
+                        <ul class="pagination pagination-sm mb-0">
+
+                            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@Model.TuKhoa"
+                                   asp-route-trangThaiLoc="@Model.TrangThaiLoc"
+                                   asp-route-tuNgay="@Model.TuNgay?.ToString("yyyy-MM-dd")"
+                                   asp-route-denNgay="@Model.DenNgay?.ToString("yyyy-MM-dd")"
+                                   asp-route-page="@(Model.Page - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            @for (int p = Math.Max(1, Model.Page - 2);
+                                                    p <= Math.Min(Model.TotalPages, Model.Page + 2);
+                                                    p++)
+                            {
+                                <li class="page-item @(p == Model.Page ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tuKhoa="@Model.TuKhoa"
+                                       asp-route-trangThaiLoc="@Model.TrangThaiLoc"
+                                       asp-route-tuNgay="@Model.TuNgay?.ToString("yyyy-MM-dd")"
+                                       asp-route-denNgay="@Model.DenNgay?.ToString("yyyy-MM-dd")"
+                                       asp-route-page="@p">
+                                        @p
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@Model.TuKhoa"
+                                   asp-route-trangThaiLoc="@Model.TrangThaiLoc"
+                                   asp-route-tuNgay="@Model.TuNgay?.ToString("yyyy-MM-dd")"
+                                   asp-route-denNgay="@Model.DenNgay?.ToString("yyyy-MM-dd")"
+                                   asp-route-page="@(Model.Page + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

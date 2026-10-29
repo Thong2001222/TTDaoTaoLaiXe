@@ -1,0 +1,312 @@
+﻿@model TTDaoTaoLaiXe.Models.LopHoc
+
+@{
+    ViewData["Title"] = "Xóa lớp học";
+}
+
+<div class="container-fluid">
+
+    <!-- Tiêu đề -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="bi bi-trash text-danger me-2"></i>
+                Xóa lớp học
+            </h4>
+
+            <p class="text-muted mb-0">
+                Kiểm tra thông tin trước khi thực hiện xóa.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Quay lại
+        </a>
+    </div>
+
+
+    <!-- Cảnh báo -->
+    <div class="alert alert-warning d-flex align-items-start">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+
+        <div>
+            <strong>Lưu ý</strong>
+
+            <div class="mt-1">
+                Nếu lớp học đã phát sinh học viên hoặc lịch học,
+                hệ thống sẽ <strong>không xóa lớp</strong> mà chuyển lớp
+                sang trạng thái <strong>Tạm ngưng</strong>.
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-semibold">
+                Thông tin lớp học
+            </h5>
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <!-- Mã lớp -->
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted">
+                        Mã lớp học
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.MaLopHoc
+                    </div>
+
+                </div>
+
+
+                <!-- Tên lớp -->
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted">
+                        Tên lớp học
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.TenLopHoc
+                    </div>
+
+                </div>
+
+
+                <!-- Khóa học -->
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted">
+                        Khóa học
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.MaKhoaHocNavigation != null)
+                        {
+                            @Model.MaKhoaHocNavigation.TenKhoaHoc
+                        }
+                        else
+                        {
+                            @Model.MaKhoaHoc
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Giáo viên -->
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted">
+                        Giáo viên
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.MaGiaoVienNavigation != null)
+                        {
+                            @Model.MaGiaoVienNavigation.HoTen
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Chưa phân công
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Ngày bắt đầu -->
+                <div class="col-md-4">
+
+                    <label class="form-label text-muted">
+                        Ngày bắt đầu
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.NgayBatDau.ToString("dd/MM/yyyy")
+                    </div>
+
+                </div>
+
+
+                <!-- Ngày kết thúc -->
+                <div class="col-md-4">
+
+                    <label class="form-label text-muted">
+                        Ngày kết thúc
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.NgayKetThuc.HasValue)
+                        {
+                            @Model.NgayKetThuc.Value.ToString("dd/MM/yyyy")
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Chưa xác định
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Sĩ số -->
+                <div class="col-md-4">
+
+                    <label class="form-label text-muted">
+                        Sĩ số tối đa
+                    </label>
+
+                    <div class="form-control bg-light">
+                        @Model.SiSoToiDa học viên
+                    </div>
+
+                </div>
+
+
+                <!-- Trạng thái -->
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted">
+                        Trạng thái
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        @if (Model.TrangThai == "Đang hoạt động")
+                        {
+                            <span class="badge bg-success">
+                                Đang hoạt động
+                            </span>
+                        }
+                        else if (Model.TrangThai == "Tạm ngưng")
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Tạm ngưng
+                            </span>
+                        }
+                        else if (Model.TrangThai == "Đã kết thúc")
+                        {
+                            <span class="badge bg-secondary">
+                                Đã kết thúc
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                @Model.TrangThai
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Dữ liệu liên quan -->
+                <div class="col-md-6">
+
+                    <label class="form-label text-muted">
+                        Dữ liệu liên quan
+                    </label>
+
+                    <div class="form-control bg-light">
+
+                        <span class="me-3">
+                            <i class="bi bi-people me-1"></i>
+                            @Model.HocVienLopHocs.Count học viên
+                        </span>
+
+                        <span>
+                            <i class="bi bi-calendar-event me-1"></i>
+                            @Model.LichHocs.Count lịch học
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Mô tả -->
+                <div class="col-12">
+
+                    <label class="form-label text-muted">
+                        Mô tả
+                    </label>
+
+                    <div class="form-control bg-light"
+                         style="min-height: 80px;">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.MoTa))
+                        {
+                            @Model.MoTa
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                Không có mô tả
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4" />
+
+
+            <!-- Xác nhận -->
+            <form asp-action="Delete"
+                  method="post"
+                  class="d-flex justify-content-end gap-2">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       asp-for="MaLopHoc" />
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    <i class="bi bi-x-lg me-1"></i>
+                    Hủy
+                </a>
+
+                <button type="submit"
+                        class="btn btn-danger"
+                        onclick="return confirm('Bạn có chắc chắn muốn thực hiện thao tác này không?');">
+
+                    <i class="bi bi-trash me-1"></i>
+                    Xác nhận
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

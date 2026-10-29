@@ -1,0 +1,135 @@
+﻿
+@model IEnumerable<TTDaoTaoLaiXe.ViewModels.TienDoDATViewModel>
+
+@{
+    ViewData["Title"] = "Tiến độ DAT";
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+    string tuKhoa = ViewBag.TuKhoa as string ?? "";
+    string trangThaiLoc = ViewBag.TrangThaiLoc as string ?? "";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h3 class="fw-bold mb-1">Tiến độ DAT</h3>
+            <div class="text-secondary">
+                Theo dõi quãng đường và thời gian DAT của học viên
+            </div>
+        </div>
+        <span class="badge text-bg-primary">
+            @totalItems lượt đăng ký
+        </span>
+    </div>
+
+    <div class="alert alert-info">
+        Chỉ tiêu đang cấu hình trong code: 810 km, 4 giờ tự động,
+        4 giờ ban đêm. Cần xác nhận chỉ tiêu theo hạng GPLX trước khi
+        sử dụng cho đánh giá chính thức.
+    </div>
+
+    <form method="get" asp-action="Index" class="card card-body mb-3">
+        <div class="row g-2">
+            <div class="col-md-6">
+                <input name="tuKhoa" value="@tuKhoa"
+                       class="form-control"
+                       placeholder="Tìm mã học viên, tên hoặc mã đăng ký..." />
+            </div>
+            <div class="col-md-3">
+                <select name="trangThaiLoc" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Đạt" selected="@(trangThaiLoc == "Đạt")">
+                        Đạt yêu cầu
+                    </option>
+                    <option value="Chưa đạt" selected="@(trangThaiLoc == "Chưa đạt")">
+                        Chưa đạt
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search me-1"></i> Tìm kiếm
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Xóa lọc
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Học viên</th>
+                        <th>Mã đăng ký</th>
+                        <th class="text-end">Km đã chạy</th>
+                        <th class="text-end">Km còn thiếu</th>
+                        <th class="text-end">Giờ tự động</th>
+                        <th class="text-end">Còn thiếu</th>
+                        <th class="text-end">Giờ ban đêm</th>
+                        <th class="text-end">Còn thiếu</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@item.HoTen</div>
+                                <small class="text-secondary">@item.MaHocVien</small>
+                            </td>
+                            <td>@item.MaDangKy</td>
+                            <td class="text-end">@item.TongKmDaChay.ToString("N2")</td>
+                            <td class="text-end">@item.KmConThieu.ToString("N2")</td>
+                            <td class="text-end">@item.SoGioTuDong.ToString("N2")</td>
+                            <td class="text-end">@item.GioTuDongConThieu.ToString("N2")</td>
+                            <td class="text-end">@item.SoGioBanDem.ToString("N2")</td>
+                            <td class="text-end">@item.GioBanDemConThieu.ToString("N2")</td>
+                            <td>
+                                @if (item.DatYeuCau)
+                                {
+                                    <span class="badge text-bg-success">Đạt yêu cầu</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-warning">Chưa đạt</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-secondary py-4">
+                            Không có dữ liệu tiến độ DAT.
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <small class="text-secondary">Trang @(page) / @totalPages</small>
+            <div class="btn-group">
+                <a class="btn btn-outline-secondary btn-sm @(page <= 1 ? "disabled" : "")"
+                   asp-action="Index"
+                   asp-route-tuKhoa="@tuKhoa"
+                   asp-route-trangThaiLoc="@trangThaiLoc"
+                   asp-route-page="@(page - 1)">Trước</a>
+                <a class="btn btn-outline-secondary btn-sm @(page >= totalPages ? "disabled" : "")"
+                   asp-action="Index"
+                   asp-route-tuKhoa="@tuKhoa"
+                   asp-route-trangThaiLoc="@trangThaiLoc"
+                   asp-route-page="@(page + 1)">Sau</a>
+            </div>
+        </div>
+    </div>
+</div>

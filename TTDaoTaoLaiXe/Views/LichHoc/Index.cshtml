@@ -1,0 +1,519 @@
+﻿
+@model IEnumerable<TTDaoTaoLaiXe.Models.LichHoc>
+
+@{
+    ViewData["Title"] = "Quản lý lịch học";
+
+    int page = (int)(ViewBag.Page ?? 1);
+    int totalPages = (int)(ViewBag.TongSoTrang ?? 0);
+    int totalRecords = (int)(ViewBag.TongSoBanGhi ?? 0);
+
+    string keyword = ViewBag.TuKhoa as string ?? "";
+    string statusFilter = ViewBag.TrangThaiFilter as string ?? "";
+    string dateFilter = ViewBag.NgayHocFilter as string ?? "";
+
+    var statuses = ViewBag.DanhSachTrangThai as IEnumerable<string>
+                   ?? Enumerable.Empty<string>();
+}
+
+<div class="container-fluid py-4">
+
+    <!-- Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-calendar-week text-primary me-2"></i>
+                Quản lý lịch học
+            </h3>
+            <div class="text-muted">
+                Quản lý thời gian học, giáo viên, phòng học và xe đào tạo.
+            </div>
+        </div>
+
+        <button type="button"
+                class="btn btn-primary px-4"
+                id="btnCreateLichHoc"
+                data-url="@Url.Action("Create", "LichHoc")">
+            <i class="bi bi-plus-lg me-2"></i>Thêm lịch học
+        </button>
+    </div>
+
+    <!-- Thống kê -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-primary-subtle text-primary p-3">
+                        <i class="bi bi-calendar3 fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Tổng lịch học theo bộ lọc</div>
+                        <div class="fs-3 fw-bold">@totalRecords</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-success-subtle text-success p-3">
+                        <i class="bi bi-calendar-check fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Lịch đang hiển thị</div>
+                        <div class="fs-3 fw-bold">@Model.Count()</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-info-subtle text-info p-3">
+                        <i class="bi bi-layers fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Trang hiện tại</div>
+                        <div class="fs-3 fw-bold">
+                            @($"{page}")<span class="fs-6 text-muted"> / @Math.Max(totalPages, 1)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3 p-lg-4">
+            <form asp-action="Index" method="get" class="row g-3 align-items-end">
+
+                <div class="col-12 col-lg-5">
+                    <label class="form-label fw-semibold">Tìm kiếm</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input name="tuKhoa"
+                               value="@keyword"
+                               class="form-control"
+                               placeholder="Mã lịch, lớp học, giáo viên..." />
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label class="form-label fw-semibold">Ngày học</label>
+                    <input type="date"
+                           name="ngayHoc"
+                           value="@dateFilter"
+                           class="form-control" />
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-2">
+                    <label class="form-label fw-semibold">Trạng thái</label>
+                    <select name="trangThai" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        @foreach (var status in statuses)
+                        {
+                            <option value="@status"
+                                    selected="@(statusFilter == status)">
+                                @status
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-funnel me-1"></i>Lọc
+                    </button>
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary"
+                       title="Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Danh sách -->
+    <div class="card border-0 shadow-sm rounded-4">
+
+        <div class="card-header bg-white border-0 px-3 px-lg-4 pt-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h5 class="fw-bold mb-1">Danh sách lịch học</h5>
+                    <div class="text-muted small">
+                        Dữ liệu được sắp xếp theo ngày học và giờ bắt đầu.
+                    </div>
+                </div>
+                <span class="badge text-bg-light border">
+                    @totalRecords bản ghi
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body p-0 mt-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Mã lịch</th>
+                            <th>Lớp học</th>
+                            <th>Ngày học</th>
+                            <th>Thời gian</th>
+                            <th>Giáo viên</th>
+                            <th>Phòng / Xe</th>
+                            <th>Loại buổi</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="fw-semibold text-primary">
+                                            @item.MaLichHoc
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @(item.MaLopHocNavigation?.TenLopHoc ?? item.MaLopHoc)
+                                        </div>
+                                        <small class="text-muted">@item.MaLopHoc</small>
+                                    </td>
+
+                                    <td>
+                                        @item.NgayHoc.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @item.GioBatDau.ToString("HH:mm")
+                                            – @item.GioKetThuc.ToString("HH:mm")
+                                        </div>
+                                        <small class="text-muted">
+                                            @(item.SoGio?.ToString("0.##") ?? "—") giờ
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        @(item.MaGiaoVienNavigation?.HoTen ?? item.MaGiaoVien)
+                                    </td>
+
+                                    <td>
+                                        <div>
+                                            @(item.MaPhongNavigation?.TenPhong ?? "Chưa xếp phòng")
+                                        </div>
+                                        <small class="text-muted">
+                                            @(item.MaXeNavigation?.BienSo ?? "Chưa xếp xe")
+                                        </small>
+                                    </td>
+
+                                    <td>@item.LoaiBuoiHoc</td>
+
+                                    <td>
+                                        @if (item.TrangThai == "Đã lên lịch")
+                                        {
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                                                @item.TrangThai
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">
+                                                @item.TrangThai
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center pe-4">
+                                        @if (item.TrangThai == "Đã lên lịch")
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary btn-edit-lichhoc"
+                                                    data-url="@Url.Action("Edit", "LichHoc", new { id = item.MaLichHoc })"
+                                                    title="Sửa lịch học">
+                                                <i class="bi bi-pencil-square"></i>
+                                                Sửa
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    disabled
+                                                    title="Chỉ sửa được lịch đang ở trạng thái Đã lên lịch">
+                                                <i class="bi bi-lock"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center py-5">
+                                    <i class="bi bi-calendar-x display-5 text-muted"></i>
+                                    <div class="fw-semibold mt-3">Không tìm thấy lịch học</div>
+                                    <div class="text-muted small mt-1">
+                                        Thử thay đổi điều kiện lọc hoặc tạo lịch học mới.
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Phân trang -->
+        <div class="card-footer bg-white border-0 px-3 px-lg-4 py-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <small class="text-muted">
+                    @if (totalRecords > 0)
+                    {
+                        <span>
+                            Hiển thị @(((page - 1) * 10) + 1)
+                            – @Math.Min(page * 10, totalRecords)
+                            trong @totalRecords lịch học
+                        </span>
+                    }
+                    else
+                    {
+                        <span>Không có dữ liệu</span>
+                    }
+                </small>
+
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Phân trang">
+                        <ul class="pagination pagination-sm mb-0">
+
+                            <li class="page-item @(page <= 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@keyword"
+                                   asp-route-trangThai="@statusFilter"
+                                   asp-route-ngayHoc="@dateFilter"
+                                   asp-route-page="@(page - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(i == page ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tuKhoa="@keyword"
+                                       asp-route-trangThai="@statusFilter"
+                                       asp-route-ngayHoc="@dateFilter"
+                                       asp-route-page="@i">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@keyword"
+                                   asp-route-trangThai="@statusFilter"
+                                   asp-route-ngayHoc="@dateFilter"
+                                   asp-route-page="@(page + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vùng hiển thị Modal Thêm/Sửa -->
+
+<div class="modal fade" id="lichHocModal" tabindex="-1"
+     aria-labelledby="lichHocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content" id="lichHocModalContent">
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@section Scripts {
+    <script>
+        (() => {
+            const modalElement = document.getElementById('lichHocModal');
+            const modalContent = document.getElementById('lichHocModalContent');
+            const modal = new bootstrap.Modal(modalElement);
+
+            async function openModal(url) {
+                modalContent.innerHTML = `
+                    <div class="modal-body text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <div class="text-muted mt-3">Đang tải biểu mẫu...</div>
+                    </div>`;
+
+                modal.show();
+
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(await response.text() || 'Không thể tải biểu mẫu.');
+                    }
+
+                    modalContent.innerHTML = await response.text();
+                } catch (error) {
+                    modalContent.innerHTML = `
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title">Không tải được biểu mẫu</h5>
+                            <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-danger">
+                            ${escapeHtml(error.message)}
+                        </div>`;
+                }
+            }
+
+            document.getElementById('btnCreateLichHoc')
+                .addEventListener('click', function () {
+                    openModal(this.dataset.url);
+                });
+
+            document.querySelectorAll('.btn-edit-lichhoc')
+                .forEach(button => {
+                    button.addEventListener('click', function () {
+                        openModal(this.dataset.url);
+                    });
+                });
+
+            // Bắt sự kiện submit kể cả với form được tải động trong Modal.
+            modalElement.addEventListener('submit', async function (event) {
+                const form = event.target.closest('#formLichHoc');
+                if (!form) return;
+
+                event.preventDefault();
+
+                const submitButton = form.querySelector('[type="submit"]');
+                const originalText = submitButton?.innerHTML;
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        Đang lưu...`;
+                }
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    const contentType = response.headers.get('content-type') || '';
+
+                    if (!contentType.includes('application/json')) {
+                        throw new Error(
+                            'Máy chủ không trả về kết quả JSON. Kiểm tra lỗi Controller hoặc phiên đăng nhập.');
+                    }
+
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        showFormErrors(form, result);
+                        return;
+                    }
+
+                    modal.hide();
+
+                    if (window.Swal) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: result.message,
+                            confirmButtonText: 'Đóng'
+                        });
+                    } else {
+                        alert(result.message);
+                    }
+
+                    window.location.reload();
+                } catch (error) {
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Không thể lưu',
+                            text: error.message
+                        });
+                    } else {
+                        alert(error.message);
+                    }
+                } finally {
+                    if (submitButton && submitButton.isConnected) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    }
+                }
+            });
+
+            function showFormErrors(form, result) {
+                const messageBox = form.querySelector('#formErrorMessage');
+                const errorsBox = form.querySelector('#formValidationErrors');
+
+                if (messageBox) {
+                    messageBox.textContent = result.message || 'Dữ liệu chưa hợp lệ.';
+                    messageBox.classList.remove('d-none');
+                }
+
+                if (errorsBox) {
+                    errorsBox.innerHTML = '';
+
+                    if (result.errors) {
+                        Object.entries(result.errors).forEach(([field, messages]) => {
+                            messages.forEach(message => {
+                                const item = document.createElement('li');
+                                item.textContent = `${field}: ${message}`;
+                                errorsBox.appendChild(item);
+                            });
+                        });
+                    }
+                }
+
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Chưa thể lưu',
+                        text: result.message || 'Vui lòng kiểm tra lại thông tin.'
+                    });
+                }
+            }
+
+            function escapeHtml(value) {
+                const div = document.createElement('div');
+                div.textContent = value;
+                return div.innerHTML;
+            }
+        })();
+    </script>
+}

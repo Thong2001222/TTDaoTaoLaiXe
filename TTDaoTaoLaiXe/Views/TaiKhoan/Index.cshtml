@@ -1,0 +1,702 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.Account.TaiKhoanIndexViewModel
+
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Quản lý tài khoản</h3>
+            <p class="text-secondary mb-0">
+                Quản lý tài khoản đăng nhập và vai trò người dùng.
+            </p>
+        </div>
+
+
+
+        <button type="button"
+                class="btn btn-primary js-account-form"
+                data-url="@Url.Action("Create", "TaiKhoan")"
+                data-form-type="create">
+            <i class="bi bi-plus-lg me-1"></i> Thêm tài khoản
+        </button>
+
+
+    </div>
+
+    <!-- Thẻ thống kê -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-primary-subtle text-primary p-3">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">Tổng tài khoản</div>
+                        <div class="fs-4 fw-bold">@Model.TotalItems</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-success-subtle text-success p-3">
+                        <i class="bi bi-person-check fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">Đang xem trang</div>
+                        <div class="fs-4 fw-bold">
+                            @Model.Page / @Model.TotalPages
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-info-subtle text-info p-3">
+                        <i class="bi bi-shield-lock fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small">Số dòng mỗi trang</div>
+                        <div class="fs-4 fw-bold">@Model.PageSize</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách và bộ lọc -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <form asp-controller="TaiKhoan"
+                  asp-action="Index"
+                  method="get"
+                  class="row g-3 mb-4">
+
+                <div class="col-lg-4 col-md-6">
+                    <label for="tuKhoa" class="form-label">Từ khóa</label>
+                    <input id="tuKhoa"
+                           name="tuKhoa"
+                           value="@Model.TuKhoa"
+                           class="form-control"
+                           placeholder="Mã, tên đăng nhập, họ tên, email..." />
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label for="maVaiTro" class="form-label">Vai trò</label>
+                    <select id="maVaiTro"
+                            name="maVaiTro"
+                            class="form-select">
+                        <option value="">Tất cả vai trò</option>
+
+                        @foreach (var vaiTro in Model.DanhSachVaiTro)
+                        {
+                            if (vaiTro.Value == Model.MaVaiTro)
+                            {
+                                <option value="@vaiTro.Value" selected>
+                                    @vaiTro.Text
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@vaiTro.Value">
+                                    @vaiTro.Text
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label for="trangThai" class="form-label">Trạng thái</label>
+                    <select id="trangThai"
+                            name="trangThai"
+                            class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="1" selected="@(Model.TrangThai == "1")">
+                            Đang hoạt động
+                        </option>
+                        <option value="0" selected="@(Model.TrangThai == "0")">
+                            Đã khóa
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-6 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search me-1"></i>
+                        Lọc
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary"
+                       title="Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-semibold mb-0">Danh sách tài khoản</h5>
+                <span class="text-secondary small">
+                    Tổng: @Model.TotalItems tài khoản
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã tài khoản</th>
+                            <th>Thông tin người dùng</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center" style="min-width: 190px;">
+                                Thao tác
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.TaiKhoans.Any())
+                        {
+                            @foreach (var item in Model.TaiKhoans)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold">
+                                            @item.MaTaiKhoan
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">@item.HoTen</div>
+
+                                        <div class="text-secondary small">
+                                            <i class="bi bi-person me-1"></i>
+                                            @item.TenDangNhap
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.Email))
+                                        {
+                                            <div class="text-secondary small">
+                                                <i class="bi bi-envelope me-1"></i>
+                                                @item.Email
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(item.SoDienThoai))
+                                        {
+                                            <div class="text-secondary small">
+                                                <i class="bi bi-telephone me-1"></i>
+                                                @item.SoDienThoai
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @switch (item.MaVaiTro)
+                                        {
+                                            case "VT01":
+                                                <span class="badge bg-primary-subtle text-primary">
+                                                    @item.TenVaiTro
+                                                </span>
+                                                break;
+
+                                            case "VT02":
+                                                <span class="badge bg-info-subtle text-info-emphasis">
+                                                    @item.TenVaiTro
+                                                </span>
+                                                break;
+
+                                            case "VT03":
+                                                <span class="badge bg-success-subtle text-success">
+                                                    @item.TenVaiTro
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-secondary-subtle text-secondary">
+                                                    @item.TenVaiTro
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (item.TrangThai)
+                                        {
+                                            <span class="badge rounded-pill bg-success-subtle text-success">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Hoạt động
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-danger-subtle text-danger">
+                                                <i class="bi bi-lock me-1"></i>
+                                                Đã khóa
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex justify-content-center flex-wrap gap-1">
+
+                                            <!-- Chỉnh sửa tài khoản -->
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary js-account-form"
+                                                    data-url="@Url.Action("Edit", "TaiKhoan", new { id = item.MaTaiKhoan })"
+                                                    data-form-type="edit"
+                                                    title="Sửa tài khoản">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+
+                                            <!-- Mở modal đặt lại mật khẩu -->
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-warning js-reset-password"
+                                                    data-url="@Url.Action("ResetPassword", "TaiKhoan", new { id = item.MaTaiKhoan })"
+                                                    title="Đặt lại mật khẩu">
+                                                <i class="bi bi-key"></i>
+                                            </button>
+
+                                            <!-- Khóa / mở khóa tài khoản -->
+                                            <form asp-action="ToggleTrangThai"
+                                                  method="post"
+                                                  class="d-inline js-toggle-form"
+                                                  data-ten="@item.TenDangNhap"
+                                                  data-trang-thai="@item.TrangThai.ToString().ToLowerInvariant()">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.MaTaiKhoan" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm @(item.TrangThai ? "btn-outline-danger" : "btn-outline-success")"
+                                                        title="@(item.TrangThai ? "Khóa tài khoản" : "Mở khóa tài khoản")">
+                                                    <i class="bi @(item.TrangThai ? "bi-lock" : "bi-unlock")"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="bi bi-inbox fs-1 text-secondary"></i>
+                                    <p class="text-secondary mb-0 mt-2">
+                                        Không tìm thấy tài khoản phù hợp.
+                                    </p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Phân trang -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+                    <div class="text-secondary small">
+                        Trang @Model.Page / @Model.TotalPages
+                    </div>
+
+                    <nav aria-label="Phân trang tài khoản">
+                        <ul class="pagination pagination-sm mb-0">
+
+                            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@(Model.Page - 1)"
+                                   asp-route-tuKhoa="@Model.TuKhoa"
+                                   asp-route-maVaiTro="@Model.MaVaiTro"
+                                   asp-route-trangThai="@Model.TrangThai">
+                                    Trước
+                                </a>
+                            </li>
+
+                            @for (int p = 1; p <= Model.TotalPages; p++)
+                            {
+                                <li class="page-item @(p == Model.Page ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-page="@p"
+                                       asp-route-tuKhoa="@Model.TuKhoa"
+                                       asp-route-maVaiTro="@Model.MaVaiTro"
+                                       asp-route-trangThai="@Model.TrangThai">
+                                        @p
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@(Model.Page + 1)"
+                                   asp-route-tuKhoa="@Model.TuKhoa"
+                                   asp-route-maVaiTro="@Model.MaVaiTro"
+                                   asp-route-trangThai="@Model.TrangThai">
+                                    Sau
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal đặt lại mật khẩu -->
+<div class="modal fade"
+     id="resetPasswordModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="resetPasswordModalContent">
+            <div class="modal-body text-center p-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-3 text-secondary">
+                    Đang tải biểu mẫu...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="accountFormModal"
+     tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" id="accountFormModalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Xác nhận khóa hoặc mở khóa tài khoản
+        document.querySelectorAll('.js-toggle-form').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const tenDangNhap = form.dataset.ten;
+                const dangHoatDong = form.dataset.trangThai === 'true';
+
+                Swal.fire({
+                    title: dangHoatDong
+                        ? 'Xác nhận khóa tài khoản?'
+                        : 'Xác nhận mở khóa tài khoản?',
+                    text: dangHoatDong
+                        ? `Tài khoản "${tenDangNhap}" sẽ không thể đăng nhập.`
+                        : `Tài khoản "${tenDangNhap}" sẽ được phép đăng nhập trở lại.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: dangHoatDong ? 'Khóa tài khoản' : 'Mở khóa',
+                    cancelButtonText: 'Hủy',
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // Mở biểu mẫu đặt lại mật khẩu trong modal
+        document.addEventListener('click', async function (event) {
+            const button = event.target.closest('.js-reset-password');
+
+            if (!button) return;
+
+            const modalElement = document.getElementById('resetPasswordModal');
+            const modalContent = document.getElementById('resetPasswordModalContent');
+
+            if (!modalElement || !modalContent || !window.bootstrap) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể mở biểu mẫu',
+                    text: 'Không tìm thấy modal hoặc Bootstrap JavaScript chưa được tải.'
+                });
+                return;
+            }
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+            modalContent.innerHTML = `
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-3 text-secondary">Đang tải biểu mẫu...</div>
+                </div>`;
+
+            modal.show();
+
+            try {
+                const response = await fetch(button.dataset.url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không tải được biểu mẫu đặt lại mật khẩu.');
+                }
+
+                modalContent.innerHTML = await response.text();
+            } catch (error) {
+                modal.hide();
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể tải biểu mẫu',
+                    text: error.message || 'Đã xảy ra lỗi không xác định.'
+                });
+            }
+        });
+
+        // Mở modal Thêm/Sửa tài khoản
+        document.addEventListener('click', async function (event) {
+            const button = event.target.closest('.js-account-form');
+            if (!button) return;
+
+            event.preventDefault();
+
+            const modalElement = document.getElementById('accountFormModal');
+            const modalContent = document.getElementById('accountFormModalContent');
+
+            if (!modalElement || !modalContent || !window.bootstrap) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể mở biểu mẫu',
+                    text: 'Không tìm thấy modal hoặc Bootstrap JavaScript chưa được tải.'
+                });
+                return;
+            }
+
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+            modalContent.innerHTML = `
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-3 mb-0">Đang tải biểu mẫu...</p>
+                </div>`;
+
+            modal.show();
+
+            try {
+                const response = await fetch(button.dataset.url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không tải được biểu mẫu. Mã lỗi: ' + response.status);
+                }
+
+                modalContent.innerHTML = await response.text();
+            } catch (error) {
+                modalContent.innerHTML = `
+                    <div class="modal-header">
+                        <h5 class="modal-title">Không tải được biểu mẫu</h5>
+                        <button type="button" class="btn-close"
+                                data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        ${error.message}
+                    </div>`;
+
+                console.error(error);
+            }
+        });
+
+        // Gửi form Thêm/Sửa tài khoản bằng AJAX
+        document.addEventListener('submit', async function (event) {
+            const form = event.target;
+
+            if (!form.matches('#formCreateTaiKhoan, #formEditTaiKhoan')) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const modalElement = document.getElementById('accountFormModal');
+            const modalContent = document.getElementById('accountFormModalContent');
+            const submitButton = form.querySelector('[type="submit"]');
+
+            if (submitButton) submitButton.disabled = true;
+
+            try {
+                const response = await fetch(form.action || window.location.href, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const contentType = response.headers.get('content-type') || '';
+
+                if (contentType.includes('application/json')) {
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: result.message || 'Đã lưu tài khoản thành công.',
+                            confirmButtonText: 'Đóng'
+                        });
+
+                        window.location.reload();
+                        return;
+                    }
+
+                    throw new Error(result.message || 'Không thể lưu tài khoản.');
+                }
+
+                // Controller trả lại partial view khi dữ liệu không hợp lệ
+                const html = await response.text();
+
+                if (!response.ok && response.status !== 400) {
+                    throw new Error('Lỗi máy chủ khi lưu tài khoản. Mã lỗi: ' + response.status);
+                }
+
+                modalContent.innerHTML = html;
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: error.message || 'Không thể lưu tài khoản.'
+                });
+            } finally {
+                const currentButton = document.querySelector(
+                    '#accountFormModalContent form [type="submit"]'
+                );
+
+                if (currentButton) currentButton.disabled = false;
+            }
+        });
+
+        // Gửi form đặt lại mật khẩu bằng fetch
+        document.addEventListener('submit', async function (event) {
+            const form = event.target;
+
+            if (!form || form.id !== 'formResetPassword') return;
+
+            event.preventDefault();
+
+            const modalElement = document.getElementById('resetPasswordModal');
+            const modalContent = document.getElementById('resetPasswordModalContent');
+            const submitButton = form.querySelector('[type="submit"]');
+
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const contentType = response.headers.get('content-type') || '';
+
+                // Nếu lưu thành công, controller trả về JSON
+                if (contentType.includes('application/json')) {
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: result.message || 'Đặt lại mật khẩu thành công.',
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+
+                        window.location.reload();
+                        return;
+                    }
+
+                    throw new Error(
+                        result.message || 'Không thể cập nhật mật khẩu.'
+                    );
+                }
+
+                // Nếu dữ liệu không hợp lệ, hiển thị lại form kèm lỗi validation
+                const html = await response.text();
+
+                if (!response.ok && response.status !== 400) {
+                    throw new Error('Không thể lưu mật khẩu. Vui lòng thử lại.');
+                }
+
+                modalContent.innerHTML = html;
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: error.message || 'Không thể cập nhật mật khẩu.'
+                });
+            } finally {
+                const currentButton = document.querySelector(
+                    '#resetPasswordModalContent #formResetPassword [type="submit"]'
+                );
+
+                if (currentButton) {
+                    currentButton.disabled = false;
+                }
+            }
+        });
+
+        // Thông báo thành công từ controller
+        @if (TempData["Success"] != null)
+        {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"])),
+                        confirmButtonText: 'Đóng'
+                    });
+                </text>
+        }
+
+        // Thông báo lỗi từ controller
+        @if (TempData["Error"] != null)
+        {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thể thực hiện',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"])),
+                        confirmButtonText: 'Đóng'
+                    });
+                </text>
+        }
+    </script>
+}

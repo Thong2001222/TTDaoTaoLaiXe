@@ -1,0 +1,118 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.Account.TaiKhoanEditViewModel
+
+<div class="modal-header">
+    <div>
+        <h5 class="modal-title fw-semibold">
+            <i class="bi bi-pencil-square me-2"></i>Sửa tài khoản
+        </h5>
+        <div class="text-muted small mt-1">
+            Cập nhật thông tin tài khoản và phân quyền sử dụng.
+        </div>
+    </div>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Đóng"></button>
+</div>
+
+<form id="formEditTaiKhoan"
+      asp-controller="TaiKhoan"
+      asp-action="Edit"
+      method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger d-none"
+             id="editValidationSummary"></div>
+
+        <input asp-for="MaTaiKhoan" type="hidden" />
+
+        <div class="mb-3">
+            <label class="form-label">Mã tài khoản</label>
+            <input asp-for="MaTaiKhoan"
+                   class="form-control"
+                   readonly />
+            <span asp-validation-for="MaTaiKhoan"
+                  class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="TenDangNhap" class="form-label">
+                    Tên đăng nhập <span class="text-danger">*</span>
+                </label>
+                <input asp-for="TenDangNhap"
+                       class="form-control"
+                       autocomplete="username"
+                       placeholder="Nhập tên đăng nhập" />
+                <span asp-validation-for="TenDangNhap"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="HoTen" class="form-label">
+                    Họ và tên <span class="text-danger">*</span>
+                </label>
+                <input asp-for="HoTen"
+                       class="form-control"
+                       placeholder="Nhập họ và tên" />
+                <span asp-validation-for="HoTen"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email"
+                       type="email"
+                       class="form-control"
+                       autocomplete="email"
+                       placeholder="example@email.com" />
+                <span asp-validation-for="Email"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="SoDienThoai" class="form-label">
+                    Số điện thoại
+                </label>
+                <input asp-for="SoDienThoai"
+                       type="tel"
+                       class="form-control"
+                       autocomplete="tel"
+                       placeholder="Nhập số điện thoại" />
+                <span asp-validation-for="SoDienThoai"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="MaVaiTro" class="form-label">
+                    Vai trò <span class="text-danger">*</span>
+                </label>
+                <select asp-for="MaVaiTro"
+                        asp-items="ViewBag.DanhSachVaiTro"
+                        class="form-select">
+                    <option value="">-- Chọn vai trò --</option>
+                </select>
+                <span asp-validation-for="MaVaiTro"
+                      class="text-danger small"></span>
+                <div class="form-text">
+                    Thay đổi vai trò sẽ ảnh hưởng đến quyền truy cập của tài khoản.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button"
+                class="btn btn-light border"
+                data-bs-dismiss="modal">
+            Hủy
+        </button>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>
+            Lưu thay đổi
+        </button>
+    </div>
+</form>

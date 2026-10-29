@@ -1,0 +1,561 @@
+﻿
+@using System.Text.Json
+@model IEnumerable<TTDaoTaoLaiXe.Models.Xe>
+
+@{
+    ViewData["Title"] = "Quản lý xe tập lái";
+
+    var tuKhoa = ViewBag.TuKhoa as string ?? "";
+    var trangThaiLoc = ViewBag.TrangThaiLoc as string ?? "";
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+
+    var hangGplx = ViewBag.HangGplx as IEnumerable<TTDaoTaoLaiXe.Models.HangGplx>
+        ?? Enumerable.Empty<TTDaoTaoLaiXe.Models.HangGplx>();
+
+    var trangThaiOptions = ViewBag.TrangThaiOptions as string[]
+        ?? new[] { "Đang sử dụng", "Bảo dưỡng", "Ngừng sử dụng" };
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="bi bi-car-front-fill me-2 text-primary"></i>Quản lý xe tập lái
+            </h3>
+            <div class="text-secondary">Quản lý thông tin và tình trạng xe của trung tâm</div>
+        </div>
+
+        <button type="button" class="btn btn-primary"
+                data-bs-toggle="modal" data-bs-target="#modalThemXe">
+            <i class="bi bi-plus-lg me-1"></i> Thêm xe
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" asp-controller="Xe" asp-action="Index"
+                  class="row g-3 align-items-end">
+                <div class="col-lg-6 col-md-5">
+                    <label class="form-label fw-semibold">Tìm kiếm</label>
+                    <input type="text" name="tuKhoa" value="@tuKhoa"
+                           class="form-control"
+                           placeholder="Mã xe, biển số, tên xe, loại xe..." />
+                </div>
+
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label fw-semibold">Trạng thái</label>
+                    <select name="trangThai" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        @foreach (var tt in trangThaiOptions)
+                        {
+                            if (trangThaiLoc == tt)
+                            {
+                                <option value="@tt" selected>@tt</option>
+                            }
+                            else
+                            {
+                                <option value="@tt">@tt</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search me-1"></i> Tìm
+                    </button>
+                    <a asp-controller="Xe" asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Danh sách xe</span>
+            <span class="badge bg-primary-subtle text-primary">@totalItems xe</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">STT</th>
+                        <th>Mã xe</th>
+                        <th>Biển số</th>
+                        <th>Tên xe</th>
+                        <th>Hạng GPLX</th>
+                        <th>Loại xe</th>
+                        <th>Số chỗ</th>
+                        <th>Năm SX</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        var stt = (page - 1) * 10 + 1;
+
+                        foreach (var xe in Model)
+                        {
+                            var badgeClass = xe.TrangThai switch
+                            {
+                                "Đang sử dụng" => "bg-success-subtle text-success",
+                                "Bảo dưỡng" => "bg-warning-subtle text-warning-emphasis",
+                                "Ngừng sử dụng" => "bg-secondary-subtle text-secondary",
+                                _ => "bg-light text-dark"
+                            };
+
+                            <tr>
+                                <td class="ps-3">@(stt++)</td>
+                                <td class="fw-semibold">@xe.MaXe</td>
+                                <td>
+                                    <span class="badge bg-dark-subtle text-dark">@xe.BienSo</span>
+                                </td>
+                                <td>@xe.TenXe</td>
+                                <td>@(xe.MaHangNavigation?.TenHang ?? xe.MaHang ?? "—")</td>
+                                <td>@xe.LoaiXe</td>
+                                <td>@(xe.SoCho?.ToString() ?? "—")</td>
+                                <td>@(xe.NamSanXuat?.ToString() ?? "—")</td>
+                                <td>
+                                    <span class="badge rounded-pill @badgeClass">
+                                        @xe.TrangThai
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary btn-sua-xe"
+                                                title="Sửa xe"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalSuaXe"
+                                                data-ma="@xe.MaXe"
+                                                data-bienso="@xe.BienSo"
+                                                data-ten="@xe.TenXe"
+                                                data-mahang="@xe.MaHang"
+                                                data-loai="@xe.LoaiXe"
+                                                data-socho="@xe.SoCho"
+                                                data-nam="@xe.NamSanXuat"
+                                                data-ghichu="@xe.GhiChu">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary btn-doi-trang-thai"
+                                                title="Đổi trạng thái"
+                                                data-ma="@xe.MaXe"
+                                                data-bienso="@xe.BienSo"
+                                                data-trangthai="@xe.TrangThai">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-5">
+                                <i class="bi bi-car-front display-5 text-secondary"></i>
+                                <div class="text-secondary mt-2">Không tìm thấy xe phù hợp.</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="text-secondary small">
+                Trang @(page) / @totalPages · Tổng @totalItems xe
+            </span>
+
+            <nav aria-label="Phân trang danh sách xe">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(page - 1)"
+                           asp-route-tuKhoa="@tuKhoa"
+                           asp-route-trangThai="@trangThaiLoc">Trước</a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == page ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-tuKhoa="@tuKhoa"
+                               asp-route-trangThai="@trangThaiLoc">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(page + 1)"
+                           asp-route-tuKhoa="@tuKhoa"
+                           asp-route-trangThai="@trangThaiLoc">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalThemXe" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="formThemXe" asp-controller="Xe" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-plus-circle me-2 text-primary"></i>Thêm xe tập lái
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã xe <span class="text-danger">*</span></label>
+                            <input name="MaXe" class="form-control" maxlength="20" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Biển số <span class="text-danger">*</span></label>
+                            <input name="BienSo" class="form-control" maxlength="20" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tên xe <span class="text-danger">*</span></label>
+                            <input name="TenXe" class="form-control" maxlength="100" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Hạng GPLX</label>
+                            <select name="MaHang" class="form-select">
+                                <option value="">-- Chọn hạng GPLX --</option>
+                                @foreach (var hang in hangGplx)
+                                {
+                                    <option value="@hang.MaHang">@hang.MaHang - @hang.TenHang</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Loại xe <span class="text-danger">*</span></label>
+                            <input name="LoaiXe" class="form-control" maxlength="50"
+                                   placeholder="Ví dụ: Số sàn, số tự động" required />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Số chỗ</label>
+                            <input name="SoCho" type="number" min="1" class="form-control" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Năm sản xuất</label>
+                            <input name="NamSanXuat" type="number" min="1900"
+                                   max="@(DateTime.Today.Year + 1)" class="form-control" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="GhiChu" class="form-control" rows="2" maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Lưu xe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSuaXe" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="formSuaXe" asp-controller="Xe" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-pencil-square me-2 text-primary"></i>Cập nhật xe tập lái
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="MaXe" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã xe</label>
+                            <input id="suaMaXeHienThi" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Biển số <span class="text-danger">*</span></label>
+                            <input name="BienSo" class="form-control" maxlength="20" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tên xe <span class="text-danger">*</span></label>
+                            <input name="TenXe" class="form-control" maxlength="100" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Hạng GPLX</label>
+                            <select name="MaHang" class="form-select">
+                                <option value="">-- Chọn hạng GPLX --</option>
+                                @foreach (var hang in hangGplx)
+                                {
+                                    <option value="@hang.MaHang">@hang.MaHang - @hang.TenHang</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Loại xe <span class="text-danger">*</span></label>
+                            <input name="LoaiXe" class="form-control" maxlength="50" required />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Số chỗ</label>
+                            <input name="SoCho" type="number" min="1" class="form-control" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Năm sản xuất</label>
+                            <input name="NamSanXuat" type="number" min="1900"
+                                   max="@(DateTime.Today.Year + 1)" class="form-control" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="GhiChu" class="form-control" rows="2" maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<form id="tokenForm" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = document.querySelector(
+                '#tokenForm input[name="__RequestVerificationToken"]'
+            )?.value ?? "";
+
+            // Danh sách trạng thái được Razor chuyển thành JSON hợp lệ
+            const danhSachTrangThai = @Html.Raw(JsonSerializer.Serialize(trangThaiOptions));
+
+            function thongBaoLoi(message) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Không thành công",
+                        text: message
+                    });
+                } else {
+                    console.error(message);
+                }
+            }
+
+            async function guiForm(form) {
+                const submitButton = form.querySelector('button[type="submit"]');
+                const oldText = submitButton.innerHTML;
+
+                submitButton.disabled = true;
+                submitButton.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: "POST",
+                        body: new FormData(form),
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        const chiTietLoi = data.errors
+                            ? Object.values(data.errors).flat().join("\n")
+                            : data.message;
+
+                        thongBaoLoi(chiTietLoi || "Không thể lưu dữ liệu.");
+                        return;
+                    }
+
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Thành công",
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    window.location.reload();
+                } catch (error) {
+                    console.error(error);
+                    thongBaoLoi(
+                        "Không thể gửi dữ liệu. Vui lòng kiểm tra kết nối hoặc lỗi máy chủ."
+                    );
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = oldText;
+                }
+            }
+
+            document.querySelector("#formThemXe").addEventListener("submit", function (event) {
+                event.preventDefault();
+                guiForm(this);
+            });
+
+            document.querySelector("#formSuaXe").addEventListener("submit", function (event) {
+                event.preventDefault();
+                guiForm(this);
+            });
+
+            // Nạp dữ liệu xe vào modal sửa
+            document.querySelectorAll(".btn-sua-xe").forEach(button => {
+                button.addEventListener("click", function () {
+                    const form = document.querySelector("#formSuaXe");
+                    const data = this.dataset;
+
+                    form.elements["MaXe"].value = data.ma || "";
+                    document.querySelector("#suaMaXeHienThi").value = data.ma || "";
+                    form.elements["BienSo"].value = data.bienso || "";
+                    form.elements["TenXe"].value = data.ten || "";
+                    form.elements["MaHang"].value = data.mahang || "";
+                    form.elements["LoaiXe"].value = data.loai || "";
+                    form.elements["SoCho"].value = data.socho || "";
+                    form.elements["NamSanXuat"].value = data.nam || "";
+                    form.elements["GhiChu"].value = data.ghichu || "";
+                });
+            });
+
+            // Đổi trạng thái xe
+            document.querySelectorAll(".btn-doi-trang-thai").forEach(button => {
+                button.addEventListener("click", async function () {
+                    const maXe = this.dataset.ma || "";
+                    const bienSo = this.dataset.bienso || "";
+                    const trangThaiHienTai = this.dataset.trangthai || "";
+
+                    if (!maXe || !trangThaiHienTai) {
+                        thongBaoLoi("Không lấy được mã xe hoặc trạng thái hiện tại.");
+                        return;
+                    }
+
+                    // Tạo danh sách lựa chọn từ giá trị JSON, không ghép chuỗi JavaScript bằng Razor
+                    const luaChon = {};
+
+                    danhSachTrangThai.forEach(tt => {
+                        if (tt !== trangThaiHienTai) {
+                            luaChon[tt] = tt;
+                        }
+                    });
+
+                    if (Object.keys(luaChon).length === 0) {
+                        thongBaoLoi("Không có trạng thái khác để lựa chọn.");
+                        return;
+                    }
+
+                    const result = await Swal.fire({
+                        title: "Đổi trạng thái xe",
+                        text: `Xe ${bienSo} hiện ở trạng thái "${trangThaiHienTai}".`,
+                        input: "select",
+                        inputOptions: luaChon,
+                        inputPlaceholder: "Chọn trạng thái mới",
+                        showCancelButton: true,
+                        confirmButtonText: "Cập nhật",
+                        cancelButtonText: "Hủy",
+                        inputValidator: value =>
+                            value ? undefined : "Vui lòng chọn trạng thái."
+                    });
+
+                    if (!result.isConfirmed || !result.value) {
+                        return;
+                    }
+
+                    const trangThaiMoi = String(result.value).trim();
+
+                    if (!danhSachTrangThai.includes(trangThaiMoi)) {
+                        thongBaoLoi("Trạng thái được chọn không hợp lệ.");
+                        return;
+                    }
+
+                    try {
+                        const body = new URLSearchParams();
+                        body.append("maXe", maXe);
+                        body.append("trangThaiMoi", trangThaiMoi);
+                        body.append("__RequestVerificationToken", token);
+
+                        const response = await fetch('@Url.Action("ToggleTrangThai", "Xe")', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                "RequestVerificationToken": token,
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: body.toString()
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok || !data.success) {
+                            thongBaoLoi(
+                                data.message || "Không thể cập nhật trạng thái xe."
+                            );
+                            return;
+                        }
+
+                        await Swal.fire({
+                            icon: "success",
+                            title: "Thành công",
+                            text: data.message,
+                            timer: 1300,
+                            showConfirmButton: false
+                        });
+
+                        window.location.reload();
+                    } catch (error) {
+                        console.error(error);
+                        thongBaoLoi("Không thể kết nối đến máy chủ.");
+                    }
+                });
+            });
+        });
+    </script>
+}

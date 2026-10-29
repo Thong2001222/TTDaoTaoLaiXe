@@ -1,0 +1,818 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.HocPhi.HocPhiDetailsViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết học phí";
+
+    var statusClass = Model.TrangThai switch
+    {
+        "Đã thanh toán" => "bg-success-subtle text-success",
+        "Thanh toán một phần" => "bg-info-subtle text-info-emphasis",
+        "Quá hạn" => "bg-danger-subtle text-danger",
+        _ => "bg-warning-subtle text-warning-emphasis"
+    };
+}
+@section Head {
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="description"
+          content="Chi tiết khoản học phí, tình trạng công nợ và lịch sử thanh toán của học viên." />
+}
+<div class="container-fluid py-3">
+
+    <!-- Phần đầu chỉ hiển thị khi in -->
+    <div class="print-header">
+        <div class="print-brand">
+            <div class="print-logo">TT</div>
+            <div>
+                <h2>TRUNG TÂM ĐÀO TẠO LÁI XE</h2>
+                <p>PHÒNG ĐÀO TẠO · BỘ PHẬN KẾ TOÁN</p>
+            </div>
+        </div>
+
+        <div class="print-document">
+            <h1>PHIẾU THEO DÕI HỌC PHÍ</h1>
+            <p>Mã học phí: <strong>@Model.MaHocPhi</strong></p>
+            <p>Mã đăng ký: <strong>@Model.MaDangKy</strong></p>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Chi tiết học phí</h3>
+            <div class="text-secondary">
+                Mã học phí:
+                <span class="fw-semibold text-dark">@Model.MaHocPhi</span>
+            </div>
+        </div>
+
+
+        @if (Model.ConNo > 0)
+        {
+            <div class="modal fade no-print"
+                 id="modalThanhToanVnPay"
+                 tabindex="-1"
+                 aria-labelledby="modalThanhToanVnPayLabel"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold"
+                                id="modalThanhToanVnPayLabel">
+                                <i class="bi bi-credit-card text-primary me-2"></i>
+                                Thanh toán học phí qua VNPay
+                            </h5>
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Đóng"></button>
+                        </div>
+
+                        <form id="formThanhToanVnPay"
+                              asp-controller="HocPhi"
+                              asp-action="TaoThanhToanVnPay"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <div class="modal-body">
+                                <input type="hidden"
+                                       name="maHocPhi"
+                                       value="@Model.MaHocPhi" />
+
+                                <div class="rounded-3 bg-light p-3 mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-secondary">Mã học phí</span>
+                                        <strong>@Model.MaHocPhi</strong>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">Số tiền còn nợ</span>
+                                        <strong class="text-danger">
+                                            @Model.ConNo.ToString("N0") ₫
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <label for="soTienVnPay"
+                                       class="form-label fw-semibold">
+                                    Số tiền muốn thanh toán (VNĐ)
+                                </label>
+
+                                <input type="number"
+                                       class="form-control form-control-lg"
+                                       id="soTienVnPay"
+                                       name="soTien"
+                                       min="1"
+                                       max="@Model.ConNo.ToString("0", System.Globalization.CultureInfo.InvariantCulture)"
+                                       step="1"
+                                       value="@Model.ConNo.ToString("0", System.Globalization.CultureInfo.InvariantCulture)"
+                                       required />
+
+                                <div class="form-text">
+                                    Bạn có thể thanh toán một phần hoặc toàn bộ số tiền còn nợ.
+                                </div>
+
+                                <div class="alert alert-light border mt-3 mb-0">
+                                    <i class="bi bi-shield-check text-primary me-1"></i>
+                                    Bạn sẽ được chuyển đến cổng thanh toán VNPay Sandbox
+                                    để thực hiện giao dịch thử nghiệm.
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">
+                                    Hủy
+                                </button>
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    <i class="bi bi-arrow-right-circle me-1"></i>
+                                    Tiếp tục thanh toán
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+
+        <div class="d-flex flex-wrap gap-2 no-print">
+            <a asp-controller="HocPhi"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Quay lại
+            </a>
+
+            @if (Model.ConNo > 0)
+            {
+                <a asp-controller="HocPhi"
+                   asp-action="Thu"
+                   asp-route-id="@Model.MaHocPhi"
+                   class="btn btn-success">
+                    <i class="bi bi-cash-coin me-1"></i>
+                    Thu học phí trực tiếp
+                </a>
+
+                <button type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalThanhToanVnPay">
+                    <i class="bi bi-credit-card me-1"></i>
+                    Thanh toán VNPay
+                </button>
+            }
+
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>
+                In phiếu học phí
+            </button>
+        </div>
+
+
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small mb-2">Tổng học phí</div>
+                    <div class="fs-4 fw-bold text-primary">
+                        @Model.TongHocPhi.ToString("N0") ₫
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small mb-2">Đã thu</div>
+                    <div class="fs-4 fw-bold text-success">
+                        @Model.DaThu.ToString("N0") ₫
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-secondary small mb-2">Còn nợ</div>
+                    <div class="fs-4 fw-bold @(Model.ConNo > 0 ? "text-danger" : "text-success")">
+                        @Model.ConNo.ToString("N0") ₫
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-person-vcard me-2"></i>Thông tin học viên
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Mã học viên</div>
+                    <div class="fw-semibold">@Model.MaHocVien</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Họ và tên</div>
+                    <div class="fw-semibold">@Model.HoTenHocVien</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Số điện thoại</div>
+                    <div>@(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "Chưa cập nhật" : Model.SoDienThoai)</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Email</div>
+                    <div>@(string.IsNullOrWhiteSpace(Model.Email) ? "Chưa cập nhật" : Model.Email)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-receipt me-2"></i>Thông tin khoản học phí
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Mã đăng ký</div>
+                    <div class="fw-semibold">@Model.MaDangKy</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Khóa học</div>
+                    <div class="fw-semibold">@Model.TenKhoaHoc</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Hạn thanh toán</div>
+                    <div>
+                        @(Model.HanThanhToan.HasValue
+                                                ? Model.HanThanhToan.Value.ToString("dd/MM/yyyy")
+                                                : "Chưa thiết lập")
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="text-secondary small">Trạng thái</div>
+                    <span class="badge rounded-pill @statusClass px-3 py-2">
+                        @Model.TrangThai
+                    </span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.GhiChu))
+                {
+                    <div class="col-12">
+                        <div class="text-secondary small">Ghi chú</div>
+                        <div>@Model.GhiChu</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán
+            </h5>
+
+            <span class="badge bg-secondary-subtle text-secondary-emphasis">
+                @Model.LichSuThanhToan.Count lần thanh toán
+            </span>
+        </div>
+
+        <div class="card-body p-0">
+            @if (Model.LichSuThanhToan.Count == 0)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-wallet2 fs-1 text-secondary"></i>
+                    <p class="text-secondary mt-2 mb-0">
+                        Chưa có lịch sử thanh toán.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Mã thanh toán</th>
+                                <th>Ngày thanh toán</th>
+                                <th>Phương thức</th>
+                                <th>Người thu</th>
+                                <th>Mã giao dịch</th>
+                                <th class="text-end">Số tiền</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.LichSuThanhToan)
+                            {
+                                <tr>
+                                    <td class="ps-3 fw-semibold">
+                                        @item.MaThanhToan
+                                    </td>
+                                    <td>
+                                        @item.NgayThanhToan.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                    <td>@item.PhuongThuc</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.NguoiThu) ? "—" : item.NguoiThu)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.MaGiaoDich) ? "—" : item.MaGiaoDich)</td>
+                                    <td class="text-end fw-semibold text-success text-nowrap">
+                                        @item.SoTien.ToString("N0") ₫
+                                    </td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.GhiChu) ? "—" : item.GhiChu)</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="5" class="text-end">Tổng đã thu</th>
+                                <th class="text-end text-success">
+                                    @Model.DaThu.ToString("N0") ₫
+                                </th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="print-signatures">
+        <div class="signature-item">
+            <strong>NGƯỜI LẬP PHIẾU</strong>
+            <p>(Ký, ghi rõ họ tên)</p>
+            <div class="signature-space"></div>
+        </div>
+
+        <div class="signature-item">
+            <strong>NGƯỜI NỘP TIỀN</strong>
+            <p>(Ký, ghi rõ họ tên)</p>
+            <div class="signature-space"></div>
+        </div>
+
+        <div class="signature-item">
+            <strong>ĐẠI DIỆN TRUNG TÂM</strong>
+            <p>(Ký, ghi rõ họ tên)</p>
+            <div class="signature-space"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const successMessage = @Html.Raw(
+                            System.Text.Json.JsonSerializer.Serialize(
+                                    TempData["Success"]?.ToString()
+                            )
+                    );
+
+    const formVnPay = document.getElementById("formThanhToanVnPay");
+
+        if (formVnPay) {
+            formVnPay.addEventListener("submit", function (event) {
+                const inputSoTien = document.getElementById("soTienVnPay");
+                const soTien = Number(inputSoTien.value);
+                const soTienToiDa = Number(inputSoTien.max);
+
+                if (
+                    !Number.isSafeInteger(soTien) ||
+                    soTien <= 0 ||
+                    soTien > soTienToiDa
+                ) {
+                    event.preventDefault();
+
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Số tiền không hợp lệ",
+                        text: "Vui lòng nhập số tiền nguyên dương và không vượt quá số tiền còn nợ.",
+                        confirmButtonText: "Đã hiểu"
+                    });
+
+                    return;
+                }
+
+                event.preventDefault();
+
+                Swal.fire({
+                    icon: "question",
+                    title: "Xác nhận thanh toán?",
+                    html: `Bạn sẽ thanh toán <strong>${soTien.toLocaleString("vi-VN")} ₫</strong> qua VNPay.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Tiếp tục",
+                    cancelButtonText: "Hủy",
+                    confirmButtonColor: "#0d6efd",
+                    cancelButtonColor: "#6c757d"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formVnPay.submit();
+                    }
+                });
+            });
+        }
+
+        const errorMessage = @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                                TempData["Error"]?.ToString()
+                        )
+                );
+
+        if (typeof Swal === "undefined") {
+            console.error("Chưa tải được thư viện SweetAlert2.");
+            return;
+        }
+
+            if (successMessage) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Thành công!",
+                    text: successMessage,
+                    confirmButtonText: "Đóng",
+                    confirmButtonColor: "#198754"
+                });
+            } else if (errorMessage) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Có lỗi xảy ra!",
+                    text: errorMessage,
+                    confirmButtonText: "Đóng",
+                    confirmButtonColor: "#dc3545"
+                });
+            }
+        });
+    </script>
+}
+
+
+<style>
+    /* ===== Giao diện màn hình ===== */
+    .print-header,
+    .print-signatures {
+        display: none;
+    }
+
+    .page-heading {
+        letter-spacing: -0.35px;
+    }
+
+    .summary-card {
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        transition: box-shadow .2s ease;
+    }
+
+        .summary-card .card-body {
+            padding: 1.25rem;
+        }
+
+    .section-card {
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        overflow: hidden;
+    }
+
+        .section-card > .card-header {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 1.25rem;
+        }
+
+        .section-card > .card-body {
+            padding: 1.25rem;
+        }
+
+    .info-label {
+        color: #64748b;
+        font-size: .875rem;
+        margin-bottom: .35rem;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .payment-table th {
+        color: #475569;
+        font-size: .8125rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .payment-table td {
+        font-size: .875rem;
+    }
+
+    .amount {
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .print-document-meta {
+        display: none;
+    }
+
+    @@media (max-width: 767.98px) {
+        .page-heading {
+            font-size: 1.35rem;
+        }
+
+        .section-card > .card-body {
+            padding: 1rem;
+        }
+
+        .summary-card .card-body {
+            padding: 1rem;
+        }
+    }
+
+    /* ===== Bản in A4 ===== */
+    @@media print {
+        @@page {
+            size: A4 portrait;
+            margin: 14mm 12mm 16mm;
+        }
+
+        html,
+        body {
+            width: 100% !important;
+            background: #fff !important;
+            color: #111827 !important;
+            font-family: Arial, Helvetica, sans-serif !important;
+            font-size: 9pt !important;
+            line-height: 1.4 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+            body * {
+                visibility: visible;
+            }
+
+        .sidebar,
+        nav,
+        aside,
+        footer,
+        .btn,
+        button,
+        .no-print,
+        .page-heading,
+        .screen-only {
+            display: none !important;
+        }
+
+        main,
+        .main-content,
+        .content-wrapper,
+        .container,
+        .container-fluid {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .print-header {
+            display: block !important;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1e3a8a;
+        }
+
+        .print-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .print-logo {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #1e3a8a;
+            border-radius: 6px;
+            color: #1e3a8a !important;
+            font-size: 17pt;
+            font-weight: 800;
+        }
+
+        .print-brand h2 {
+            margin: 0 0 4px;
+            color: #111827 !important;
+            font-size: 13pt;
+            font-weight: 800;
+        }
+
+        .print-brand p {
+            margin: 0;
+            color: #4b5563 !important;
+            font-size: 8.5pt;
+        }
+
+        .print-document {
+            text-align: center;
+        }
+
+            .print-document h1 {
+                margin: 0 0 8px;
+                color: #111827 !important;
+                font-size: 17pt;
+                font-weight: 800;
+                letter-spacing: .4px;
+            }
+
+            .print-document p {
+                display: inline-block;
+                margin: 0 8px;
+                color: #374151 !important;
+                font-size: 9pt;
+            }
+
+        .print-document-meta {
+            display: block !important;
+            margin-top: 8px;
+            color: #4b5563 !important;
+            font-size: 8.5pt;
+            text-align: center;
+        }
+
+        .row {
+            --bs-gutter-x: 10px;
+            --bs-gutter-y: 8px;
+        }
+
+        .summary-card,
+        .section-card,
+        .card {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 4px !important;
+            box-shadow: none !important;
+        }
+
+        .summary-card,
+        .section-card {
+            margin-bottom: 10px !important;
+        }
+
+            .summary-card .card-body,
+            .section-card > .card-body,
+            .card-body {
+                padding: 9px !important;
+            }
+
+            .section-card > .card-header,
+            .card-header {
+                padding: 8px 10px !important;
+                background: #f1f5f9 !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+            }
+
+                .card-header h5 {
+                    margin: 0 !important;
+                    color: #111827 !important;
+                    font-size: 10pt !important;
+                    font-weight: 700 !important;
+                }
+
+        .info-label,
+        .text-secondary,
+        .text-muted {
+            color: #374151 !important;
+        }
+
+        .info-value,
+        .fw-semibold,
+        .fw-bold {
+            color: #111827 !important;
+        }
+
+        .text-primary,
+        .text-success,
+        .text-danger,
+        .text-info,
+        .text-warning,
+        .text-secondary,
+        .text-muted {
+            color: #111827 !important;
+        }
+
+        .badge {
+            padding: 3px 7px !important;
+            border: 1px solid #9ca3af !important;
+            border-radius: 3px !important;
+            background: #fff !important;
+            color: #111827 !important;
+            font-size: 8pt !important;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
+
+        .payment-table,
+        .table {
+            width: 100% !important;
+            margin-bottom: 0 !important;
+            border-collapse: collapse !important;
+            font-size: 8pt !important;
+        }
+
+            .payment-table th,
+            .payment-table td,
+            .table th,
+            .table td {
+                padding: 5px 5px !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #111827 !important;
+                background: #fff !important;
+                vertical-align: middle !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere;
+            }
+
+            .payment-table thead th,
+            .payment-table tfoot th,
+            .table thead th,
+            .table tfoot th {
+                background: #f1f5f9 !important;
+                font-weight: 700 !important;
+            }
+
+            .payment-table tr,
+            .summary-card,
+            .section-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+        .print-signatures {
+            display: flex !important;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 28px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .signature-item {
+            width: 33.333%;
+            text-align: center;
+            color: #111827 !important;
+            font-size: 8.5pt;
+        }
+
+            .signature-item strong {
+                display: block;
+                font-size: 8.5pt;
+            }
+
+            .signature-item p {
+                margin: 3px 0 0;
+                font-size: 8pt;
+                font-style: italic;
+            }
+
+        .signature-space {
+            height: 65px;
+        }
+
+        a {
+            color: #111827 !important;
+            text-decoration: none !important;
+        }
+    }
+</style>
+
+

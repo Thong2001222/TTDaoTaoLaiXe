@@ -1,0 +1,305 @@
+﻿
+
+<div class="modal fade"
+     id="editModal"
+     tabindex="-1"
+     aria-labelledby="editModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+                    <h5 class="modal-title fw-bold" id="editModalLabel">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Chỉnh sửa đăng ký học
+                    </h5>
+
+                    <small class="text-muted">
+                        Cập nhật thông tin đăng ký
+                    </small>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <form asp-action="Edit"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-body">
+
+                    <!-- Mã đăng ký -->
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Mã đăng ký
+                        </label>
+
+                        <input type="text"
+                               id="editMaDangKy"
+                               name="MaDangKy"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
+
+                    <div class="row g-3">
+
+                        <!-- Học viên -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Học viên
+                            </label>
+
+                            <select id="editMaHocVien"
+                                    name="MaHocVien"
+                                    class="form-select">
+
+                                @foreach (var hocVien in
+                                                                ViewBag.EditHocViens)
+                                {
+                                    <option value="@hocVien.MaHocVien">
+                                        @hocVien.HoTen
+                                    </option>
+                                }
+
+                            </select>
+
+                            <div id="editMaHocVienError"
+                                 class="text-danger small mt-1">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Khóa học -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Khóa học
+                            </label>
+
+                            <select id="editMaKhoaHoc"
+                                    name="MaKhoaHoc"
+                                    class="form-select">
+
+                                @foreach (var khoaHoc in
+                                                                ViewBag.EditKhoaHocs)
+                                {
+                                    <option value="@khoaHoc.MaKhoaHoc">
+                                        @khoaHoc.TenKhoaHoc
+                                    </option>
+                                }
+
+                            </select>
+
+                            <div id="editMaKhoaHocError"
+                                 class="text-danger small mt-1">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Ngày đăng ký -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Ngày đăng ký
+                            </label>
+
+                            <input type="date"
+                                   id="editNgayDangKy"
+                                   name="NgayDangKy"
+                                   class="form-control" />
+
+                            <div id="editNgayDangKyError"
+                                 class="text-danger small mt-1">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Học phí -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Học phí
+                            </label>
+
+                            <div class="input-group">
+
+                                <input type="number"
+                                       id="editHocPhi"
+                                       name="HocPhi"
+                                       class="form-control"
+                                       min="0"
+                                       step="1000" />
+
+                                <span class="input-group-text">
+                                    VNĐ
+                                </span>
+
+                            </div>
+
+                            <div id="editHocPhiError"
+                                 class="text-danger small mt-1">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Trạng thái -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Trạng thái
+                            </label>
+
+                            <select id="editTrangThai"
+                                    name="TrangThai"
+                                    class="form-select">
+
+                                <option value="Đang học">
+                                    Đang học
+                                </option>
+
+                                <option value="Đã hoàn thành">
+                                    Đã hoàn thành
+                                </option>
+
+                                <option value="Bảo lưu">
+                                    Bảo lưu
+                                </option>
+
+                                <option value="Đã nghỉ">
+                                    Đã nghỉ
+                                </option>
+
+                                <option value="Hủy">
+                                    Hủy
+                                </option>
+
+                            </select>
+
+                            <div id="editTrangThaiError"
+                                 class="text-danger small mt-1">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Ngày hoàn thành -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Ngày hoàn thành
+                            </label>
+
+                            <input type="date"
+                                   id="editNgayHoanThanh"
+                                   name="NgayHoanThanh"
+                                   class="form-control" />
+
+                            <div id="editNgayHoanThanhError"
+                                 class="text-danger small mt-1">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Ghi chú -->
+                        <div class="col-12">
+
+                            <label class="form-label fw-semibold">
+                                Ghi chú
+                            </label>
+
+                            <textarea id="editGhiChu"
+                                      name="GhiChu"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="500"></textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-light border"
+                            data-bs-dismiss="modal">
+
+                        <i class="bi bi-x-lg"></i>
+                        Hủy
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-check-lg"></i>
+                        Lưu thay đổi
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const editModal = document.getElementById("editModal");
+
+        editModal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            document.getElementById("editMaDangKy").value =
+                button.getAttribute("data-id") || "";
+
+            document.getElementById("editMaHocVien").value =
+                button.getAttribute("data-hocvien") || "";
+
+            document.getElementById("editMaKhoaHoc").value =
+                button.getAttribute("data-khoahoc") || "";
+
+            document.getElementById("editNgayDangKy").value =
+                button.getAttribute("data-ngaydangky") || "";
+
+            document.getElementById("editHocPhi").value =
+                button.getAttribute("data-hocphi") || "";
+
+            document.getElementById("editTrangThai").value =
+                button.getAttribute("data-trangthai") || "Đang học";
+
+            document.getElementById("editNgayHoanThanh").value =
+                button.getAttribute("data-ngayhoanthanh") || "";
+
+            document.getElementById("editGhiChu").value =
+                button.getAttribute("data-ghichu") || "";
+        });
+
+    });
+</script>

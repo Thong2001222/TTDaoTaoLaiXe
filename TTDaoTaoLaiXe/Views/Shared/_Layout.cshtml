@@ -1,0 +1,305 @@
+﻿
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Trung tâm đào tạo lái xe</title>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- CSS riêng của hệ thống -->
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+
+    <!-- SweetAlert2: chỉ nạp một lần -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- CSS hoặc nội dung bổ sung của từng trang -->
+    @await RenderSectionAsync("Head", required: false)
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    @{
+        var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+        var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    }
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <!-- LOGO -->
+        <div class="sidebar-brand">
+            <i class="bi bi-car-front-fill"></i>
+
+            <div class="sidebar-brand-title">
+                TRUNG TÂM<br />
+                ĐÀO TẠO LÁI XE
+            </div>
+        </div>
+
+        <!-- TỔNG QUAN -->
+        <div class="sidebar-section">
+            Tổng quan
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="@(currentController == "Home" ? "active" : "")">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Tổng quan</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- QUẢN LÝ ĐÀO TẠO -->
+        <div class="sidebar-section">
+            Quản lý đào tạo
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a asp-controller="HocVien"
+                   asp-action="Index"
+                   class="@(currentController == "HocVien" ? "active" : "")">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Học viên</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="DangKyHoc"
+                   asp-action="Index"
+                   class="@(currentController == "DangKyHoc" ? "active" : "")">
+                    <i class="bi bi-person-vcard-fill"></i>
+                    <span>Đăng ký học</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="KhoaHoc"
+                   asp-action="Index"
+                   class="@(currentController == "KhoaHoc" ? "active" : "")">
+                    <i class="bi bi-book-fill"></i>
+                    <span>Khóa học</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="GiaoVien"
+                   asp-action="Index"
+                   class="@(currentController == "GiaoVien" ? "active" : "")">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>Giáo viên</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="LopHoc"
+                   asp-action="Index"
+                   class="@(currentController == "LopHoc" ? "active" : "")">
+                    <i class="bi bi-diagram-3-fill"></i>
+                    <span>Lớp học</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="LichHoc"
+                   asp-action="Index"
+                   class="@(currentController == "LichHoc" ? "active" : "")">
+                    <i class="bi bi-calendar3"></i>
+                    <span>Lịch học</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="DiemDanh"
+                   asp-action="Index"
+                   class="@(currentController == "DiemDanh" ? "active" : "")">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    <span>Điểm danh</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link"
+                   asp-controller="KetQuaHocTap"
+                   asp-action="Index">
+                    <i class="bi bi-journal-check me-1"></i>
+                    Kết quả học tập
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link"
+                   asp-controller="DangKyHoc"
+                   asp-action="DaHoanThanh">
+                    <i class="bi bi-mortarboard me-1"></i>
+                    Học viên hoàn thành
+                </a>
+            </li>
+
+        </ul>
+
+        <!-- QUẢN LÝ CƠ SỞ VẬT CHẤT -->
+        <div class="sidebar-section">
+            Quản lý cơ sở vật chất
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a asp-controller="PhongHoc"
+                   asp-action="Index"
+                   class="@(currentController == "PhongHoc" ? "active" : "")">
+                    <i class="bi bi-door-open-fill"></i>
+                    <span>Phòng học</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Xe"
+                   asp-action="Index"
+                   class="@(currentController == "Xe" ? "active" : "")">
+                    <i class="bi bi-car-front-fill"></i>
+                    <span>Xe tập lái</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- QUẢN LÝ DAT -->
+        <div class="sidebar-section">
+            Quản lý DAT
+        </div>
+
+        <ul class="sidebar-menu">
+
+            
+
+            <li>
+                <a asp-controller="BuoiDat"
+                   asp-action="Index"
+                   class="@(currentController == "BuoiDat" ? "active" : "")">
+                    <i class="bi bi-journal-check"></i>
+                    <span>Quản lý buổi DAT</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="QuyDinhDat"
+                   asp-action="Index"
+                   class="@(currentController == "QuyDinhDat" ? "active" : "")">
+                    <i class="bi bi-sliders"></i>
+                    <span>Quy định DAT</span>
+                </a>
+            </li>
+
+
+            <li class="nav-item">
+                <a class="nav-link"
+                   asp-controller="TienDoDAT"
+                   asp-action="Index">
+                    <i class="bi bi-speedometer2 me-1"></i>
+                    Tiến độ DAT
+                </a>
+            </li>
+
+        </ul>
+
+        <!-- TÀI CHÍNH -->
+        <div class="sidebar-section">
+            Tài chính
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a asp-controller="HocPhi"
+                   asp-action="Index"
+                   class="@(currentController == "HocPhi" ? "active" : "")">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Học phí</span>
+                </a>
+            </li>
+
+            
+        </ul>
+
+        <!-- HỆ THỐNG -->
+        <div class="sidebar-section">
+            Hệ thống
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+                <a asp-controller="TaiKhoan"
+                   asp-action="Index"
+                   class="@(currentController == "TaiKhoan" ? "active" : "")">
+                    <i class="bi bi-person-gear"></i>
+                    <span>Tài khoản</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Account"
+                   asp-action="Logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-title">
+                @ViewData["Title"]
+            </div>
+
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+
+                <div>
+                    <div class="user-name">
+                        @User.Identity?.Name
+                    </div>
+
+                    <div class="user-role">
+                        Người dùng hệ thống
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script riêng của từng trang, phải đặt sau Bootstrap JS -->
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

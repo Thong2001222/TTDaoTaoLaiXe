@@ -1,0 +1,118 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.Account.TaiKhoanTaoMoiViewModel
+
+<div class="modal-header">
+    <h5 class="modal-title">
+        <i class="bi bi-person-plus me-2"></i>Thêm tài khoản
+    </h5>
+    <button type="button" class="btn-close"
+            data-bs-dismiss="modal" aria-label="Đóng"></button>
+</div>
+
+<form id="formCreateTaiKhoan"
+      asp-controller="TaiKhoan"
+      asp-action="Create"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="MaTaiKhoan" class="form-label">
+                    Mã tài khoản <span class="text-danger">*</span>
+                </label>
+                <input asp-for="MaTaiKhoan"
+                       class="form-control"
+                       placeholder="Ví dụ: TK001" />
+                <span asp-validation-for="MaTaiKhoan"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="TenDangNhap" class="form-label">
+                    Tên đăng nhập <span class="text-danger">*</span>
+                </label>
+                <input asp-for="TenDangNhap"
+                       class="form-control"
+                       autocomplete="username" />
+                <span asp-validation-for="TenDangNhap"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="HoTen" class="form-label">
+                    Họ và tên <span class="text-danger">*</span>
+                </label>
+                <input asp-for="HoTen"
+                       class="form-control"
+                       placeholder="Nhập họ và tên" />
+                <span asp-validation-for="HoTen"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email"
+                       type="email"
+                       class="form-control"
+                       autocomplete="email" />
+                <span asp-validation-for="Email"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="SoDienThoai" class="form-label">
+                    Số điện thoại
+                </label>
+                <input asp-for="SoDienThoai"
+                       class="form-control"
+                       autocomplete="tel" />
+                <span asp-validation-for="SoDienThoai"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MaVaiTro" class="form-label">
+                    Vai trò <span class="text-danger">*</span>
+                </label>
+                <select asp-for="MaVaiTro"
+                        asp-items="ViewBag.DanhSachVaiTro"
+                        class="form-select">
+                    <option value="">-- Chọn vai trò --</option>
+                </select>
+                <span asp-validation-for="MaVaiTro"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MatKhau" class="form-label">
+                    Mật khẩu <span class="text-danger">*</span>
+                </label>
+                <input asp-for="MatKhau"
+                       type="password"
+                       class="form-control"
+                       autocomplete="new-password"
+                       placeholder="Tối thiểu 8 ký tự" />
+                <span asp-validation-for="MatKhau"
+                      class="text-danger small"></span>
+            </div>
+        </div>
+
+        <p class="text-muted small mt-3 mb-0">
+            <span class="text-danger">*</span> Là các trường bắt buộc.
+        </p>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-light"
+                data-bs-dismiss="modal">
+            Hủy
+        </button>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>Tạo tài khoản
+        </button>
+    </div>
+</form>

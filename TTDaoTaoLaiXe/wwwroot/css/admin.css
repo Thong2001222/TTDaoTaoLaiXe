@@ -1,0 +1,987 @@
+﻿/* =========================================================
+   ENTERPRISE SAAS DASHBOARD
+   TRUNG TÂM ĐÀO TẠO LÁI XE
+   ========================================================= */
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+    --background: #f5f7fa;
+    --white: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --danger: #dc2626;
+    --sidebar-width: 250px;
+    --header-height: 70px;
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--white);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+
+/* =========================================================
+   SIDEBAR BRAND
+   ========================================================= */
+
+.sidebar-brand {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+
+    .sidebar-brand i {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primary-light);
+        color: var(--primary);
+        border-radius: 10px;
+        font-size: 21px;
+        margin-right: 11px;
+    }
+
+
+.sidebar-brand-title {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   SIDEBAR SECTION
+   ========================================================= */
+
+.sidebar-section {
+    padding: 20px 20px 8px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SIDEBAR MENU
+   ========================================================= */
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0 10px;
+    margin: 0;
+}
+
+
+    .sidebar-menu li {
+        margin-bottom: 3px;
+    }
+
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 12px;
+        border-radius: 8px;
+        color: #475569;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+
+    /* Icon */
+
+    .sidebar-menu i {
+        width: 24px;
+        margin-right: 9px;
+        color: #64748b;
+        font-size: 16px;
+    }
+
+
+    /* Hover */
+
+    .sidebar-menu a:hover {
+        background-color: #f8fafc;
+        color: var(--primary);
+    }
+
+
+        .sidebar-menu a:hover i {
+            color: var(--primary);
+        }
+
+
+    /* Active */
+
+    .sidebar-menu a.active {
+        background-color: var(--primary-light);
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+
+        .sidebar-menu a.active i {
+            color: var(--primary);
+        }
+
+
+/* =========================================================
+   MAIN WRAPPER
+   ========================================================= */
+
+.main-wrapper {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    height: var(--header-height);
+    background-color: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    z-index: 900;
+}
+
+
+/* Page title */
+
+.topbar-title {
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   USER
+   ========================================================= */
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    font-size: 17px;
+}
+
+
+.user-name {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+.user-role {
+    margin-top: 2px;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.content {
+    padding: 28px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.card {
+    background-color: var(--white);
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.btn {
+    border-radius: 7px;
+}
+
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.form-control,
+.form-select {
+    border-color: var(--border);
+    border-radius: 7px;
+}
+
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+    }
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.table {
+    margin-bottom: 0;
+}
+
+
+    .table thead th {
+        background-color: #f8fafc;
+        color: #475569;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+
+    .table tbody td {
+        color: #475569;
+        border-color: #f1f5f9;
+        font-size: 13px;
+    }
+
+
+.table-hover tbody tr:hover {
+    background-color: #f8fbff;
+}
+
+
+/* =========================================================
+   BADGE
+   ========================================================= */
+
+.badge {
+    padding: 6px 9px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        width: 70px;
+    }
+
+
+    .sidebar-brand {
+        justify-content: center;
+        padding: 0;
+    }
+
+
+    .sidebar-brand-title,
+    .sidebar-section,
+    .sidebar-menu span {
+        display: none;
+    }
+
+
+    .sidebar-brand i {
+        margin: 0;
+    }
+
+
+    .sidebar-menu a {
+        justify-content: center;
+    }
+
+
+    .sidebar-menu i {
+        margin: 0;
+    }
+
+
+    .main-wrapper {
+        margin-left: 70px;
+    }
+
+
+    .user-name,
+    .user-role {
+        display: none;
+    }
+
+
+    .content {
+        padding: 18px;
+    }
+}
+
+/* =========================================
+   HỒ SƠ HỌC VIÊN - ENTERPRISE SAAS
+   ========================================= */
+.student-detail-page {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.page-title {
+    color: #1e293b;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.page-subtitle {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.page-actions {
+    display: flex;
+    gap: 8px;
+}
+
+
+/* PROFILE */
+
+.student-profile-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.student-profile-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.student-avatar {
+    width: 100px;
+    height: 150px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    color: #2563eb;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+    .student-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.student-profile-info {
+    min-width: 0;
+}
+
+.student-name {
+    color: #0f172a;
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.student-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.meta-divider {
+    width: 4px;
+    height: 4px;
+    background: #cbd5e1;
+    border-radius: 50%;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.status-inactive {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+
+/* DETAIL SECTIONS */
+
+.detail-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+    .section-header h2 {
+        margin: 0 0 4px;
+        color: #1e293b;
+        font-size: 16px;
+        font-weight: 650;
+    }
+
+    .section-header p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+.section-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 8px;
+}
+
+
+/* INFO GRID */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 42px;
+    row-gap: 22px;
+}
+
+.info-item {
+    min-width: 0;
+}
+
+.info-item-full {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.35px;
+}
+
+.info-value {
+    display: block;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.info-highlight {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+
+/* NOTE */
+
+.note-box {
+    min-height: 70px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* SIDE CARD */
+
+.side-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.side-card-title {
+    margin-bottom: 16px;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+
+/* STATUS PANEL */
+
+.status-panel {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px;
+    border-radius: 9px;
+}
+
+    .status-panel.active {
+        background: #f0fdf4;
+    }
+
+    .status-panel.inactive {
+        background: #f8fafc;
+    }
+
+.status-panel-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 17px;
+}
+
+.status-panel.active .status-panel-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-panel.inactive .status-panel-icon {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.status-panel-title {
+    margin-bottom: 3px;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-panel-description {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+/* CONTACT */
+
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.contact-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #f8fafc;
+    color: #64748b;
+    border-radius: 8px;
+}
+
+.contact-label {
+    color: #94a3b8;
+    font-size: 10px;
+    margin-bottom: 2px;
+}
+
+.contact-value {
+    color: #334155;
+    font-size: 12px;
+    word-break: break-word;
+}
+
+
+/* ACTIONS */
+
+.action-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 4px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+    .action-item:last-child {
+        border-bottom: 0;
+    }
+
+    .action-item:hover {
+        color: #2563eb;
+    }
+
+.action-item-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+}
+
+    .action-item-icon.blue {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .action-item-icon.gray {
+        background: #f8fafc;
+        color: #64748b;
+    }
+
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-actions {
+        width: 100%;
+    }
+
+        .page-actions .btn {
+            flex: 1;
+        }
+
+    .student-profile-card {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .student-profile-status {
+        width: 100%;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .info-item-full {
+        grid-column: auto;
+    }
+}
+
+/* =========================================
+   MODAL CHỈNH SỬA HỌC VIÊN
+   ========================================= */
+
+#editHocVienModal .modal-dialog {
+    max-width: 900px;
+    height: calc(100vh - 40px);
+    margin: 20px auto;
+}
+
+
+/* Modal */
+
+#editHocVienModal .modal-content {
+    height: 100%;
+    max-height: 100%;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+
+    /* =========================================
+   FORM
+   Vì header/body/footer nằm bên trong FORM
+   ========================================= */
+
+    #editHocVienModal .modal-content > form {
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+
+/* =========================================
+   HEADER
+   ========================================= */
+
+#editHocVienModal .modal-header {
+    flex: 0 0 auto;
+    padding: 18px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* =========================================
+   BODY
+   ĐÂY LÀ VÙNG ĐƯỢC CUỘN
+   ========================================= */
+
+#editHocVienModal .edit-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    background: #fff;
+}
+
+
+    /* =========================================
+   THANH CUỘN
+   ========================================= */
+
+    #editHocVienModal .edit-modal-body::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    #editHocVienModal .edit-modal-body::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+
+    #editHocVienModal .edit-modal-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+        #editHocVienModal .edit-modal-body::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+
+/* =========================================
+   FOOTER
+   NÚT HỦY / LƯU LUÔN HIỂN THỊ
+   ========================================= */
+
+#editHocVienModal .modal-footer {
+    flex: 0 0 auto;
+    padding: 14px 24px;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    #editHocVienModal .modal-dialog {
+        height: calc(100vh - 20px);
+        margin: 10px;
+    }
+
+    #editHocVienModal .edit-modal-body {
+        padding: 18px;
+    }
+
+    #editHocVienModal .modal-header,
+    #editHocVienModal .modal-footer {
+        padding: 14px 18px;
+    }
+}
+/* =========================================
+   MODAL EDIT - DETAILS
+   ========================================= */
+
+#editHocVienModal .modal-dialog {
+    max-width: 900px;
+    height: calc(100vh - 40px);
+    margin: 20px auto;
+}
+
+#editHocVienModal .modal-content {
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: none;
+    border-radius: 12px;
+}
+
+    #editHocVienModal .modal-content > form {
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+#editHocVienModal .modal-header {
+    flex: 0 0 auto;
+}
+
+#editHocVienModal .edit-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+}
+
+#editHocVienModal .modal-footer {
+    flex: 0 0 auto;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+}

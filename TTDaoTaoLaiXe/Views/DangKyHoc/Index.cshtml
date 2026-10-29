@@ -1,0 +1,494 @@
+﻿
+@model IEnumerable<TTDaoTaoLaiXe.Models.DangKyHoc>
+
+@{
+    ViewData["Title"] = "Quản lý đăng ký học";
+
+    string tuKhoa = ViewBag.TuKhoa as string ?? "";
+    string trangThaiLoc = ViewBag.TrangThaiLoc as string ?? "";
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+
+    var hocViens = ViewBag.EditHocViens as IEnumerable<TTDaoTaoLaiXe.Models.HocVien>
+        ?? Enumerable.Empty<TTDaoTaoLaiXe.Models.HocVien>();
+
+    var khoaHocs = ViewBag.EditKhoaHocs as IEnumerable<TTDaoTaoLaiXe.Models.KhoaHoc>
+        ?? Enumerable.Empty<TTDaoTaoLaiXe.Models.KhoaHoc>();
+
+    var trangThais = new[]
+    {
+        "Đang học",
+        "Đã hoàn thành",
+        "Bảo lưu",
+        "Đã nghỉ",
+        "Hủy"
+    };
+}
+
+<div class="container-fluid py-3">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-person-vcard me-2"></i>Quản lý đăng ký học
+            </h2>
+            <p class="text-muted mb-0">
+                Quản lý học viên đăng ký các khóa đào tạo
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Đăng ký học
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <form asp-action="Index" method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-6">
+                        <label for="tuKhoa" class="form-label">Tìm kiếm</label>
+                        <input type="text"
+                               id="tuKhoa"
+                               name="tuKhoa"
+                               value="@tuKhoa"
+                               class="form-control"
+                               placeholder="Mã đăng ký, học viên, khóa học..." />
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label for="trangThaiLoc" class="form-label">Trạng thái</label>
+                        <select id="trangThaiLoc"
+                                name="trangThaiLoc"
+                                class="form-select">
+                            <option value="">Tất cả trạng thái</option>
+                            @foreach (var status in trangThais)
+                            {
+                                <option value="@status"
+                                        selected="@(trangThaiLoc == status)">
+                                    @status
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>Tìm kiếm
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Đặt lại
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="mb-0 fw-semibold">Danh sách đăng ký</h5>
+            <span class="text-muted small">
+                Tổng cộng: <strong>@totalItems</strong> đăng ký
+            </span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Mã đăng ký</th>
+                            <th>Học viên</th>
+                            <th>Khóa học</th>
+                            <th>Ngày đăng ký</th>
+                            <th class="text-end">Học phí</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                    Không tìm thấy đăng ký học phù hợp.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                var badgeClass = item.TrangThai switch
+                                {
+                                    "Đang học" => "bg-primary-subtle text-primary",
+                                    "Đã hoàn thành" => "bg-success-subtle text-success",
+                                    "Bảo lưu" => "bg-warning-subtle text-warning-emphasis",
+                                    "Đã nghỉ" => "bg-secondary-subtle text-secondary",
+                                    "Hủy" => "bg-danger-subtle text-danger",
+                                    _ => "bg-secondary-subtle text-secondary"
+                                };
+
+                                <tr>
+                                    <td class="ps-3">
+                                        <strong>@item.MaDangKy</strong>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @(item.MaHocVienNavigation?.HoTen ?? "Không có dữ liệu")
+                                        </div>
+                                        <small class="text-muted">@item.MaHocVien</small>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @(item.MaKhoaHocNavigation?.TenKhoaHoc ?? "Không có dữ liệu")
+                                        </div>
+                                        <small class="text-muted">@item.MaKhoaHoc</small>
+                                    </td>
+
+                                    <td>@item.NgayDangKy.ToString("dd/MM/yyyy")</td>
+
+                                    <td class="text-end text-nowrap">
+                                        @item.HocPhi.ToString("N0") ₫
+                                    </td>
+
+                                    <td>
+                                        <span class="badge rounded-pill @badgeClass">
+                                            @item.TrangThai
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center text-nowrap">
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Details"
+                                               asp-route-id="@item.MaDangKy"
+                                               class="btn btn-outline-info"
+                                               title="Xem chi tiết"
+                                               aria-label="Xem chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <button type="button"
+                                                    class="btn btn-outline-primary"
+                                                    title="Chỉnh sửa"
+                                                    aria-label="Chỉnh sửa"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editModal"
+                                                    data-id="@item.MaDangKy"
+                                                    data-hocvien="@item.MaHocVien"
+                                                    data-khoahoc="@item.MaKhoaHoc"
+                                                    data-ngaydangky="@item.NgayDangKy.ToString("yyyy-MM-dd")"
+                                                    data-hocphi="@item.HocPhi"
+                                                    data-trangthai="@item.TrangThai"
+                                                    data-ngayhoanthanh="@(item.NgayHoanThanh?.ToString("yyyy-MM-dd") ?? "")"
+                                                    data-ghichu="@item.GhiChu">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+
+                                            <a asp-action="Delete"
+                                               asp-route-id="@item.MaDangKy"
+                                               class="btn btn-outline-danger"
+                                               title="Xóa hoặc hủy đăng ký"
+                                               aria-label="Xóa hoặc hủy đăng ký">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <small class="text-muted">
+                        Trang @(page) / @totalPages
+                    </small>
+
+                    <nav aria-label="Phân trang đăng ký học">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(page <= 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@tuKhoa"
+                                   asp-route-trangThaiLoc="@trangThaiLoc"
+                                   asp-route-page="@(page - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            @for (int p = Math.Max(1, page - 2);
+                                  p <= Math.Min(totalPages, page + 2);
+                                  p++)
+                            {
+                                <li class="page-item @(p == page ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tuKhoa="@tuKhoa"
+                                       asp-route-trangThaiLoc="@trangThaiLoc"
+                                       asp-route-page="@p">@p</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tuKhoa="@tuKhoa"
+                                   asp-route-trangThaiLoc="@trangThaiLoc"
+                                   asp-route-page="@(page + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal chỉnh sửa đăng ký -->
+<div class="modal fade"
+     id="editModal"
+     tabindex="-1"
+     aria-labelledby="editModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="editModalLabel">
+                            <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa đăng ký học
+                        </h5>
+                        <small class="text-muted">Cập nhật thông tin đăng ký</small>
+                    </div>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editMaDangKy" class="form-label fw-semibold">
+                            Mã đăng ký
+                        </label>
+                        <input type="text"
+                               id="editMaDangKy"
+                               name="MaDangKy"
+                               class="form-control"
+                               readonly />
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editMaHocVien" class="form-label fw-semibold">
+                                Học viên
+                            </label>
+                            <select id="editMaHocVien"
+                                    name="MaHocVien"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Chọn học viên --</option>
+                                @foreach (var hocVien in hocViens)
+                                {
+                                    <option value="@hocVien.MaHocVien">
+                                        @hocVien.HoTen (@hocVien.MaHocVien)
+                                        @if (!hocVien.TrangThai)
+                                        {
+                                            @: - Ngừng hoạt động
+                                        }
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editMaKhoaHoc" class="form-label fw-semibold">
+                                Khóa học
+                            </label>
+                            <select id="editMaKhoaHoc"
+                                    name="MaKhoaHoc"
+                                    class="form-select"
+                                    required>
+                                <option value="">-- Chọn khóa học --</option>
+                                @foreach (var khoaHoc in khoaHocs)
+                                {
+                                    <option value="@khoaHoc.MaKhoaHoc">
+                                        @khoaHoc.TenKhoaHoc (@khoaHoc.MaKhoaHoc)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editNgayDangKy" class="form-label fw-semibold">
+                                Ngày đăng ký
+                            </label>
+                            <input type="date"
+                                   id="editNgayDangKy"
+                                   name="NgayDangKy"
+                                   class="form-control"
+                                   required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editHocPhi" class="form-label fw-semibold">
+                                Học phí
+                            </label>
+                            <div class="input-group">
+                                <input type="number"
+                                       id="editHocPhi"
+                                       name="HocPhi"
+                                       class="form-control"
+                                       min="0"
+                                       step="1000"
+                                       required />
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                            <small class="text-muted">
+                                Nếu đã thu tiền thành công, hệ thống không cho sửa tổng học phí tại đây.
+                            </small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editTrangThai" class="form-label fw-semibold">
+                                Trạng thái
+                            </label>
+                            <select id="editTrangThai"
+                                    name="TrangThai"
+                                    class="form-select"
+                                    required>
+                                @foreach (var status in trangThais)
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="editNgayHoanThanh" class="form-label fw-semibold">
+                                Ngày hoàn thành
+                            </label>
+                            <input type="date"
+                                   id="editNgayHoanThanh"
+                                   name="NgayHoanThanh"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-12">
+                            <label for="editGhiChu" class="form-label fw-semibold">
+                                Ghi chú
+                            </label>
+                            <textarea id="editGhiChu"
+                                      name="GhiChu"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-light border"
+                            data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>Đóng
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const editModal = document.getElementById('editModal');
+
+        if (editModal) {
+            editModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                if (!button) return;
+
+                document.getElementById('editMaDangKy').value =
+                    button.getAttribute('data-id') || '';
+
+                document.getElementById('editMaHocVien').value =
+                    button.getAttribute('data-hocvien') || '';
+
+                document.getElementById('editMaKhoaHoc').value =
+                    button.getAttribute('data-khoahoc') || '';
+
+                document.getElementById('editNgayDangKy').value =
+                    button.getAttribute('data-ngaydangky') || '';
+
+                document.getElementById('editHocPhi').value =
+                    button.getAttribute('data-hocphi') || '0';
+
+                document.getElementById('editTrangThai').value =
+                    button.getAttribute('data-trangthai') || 'Đang học';
+
+                document.getElementById('editNgayHoanThanh').value =
+                    button.getAttribute('data-ngayhoanthanh') || '';
+
+                document.getElementById('editGhiChu').value =
+                    button.getAttribute('data-ghichu') || '';
+            });
+        }
+
+        // Thông báo dùng SweetAlert2, không dùng alert() của trình duyệt.
+        @if (TempData["Success"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"])),
+                confirmButtonText: 'Đóng'
+            });
+            </text>
+        }
+
+        @if (TempData["Warning"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thông báo',
+                text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Warning"])),
+                confirmButtonText: 'Đóng'
+            });
+            </text>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"])),
+                confirmButtonText: 'Đóng'
+            });
+            </text>
+        }
+    </script>
+}

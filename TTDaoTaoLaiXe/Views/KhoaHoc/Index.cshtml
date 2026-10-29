@@ -1,0 +1,962 @@
+﻿@model IEnumerable<TTDaoTaoLaiXe.Models.KhoaHoc>
+
+@{
+    ViewData["Title"] = "Quản lý khóa học";
+
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 0);
+    var totalItems = (int)(ViewBag.TotalItems ?? 0);
+
+    var search = ViewBag.Search as string ?? "";
+    var hangGplx = ViewBag.HangGplx as string ?? "";
+    var trangThai = ViewBag.TrangThai as string ?? "";
+
+    var hangGplxes = ViewBag.HangGplxes;
+}
+
+<div class="container-fluid">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="bi bi-journal-bookmark me-2"></i>
+                Quản lý khóa học
+            </h4>
+
+            <p class="text-muted mb-0">
+                Quản lý các khóa đào tạo lái xe của trung tâm.
+            </p>
+        </div>
+
+        <!-- THÊM KHÓA HỌC -->
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+
+            <i class="bi bi-plus-lg me-1"></i>
+            Thêm khóa học
+
+        </a>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- BỘ LỌC -->
+    <!-- ================================================= -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form asp-action="Index"
+                  method="get">
+
+                <div class="row g-3">
+
+                    <!-- TÌM KIẾM -->
+
+                    <div class="col-lg-5">
+
+                        <label class="form-label fw-semibold">
+                            Tìm kiếm
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <input type="text"
+                                   name="search"
+                                   value="@search"
+                                   class="form-control"
+                                   placeholder="Mã hoặc tên khóa học..." />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- HẠNG GPLX -->
+
+                    <div class="col-lg-3">
+
+                        <label class="form-label fw-semibold">
+                            Hạng GPLX
+                        </label>
+
+                        <select name="hangGplx"
+                                class="form-select">
+
+                            <option value="">
+                                Tất cả hạng GPLX
+                            </option>
+
+                            @if (hangGplxes != null)
+                            {
+                                foreach (var hang in hangGplxes)
+                                {
+                                    if (hangGplx == hang.MaHang)
+                                    {
+                                        <option value="@hang.MaHang"
+                                                selected>
+                                            @hang.MaHang - @hang.TenHang
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@hang.MaHang">
+                                            @hang.MaHang - @hang.TenHang
+                                        </option>
+                                    }
+                                }
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- TRẠNG THÁI -->
+
+                    <div class="col-lg-2">
+
+                        <label class="form-label fw-semibold">
+                            Trạng thái
+                        </label>
+
+                        <select name="trangThai"
+                                class="form-select">
+
+                            @if (string.IsNullOrEmpty(trangThai))
+                            {
+                                <option value="" selected>
+                                    Tất cả
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="">
+                                    Tất cả
+                                </option>
+                            }
+
+                            @if (trangThai == "1")
+                            {
+                                <option value="1" selected>
+                                    Đang hoạt động
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="1">
+                                    Đang hoạt động
+                                </option>
+                            }
+
+                            @if (trangThai == "0")
+                            {
+                                <option value="0" selected>
+                                    Ngừng hoạt động
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="0">
+                                    Ngừng hoạt động
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- NÚT LỌC -->
+
+                    <div class="col-lg-2 d-flex align-items-end">
+
+                        <div class="d-flex gap-2 w-100">
+
+                            <button type="submit"
+                                    class="btn btn-primary flex-fill">
+
+                                <i class="bi bi-search me-1"></i>
+                                Lọc
+
+                            </button>
+
+                            <a asp-action="Index"
+                               class="btn btn-light border"
+                               title="Đặt lại bộ lọc">
+
+                                <i class="bi bi-arrow-clockwise"></i>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DANH SÁCH -->
+    <!-- ================================================= -->
+
+    <div class="card border-0 shadow-sm">
+
+        <!-- HEADER -->
+
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+
+            <div>
+
+                <h5 class="mb-0 fw-semibold">
+                    Danh sách khóa học
+                </h5>
+
+                <small class="text-muted">
+
+                    Tổng số:
+
+                    <strong>
+                        @totalItems
+                    </strong>
+
+                    khóa học
+
+                </small>
+
+            </div>
+
+            <div class="text-muted small">
+
+                Trang @currentPage /
+                @(totalPages == 0 ? 1 : totalPages)
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- TABLE -->
+        <!-- ================================================= -->
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th class="text-nowrap">
+                            Mã khóa học
+                        </th>
+
+                        <th>
+                            Tên khóa học
+                        </th>
+
+                        <th>
+                            Hạng GPLX
+                        </th>
+
+                        <th class="text-center text-nowrap">
+                            Thời gian
+                        </th>
+
+                        <th class="text-center text-nowrap">
+                            Lý thuyết
+                        </th>
+
+                        <th class="text-center text-nowrap">
+                            Thực hành
+                        </th>
+
+                        <th class="text-center text-nowrap">
+                            DAT
+                        </th>
+
+                        <th class="text-nowrap">
+                            Thời gian đào tạo
+                        </th>
+
+                        <th class="text-center">
+                            Trạng thái
+                        </th>
+
+                        <th class="text-center">
+                            Thao tác
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <!-- MÃ -->
+
+                            <td class="fw-semibold">
+                                @item.MaKhoaHoc
+                            </td>
+
+
+                            <!-- TÊN -->
+
+                            <td>
+
+                                <div class="fw-semibold">
+                                    @item.TenKhoaHoc
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(item.MoTa))
+                                {
+                                    <small class="text-muted">
+                                        @item.MoTa
+                                    </small>
+                                }
+
+                            </td>
+
+
+                            <!-- HẠNG GPLX -->
+
+                            <td>
+
+                                @if (item.HangGplxNavigation != null)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary">
+
+                                        @item.HangGplxNavigation.MaHang
+                                        -
+                                        @item.HangGplxNavigation.TenHang
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        @item.HangGplx
+                                    </span>
+                                }
+
+                            </td>
+
+
+                            <!-- TỔNG GIỜ -->
+
+                            <td class="text-center">
+
+                                <strong>
+                                    @item.ThoiGianDaoTao
+                                </strong>
+
+                                <small class="text-muted">
+                                    giờ
+                                </small>
+
+                            </td>
+
+
+                            <!-- LÝ THUYẾT -->
+
+                            <td class="text-center">
+                                @item.SoGioLyThuyet
+                            </td>
+
+
+                            <!-- THỰC HÀNH -->
+
+                            <td class="text-center">
+                                @item.SoGioThucHanh
+                            </td>
+
+
+                            <!-- DAT -->
+
+                            <td class="text-center">
+                                @item.SoGioDat
+                            </td>
+
+
+                            <!-- NGÀY -->
+
+                            <td class="text-nowrap">
+
+                                @if (item.NgayBatDau.HasValue)
+                                {
+                                    @item.NgayBatDau.Value.ToString("dd/MM/yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+
+                                <span class="text-muted mx-1">
+                                    →
+                                </span>
+
+                                @if (item.NgayKetThuc.HasValue)
+                                {
+                                    @item.NgayKetThuc.Value.ToString("dd/MM/yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+
+                            </td>
+
+
+                            <!-- ================================================= -->
+                            <!-- TOGGLE TRẠNG THÁI -->
+                            <!-- ================================================= -->
+
+                            <td class="text-center">
+
+                                <form asp-action="ToggleStatus"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@item.MaKhoaHoc" />
+
+                                    <div class="form-check form-switch d-flex justify-content-center">
+
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               role="switch"
+                                               title="Bật / tắt trạng thái"
+                                               onchange="this.form.submit()"
+                                               @(item.TrangThai ? "checked" : "") />
+
+                                    </div>
+
+                                    @if (item.TrangThai)
+                                    {
+                                        <small class="text-success">
+                                            Đang hoạt động
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-secondary">
+                                            Ngừng hoạt động
+                                        </small>
+                                    }
+
+                                </form>
+
+                            </td>
+
+
+                            <!-- ================================================= -->
+                            <!-- THAO TÁC -->
+                            <!-- ================================================= -->
+
+                            <td class="text-center text-nowrap">
+
+                                <!-- CHI TIẾT -->
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.MaKhoaHoc"
+                                   class="btn btn-sm btn-light border"
+                                   title="Xem chi tiết">
+
+                                    <i class="bi bi-eye"></i>
+
+                                </a>
+
+
+                                <!-- SỬA -->
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        title="Chỉnh sửa"
+                                        onclick="openEditModal('@item.MaKhoaHoc')">
+
+                                    <i class="bi bi-pencil"></i>
+
+                                </button>
+
+
+                                <!-- XÓA -->
+
+                                <form asp-action="Delete"
+                                      method="post"
+                                      class="d-inline delete-form">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@item.MaKhoaHoc" />
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Xóa khóa học">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+
+                    <!-- KHÔNG CÓ DỮ LIỆU -->
+                    @if (!Model.Any())
+                    {
+                        <tr>
+
+                            <td colspan="10"
+                                class="text-center py-5">
+
+                                <i class="bi bi-journal-x fs-1 text-muted"></i>
+
+                                <h6 class="mt-3">
+                                    Không tìm thấy khóa học
+                                </h6>
+
+                                <p class="text-muted mb-0">
+                                    Không có khóa học nào phù hợp với điều kiện tìm kiếm.
+                                </p>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- PHÂN TRANG -->
+        <!-- ================================================= -->
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div class="text-muted small">
+
+                        Hiển thị trang
+
+                        <strong>
+                            @currentPage
+                        </strong>
+
+                        /
+
+                        <strong>
+                            @totalPages
+                        </strong>
+
+                    </div>
+
+
+                    <nav aria-label="Phân trang khóa học">
+
+                        <ul class="pagination mb-0">
+
+                            <!-- PREVIOUS -->
+                            @if (currentPage > 1)
+                            {
+                                <li class="page-item">
+
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-page="@(currentPage - 1)"
+                                       asp-route-search="@search"
+                                       asp-route-hangGplx="@hangGplx"
+                                       asp-route-trangThai="@trangThai">
+
+                                        <i class="bi bi-chevron-left"></i>
+
+                                    </a>
+
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item disabled">
+
+                                    <span class="page-link">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </span>
+
+                                </li>
+                            }
+
+
+                            <!-- CÁC TRANG -->
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                if (i == currentPage)
+                                {
+                                    <li class="page-item active">
+
+                                        <span class="page-link">
+                                            @i
+                                        </span>
+
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="page-item">
+
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-page="@i"
+                                           asp-route-search="@search"
+                                           asp-route-hangGplx="@hangGplx"
+                                           asp-route-trangThai="@trangThai">
+
+                                            @i
+
+                                        </a>
+
+                                    </li>
+                                }
+                            }
+
+
+                            <!-- NEXT -->
+                            @if (currentPage < totalPages)
+                            {
+                                <li class="page-item">
+
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-page="@(currentPage + 1)"
+                                       asp-route-search="@search"
+                                       asp-route-hangGplx="@hangGplx"
+                                       asp-route-trangThai="@trangThai">
+
+                                        <i class="bi bi-chevron-right"></i>
+
+                                    </a>
+
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item disabled">
+
+                                    <span class="page-link">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </span>
+
+                                </li>
+                            }
+
+                        </ul>
+
+                    </nav>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- MODAL CHỈNH SỬA -->
+<!-- ================================================= -->
+
+<div class="modal fade"
+     id="editKhoaHocModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content"
+             id="editKhoaHocModalContent">
+
+            <!-- _EditModal.cshtml được load tại đây -->
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <!-- ================================================= -->
+    <!-- SWEETALERT2 -->
+    <!-- ================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        // =================================================
+        // MỞ MODAL CHỈNH SỬA
+        // =================================================
+
+        async function openEditModal(maKhoaHoc) {
+
+            try {
+
+                const response = await fetch(
+                    `/KhoaHoc/GetEdit?id=${encodeURIComponent(maKhoaHoc)}`
+                );
+
+
+                if (!response.ok) {
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thể tải dữ liệu',
+                        text: 'Không thể tải thông tin khóa học.',
+                        confirmButtonText: 'Đóng'
+                    });
+
+                    return;
+                }
+
+
+                const html = await response.text();
+
+
+                document.getElementById(
+                    "editKhoaHocModalContent"
+                ).innerHTML = html;
+
+
+                const modalElement =
+                    document.getElementById(
+                        "editKhoaHocModal"
+                    );
+
+
+                const modal =
+                    bootstrap.Modal.getOrCreateInstance(
+                        modalElement
+                    );
+
+
+                modal.show();
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Có lỗi xảy ra',
+                    text: 'Không thể mở cửa sổ chỉnh sửa.',
+                    confirmButtonText: 'Đóng'
+                });
+
+            }
+
+        }
+
+
+        // =================================================
+        // XÁC NHẬN XÓA
+        // =================================================
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const deleteForms =
+                    document.querySelectorAll(
+                        ".delete-form"
+                    );
+
+
+                deleteForms.forEach(function (form) {
+
+                    form.addEventListener(
+                        "submit",
+                        function (event) {
+
+                            // Chặn submit ngay lập tức
+                            event.preventDefault();
+
+
+                            Swal.fire({
+
+                                title: 'Xác nhận xóa?',
+
+                                text:
+                                    'Bạn có chắc chắn muốn xóa khóa học này không?',
+
+                                icon: 'warning',
+
+                                showCancelButton: true,
+
+                                confirmButtonColor: '#dc3545',
+
+                                cancelButtonColor: '#6c757d',
+
+                                confirmButtonText:
+                                    '<i class="bi bi-trash me-1"></i> Xóa',
+
+                                cancelButtonText:
+                                    'Hủy',
+
+                                reverseButtons: true,
+
+                                focusCancel: true
+
+                            }).then(function (result) {
+
+                                if (result.isConfirmed) {
+
+                                    // Submit form thật
+                                    form.submit();
+
+                                }
+
+                            });
+
+                        }
+                    );
+
+                });
+
+            }
+        );
+
+
+        // =================================================
+        // THÔNG BÁO SUCCESS
+        // =================================================
+
+        @if (TempData["Success"] != null)
+        {
+                <text>
+
+                    Swal.fire({
+
+                        icon: 'success',
+
+                        title: 'Thành công',
+
+                        text: @Html.Raw(
+                                                System.Text.Json.JsonSerializer.Serialize(
+                                                        TempData["Success"]?.ToString()
+                                                )
+                                        ),
+
+                confirmButtonText: 'Đã hiểu',
+
+                        confirmButtonColor: '#198754'
+
+                    });
+
+                </text>
+        }
+
+
+        // =================================================
+        // THÔNG BÁO WARNING
+        // =================================================
+
+        @if (TempData["Warning"] != null)
+        {
+                <text>
+
+                    Swal.fire({
+
+                        icon: 'warning',
+
+                        title: 'Không thể xóa',
+
+                        text: @Html.Raw(
+                                                System.Text.Json.JsonSerializer.Serialize(
+                                                        TempData["Warning"]?.ToString()
+                                                )
+                                        ),
+
+                confirmButtonText: 'Đã hiểu',
+
+                        confirmButtonColor: '#ffc107'
+
+                    });
+
+                </text>
+        }
+
+
+        // =================================================
+        // THÔNG BÁO ERROR
+        // =================================================
+
+        @if (TempData["Error"] != null)
+        {
+                <text>
+
+                    Swal.fire({
+
+                        icon: 'error',
+
+                        title: 'Có lỗi xảy ra',
+
+                        text: @Html.Raw(
+                                                System.Text.Json.JsonSerializer.Serialize(
+                                                        TempData["Error"]?.ToString()
+                                                )
+                                        ),
+
+                confirmButtonText: 'Đóng',
+
+                        confirmButtonColor: '#dc3545'
+
+                    });
+
+                </text>
+        }
+
+    </script>
+
+}

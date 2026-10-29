@@ -1,0 +1,309 @@
+﻿@model TTDaoTaoLaiXe.Models.LopHoc
+
+<div class="modal fade"
+     id="editLopHocModal"
+     tabindex="-1"
+     aria-labelledby="editLopHocModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <!-- HEADER -->
+            <div class="modal-header">
+
+                <div>
+                    <h5 class="modal-title fw-bold"
+                        id="editLopHocModalLabel">
+
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Chỉnh sửa lớp học
+
+                    </h5>
+
+                    <div class="text-muted small">
+                        Cập nhật thông tin lớp học
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Đóng">
+                </button>
+
+            </div>
+
+
+            <!-- BODY -->
+            <form method="post"
+                  action="@Url.Action("Edit", "LopHoc")"
+                  id="editLopHocForm">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.MaLopHoc" />
+
+                <div class="modal-body">
+
+                    <div asp-validation-summary="All"
+                         class="text-danger small mb-3">
+                    </div>
+
+                    
+
+
+                    <div class="row g-3">
+
+                        <!-- MÃ LỚP -->
+                        <div class="col-md-6">
+
+                            <label class="form-label fw-semibold">
+                                Mã lớp học
+                            </label>
+
+                            <input asp-for="MaLopHoc"
+                                   class="form-control"
+                                   readonly />
+
+                            <div class="form-text">
+                                Mã lớp học không được thay đổi.
+                            </div>
+
+                        </div>
+
+
+                        <!-- TÊN LỚP -->
+                        <div class="col-md-6">
+
+                            <label asp-for="TenLopHoc"
+                                   class="form-label fw-semibold">
+
+                                Tên lớp học
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="TenLopHoc"
+                                   class="form-control" />
+
+                            <span asp-validation-for="TenLopHoc"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- KHÓA HỌC -->
+                        <div class="col-md-6">
+
+                            <label asp-for="MaKhoaHoc"
+                                   class="form-label fw-semibold">
+
+                                Khóa học
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <select asp-for="MaKhoaHoc"
+                                    asp-items="ViewBag.MaKhoaHoc"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Chọn khóa học --
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="MaKhoaHoc"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- GIÁO VIÊN -->
+                        <div class="col-md-6">
+
+                            <label asp-for="MaGiaoVien"
+                                   class="form-label fw-semibold">
+
+                                Giáo viên phụ trách
+
+                            </label>
+
+                            <select asp-for="MaGiaoVien"
+                                    asp-items="ViewBag.MaGiaoVien"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Chưa phân công --
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="MaGiaoVien"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- NGÀY BẮT ĐẦU -->
+                        <div class="col-md-6">
+
+                            <label asp-for="NgayBatDau"
+                                   class="form-label fw-semibold">
+
+                                Ngày bắt đầu
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="NgayBatDau"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="NgayBatDau"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- NGÀY KẾT THÚC -->
+                        <div class="col-md-6">
+
+                            <label asp-for="NgayKetThuc"
+                                   class="form-label fw-semibold">
+
+                                Ngày kết thúc
+
+                            </label>
+
+                            <input asp-for="NgayKetThuc"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="NgayKetThuc"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- SĨ SỐ -->
+                        <div class="col-md-6">
+
+                            <label asp-for="SiSoToiDa"
+                                   class="form-label fw-semibold">
+
+                                Sĩ số tối đa
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="SiSoToiDa"
+                                   type="number"
+                                   min="1"
+                                   class="form-control" />
+
+                            <span asp-validation-for="SiSoToiDa"
+                                  class="text-danger small">
+                            </span>
+
+                            <div class="form-text">
+                                Không được nhỏ hơn số học viên hiện tại.
+                            </div>
+
+                        </div>
+
+
+                        <!-- TRẠNG THÁI -->
+                        <div class="col-md-6">
+
+                            <label asp-for="TrangThai"
+                                   class="form-label fw-semibold">
+
+                                Trạng thái
+
+                            </label>
+
+                            <select asp-for="TrangThai"
+                                    class="form-select">
+
+                                <option value="Đang mở">
+                                    Đang mở
+                                </option>
+
+                                <option value="Tạm ngưng">
+                                    Tạm ngưng
+                                </option>
+
+                                <option value="Đã kết thúc">
+                                    Đã kết thúc
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- MÔ TẢ -->
+                        <div class="col-12">
+
+                            <label asp-for="MoTa"
+                                   class="form-label fw-semibold">
+
+                                Mô tả
+
+                            </label>
+
+                            <textarea asp-for="MoTa"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="500"></textarea>
+
+                            <span asp-validation-for="MoTa"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+
+                        <i class="bi bi-x-circle me-1"></i>
+                        Hủy
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-check-circle me-1"></i>
+                        Lưu thay đổi
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

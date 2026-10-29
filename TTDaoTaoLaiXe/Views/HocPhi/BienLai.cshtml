@@ -1,0 +1,593 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.HocPhi.BienLaiHocPhiViewModel
+
+@{
+    ViewData["Title"] = "Biên lai thu học phí";
+}
+
+@section Head {
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+}
+
+<div class="container py-4 receipt-page">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 no-print">
+        <a asp-controller="HocPhi"
+           asp-action="Details"
+           asp-route-id="@Model.MaHocPhi"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Quay lại chi tiết học phí
+        </a>
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="window.print()">
+            <i class="bi bi-printer me-1"></i>
+            In biên lai
+        </button>
+    </div>
+
+    <div class="receipt-paper">
+
+        <!-- Quốc hiệu và tên trung tâm -->
+        <div class="row align-items-start receipt-heading">
+            <div class="col-5 text-center">
+                <div class="center-name">TRUNG TÂM ĐÀO TẠO LÁI XE</div>
+                <div class="center-underline"></div>
+                <div class="small mt-2">BỘ PHẬN KẾ TOÁN</div>
+            </div>
+
+            <div class="col-7 text-center">
+                <div class="national-title">
+                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+                </div>
+                <div class="national-motto">
+                    Độc lập - Tự do - Hạnh phúc
+                </div>
+                <div class="motto-underline"></div>
+            </div>
+        </div>
+
+        <!-- Tiêu đề biên lai -->
+        <div class="text-center receipt-title">
+            <h1>BIÊN LAI THU HỌC PHÍ</h1>
+            <div class="receipt-code">
+                Số: <strong>@Model.MaThanhToan</strong>
+            </div>
+            <div class="receipt-date">
+                Ngày @Model.NgayThanhToan.ToString("dd")
+                tháng @Model.NgayThanhToan.ToString("MM")
+                năm @Model.NgayThanhToan.ToString("yyyy")
+            </div>
+        </div>
+
+        <!-- Thông tin học viên -->
+        <section class="receipt-section">
+            <h2>I. THÔNG TIN NGƯỜI NỘP TIỀN</h2>
+
+            <div class="receipt-line">
+                <span class="field-label">Họ và tên học viên:</span>
+                <strong>@Model.HoTenHocVien</strong>
+            </div>
+
+            <div class="receipt-line">
+                <span class="field-label">Mã học viên:</span>
+                <span>@Model.MaHocVien</span>
+            </div>
+
+            <div class="receipt-line">
+                <span class="field-label">Số điện thoại:</span>
+                <span>
+                    @(string.IsNullOrWhiteSpace(Model.SoDienThoai)
+                                        ? "Chưa cập nhật"
+                                        : Model.SoDienThoai)
+                </span>
+            </div>
+
+            <div class="receipt-line">
+                <span class="field-label">Khóa học:</span>
+                <span>@Model.TenKhoaHoc</span>
+            </div>
+
+            <div class="receipt-line">
+                <span class="field-label">Mã đăng ký học:</span>
+                <span>@Model.MaDangKy</span>
+            </div>
+        </section>
+
+        <!-- Chi tiết thu tiền -->
+        <section class="receipt-section">
+            <h2>II. NỘI DUNG THU</h2>
+
+            <table class="table table-bordered receipt-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%">STT</th>
+                        <th>Nội dung</th>
+                        <th style="width: 35%" class="text-end">Số tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">1</td>
+                        <td>Thu học phí khóa học</td>
+                        <td class="text-end amount">
+                            @Model.SoTienThu.ToString("N0") đồng
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" class="text-end">TỔNG CỘNG</th>
+                        <th class="text-end amount">
+                            @Model.SoTienThu.ToString("N0") đồng
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="receipt-line">
+                <span class="field-label">Phương thức thanh toán:</span>
+                <strong>@Model.PhuongThuc</strong>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.MaGiaoDich))
+            {
+                <div class="receipt-line">
+                    <span class="field-label">Mã giao dịch:</span>
+                    <span>@Model.MaGiaoDich</span>
+                </div>
+            }
+
+            <div class="receipt-line">
+                <span class="field-label">Tổng học phí:</span>
+                <span>@Model.TongHocPhi.ToString("N0") đồng</span>
+            </div>
+
+            <div class="receipt-line">
+                <span class="field-label">Đã thu trước lần này:</span>
+                <span>@Model.DaThuTruocDo.ToString("N0") đồng</span>
+            </div>
+
+            <div class="receipt-line">
+                <span class="field-label">Tổng đã thu sau lần này:</span>
+                <span>@Model.DaThuSauGiaoDich.ToString("N0") đồng</span>
+            </div>
+
+            <div class="receipt-line balance-line">
+                <span class="field-label">Công nợ còn lại:</span>
+                <strong>@Model.ConNo.ToString("N0") đồng</strong>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.GhiChu))
+            {
+                <div class="receipt-line">
+                    <span class="field-label">Ghi chú:</span>
+                    <span>@Model.GhiChu</span>
+                </div>
+            }
+        </section>
+
+        <p class="receipt-thanks">
+            Cảm ơn học viên đã thực hiện nghĩa vụ thanh toán học phí.
+        </p>
+
+        <!-- Chữ ký -->
+        <div class="row text-center signature-row">
+            <div class="col-4">
+                <strong>NGƯỜI NỘP TIỀN</strong>
+                <div class="signature-note">(Ký, ghi rõ họ tên)</div>
+                <div class="signature-space"></div>
+                <div class="signature-name">@Model.HoTenHocVien</div>
+            </div>
+
+            <div class="col-4">
+                <strong>NGƯỜI THU TIỀN</strong>
+                <div class="signature-note">(Ký, ghi rõ họ tên)</div>
+                <div class="signature-space"></div>
+                <div class="signature-name">
+                    @(string.IsNullOrWhiteSpace(Model.NguoiThu)
+                                        ? ""
+                                        : Model.NguoiThu)
+                </div>
+            </div>
+
+            <div class="col-4">
+                <strong>ĐẠI DIỆN TRUNG TÂM</strong>
+                <div class="signature-note">(Ký, ghi rõ họ tên)</div>
+                <div class="signature-space"></div>
+            </div>
+        </div>
+
+        <div class="receipt-footer">
+            Biên lai được lập từ hệ thống quản lý đào tạo lái xe.
+        </div>
+    </div>
+</div>
+
+<style>
+    .receipt-page {
+        max-width: 1000px;
+    }
+
+    .receipt-paper {
+        background: #fff;
+        color: #111;
+        padding: 42px 48px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 3px 16px rgba(0, 0, 0, .06);
+        font-family: "Times New Roman", serif;
+        font-size: 16px;
+    }
+
+    .receipt-heading {
+        margin-bottom: 34px;
+    }
+
+    .center-name {
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .center-underline {
+        width: 65%;
+        border-bottom: 1px solid #111;
+        margin: 7px auto 0;
+    }
+
+    .national-title {
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .national-motto {
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .motto-underline {
+        width: 48%;
+        border-bottom: 1px solid #111;
+        margin: 7px auto 0;
+    }
+
+    .receipt-title {
+        margin-bottom: 30px;
+    }
+
+        .receipt-title h1 {
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: .5px;
+            margin-bottom: 10px;
+        }
+
+    .receipt-code {
+        margin-bottom: 5px;
+    }
+
+    .receipt-date {
+        font-style: italic;
+    }
+
+    .receipt-section {
+        margin-bottom: 25px;
+    }
+
+        .receipt-section h2 {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 13px;
+        }
+
+    .receipt-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+
+    .field-label {
+        font-weight: normal;
+    }
+
+    .receipt-table {
+        width: 100%;
+        margin: 14px 0 20px;
+        border-collapse: collapse !important;
+        border-spacing: 0;
+        border: 1px solid #555 !important;
+    }
+
+        .receipt-table th,
+        .receipt-table td {
+            border: 1px solid #555 !important;
+            padding: 10px;
+            vertical-align: middle;
+        }
+
+        .receipt-table thead th,
+        .receipt-table tfoot th {
+            font-weight: bold;
+        }
+
+        .receipt-table tbody tr {
+            border: 1px solid #555 !important;
+        }
+
+        .receipt-table tbody td {
+            border: 1px solid #555 !important;
+        }
+
+    .amount {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .balance-line {
+        padding-top: 8px;
+        border-top: 1px dashed #777;
+    }
+
+    .receipt-thanks {
+        margin: 30px 0;
+        text-align: center;
+        font-style: italic;
+    }
+
+    .signature-row {
+        margin-top: 35px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+        .signature-row strong {
+            font-size: 14px;
+        }
+
+    .signature-note {
+        margin-top: 5px;
+        font-style: italic;
+        font-size: 14px;
+    }
+
+    .signature-space {
+        height: 85px;
+    }
+
+    .signature-name {
+        font-weight: bold;
+    }
+
+    .receipt-footer {
+        text-align: center;
+        margin-top: 35px;
+        font-size: 12px;
+        font-style: italic;
+        color: #555;
+    }
+
+
+    @@media print {
+        @@page {
+            size: A5 lanspage ;
+            margin: 6mm;
+        }
+
+        html,
+        body {
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+            color: #000 !important;
+            font-family: "Times New Roman", serif !important;
+            font-size: 10pt !important;
+            line-height: 1.2 !important;
+        }
+
+        .no-print,
+        nav,
+        aside,
+        footer,
+        .sidebar,
+        .navbar,
+        .btn,
+        button {
+            display: none !important;
+        }
+
+        .container,
+        .container-fluid,
+        .receipt-page {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .receipt-paper {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            font-size: 10pt !important;
+            line-height: 1.2 !important;
+        }
+
+        .receipt-heading {
+            margin-bottom: 12px !important;
+        }
+
+        .center-name,
+        .national-title {
+            font-size: 10pt !important;
+        }
+
+        .national-motto {
+            margin-top: 2px !important;
+        }
+
+        .center-underline,
+        .motto-underline {
+            margin-top: 3px !important;
+        }
+
+        .receipt-title {
+            margin-bottom: 12px !important;
+        }
+
+            .receipt-title h1 {
+                font-size: 17pt !important;
+                margin-bottom: 4px !important;
+            }
+
+        .receipt-section {
+            margin-bottom: 10px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+            .receipt-section h2 {
+                font-size: 11pt !important;
+                margin-bottom: 5px !important;
+            }
+
+        .receipt-line {
+            gap: 3px !important;
+            margin-bottom: 4px !important;
+            line-height: 1.2 !important;
+        }
+
+        .receipt-table {
+            width: 100% !important;
+            margin: 6px 0 8px !important;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            border: 1px solid #000 !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+            .receipt-table th,
+            .receipt-table td {
+                border: 1px solid #000 !important;
+                padding: 5px 7px !important;
+                vertical-align: middle !important;
+                font-size: 10pt !important;
+            }
+
+            .receipt-table tbody tr,
+            .receipt-table tbody td {
+                border: 1px solid #000 !important;
+            }
+
+        .amount {
+            white-space: nowrap !important;
+        }
+
+        .balance-line {
+            padding-top: 4px !important;
+        }
+
+        .receipt-thanks {
+            margin: 10px 0 !important;
+        }
+
+        .signature-row {
+            margin-top: 12px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+            .signature-row strong {
+                font-size: 9pt !important;
+            }
+
+        .signature-space {
+            height: 35px !important;
+        }
+
+        .signature-note {
+            margin-top: 2px !important;
+            font-size: 9pt !important;
+        }
+
+        .receipt-footer {
+            margin-top: 10px !important;
+            font-size: 8pt !important;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        html,
+        body {
+            overflow: visible !important;
+        }
+
+        .receipt-page,
+        .receipt-paper {
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+        }
+
+        .receipt-heading {
+            margin-bottom: 6px !important;
+        }
+
+        .receipt-title {
+            margin-bottom: 6px !important;
+        }
+
+        .receipt-section {
+            margin-bottom: 5px !important;
+        }
+
+            .receipt-section h2 {
+                margin-bottom: 3px !important;
+            }
+
+        .receipt-line {
+            margin-bottom: 2px !important;
+            line-height: 1.1 !important;
+        }
+
+        .receipt-table {
+            margin-top: 3px !important;
+            margin-bottom: 4px !important;
+        }
+
+            .receipt-table th,
+            .receipt-table td {
+                padding: 3px 5px !important;
+                line-height: 1.1 !important;
+            }
+
+        .receipt-thanks {
+            margin: 5px 0 !important;
+        }
+
+        .signature-row {
+            margin-top: 5px !important;
+        }
+
+        .signature-space {
+            height: 22px !important;
+        }
+
+        .receipt-footer {
+            margin-top: 5px !important;
+        }
+    }
+
+</style>

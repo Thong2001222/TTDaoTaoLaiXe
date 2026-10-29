@@ -1,0 +1,397 @@
+﻿@model TTDaoTaoLaiXe.ViewModels.DiemDanhIndexViewModel
+
+@{
+    ViewData["Title"] = "Quản lý điểm danh";
+    Layout = "_Layout";
+
+    var ngayTu = Model.NgayTu?.ToString("yyyy-MM-dd");
+    var ngayDen = Model.NgayDen?.ToString("yyyy-MM-dd");
+}
+
+<div class="container-fluid py-4">
+    <!-- Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Quản lý điểm danh</h3>
+            <p class="text-muted mb-0">
+                Theo dõi lịch học và tình trạng điểm danh học viên.
+            </p>
+        </div>
+
+        <div class="text-muted small">
+            <i class="bi bi-calendar-week me-1"></i>
+            Tổng số lịch học:
+            <strong>@Model.TongSoBanGhi</strong>
+        </div>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="Index"
+                  method="get"
+                  id="formLocDiemDanh">
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-4">
+                        <label for="tuKhoa" class="form-label">
+                            Từ khóa
+                        </label>
+                        <input type="text"
+                               id="tuKhoa"
+                               name="tuKhoa"
+                               value="@Model.TuKhoa"
+                               class="form-control"
+                               maxlength="100"
+                               placeholder="Mã lịch học hoặc tên lớp..." />
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <label for="maLopHoc" class="form-label">
+                            Lớp học
+                        </label>
+                        <select id="maLopHoc"
+                                name="maLopHoc"
+                                class="form-select">
+                            <option value="">Tất cả lớp học</option>
+
+                            @foreach (var lop in Model.DanhSachLopHoc)
+                            {
+                                if (lop.Value == Model.MaLopHoc)
+                                {
+                                    <option value="@lop.Value" selected>
+                                        @lop.Text
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@lop.Value">
+                                        @lop.Text
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <label for="ngayTu" class="form-label">
+                            Từ ngày
+                        </label>
+                        <input type="date"
+                               id="ngayTu"
+                               name="ngayTu"
+                               value="@ngayTu"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <label for="ngayDen" class="form-label">
+                            Đến ngày
+                        </label>
+                        <input type="date"
+                               id="ngayDen"
+                               name="ngayDen"
+                               value="@ngayDen"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col-12 col-md-1 d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Lọc
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Xóa bộ lọc
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng lịch học -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-clipboard-check text-primary me-2"></i>
+                    Danh sách lịch học
+                </h5>
+
+                <span class="text-muted small">
+                    Trang @Model.TrangHienTai / @(Math.Max(1, Model.TongTrang))
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Mã lịch học</th>
+                            <th>Lớp học</th>
+                            <th>Ngày học</th>
+                            <th>Thời gian</th>
+                            <th>Loại buổi học</th>
+                            <th>Giáo viên</th>
+                            <th class="text-center">Học viên</th>
+                            <th class="text-center">Đã điểm danh</th>
+                            <th>Trạng thái lịch</th>
+                            <th class="text-center pe-3">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.LichHocs == null || Model.LichHocs.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="10"
+                                    class="text-center text-muted py-5">
+                                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                    <div class="fw-semibold">
+                                        Không tìm thấy lịch học
+                                    </div>
+                                    <small>
+                                        Thử thay đổi từ khóa hoặc điều kiện lọc.
+                                    </small>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.LichHocs)
+                            {
+                                var lichDaHuy = item.TrangThaiLichHoc == "Đã hủy";
+
+                                <tr>
+                                    <td class="ps-3">
+                                        <span class="fw-semibold">
+                                            @item.MaLichHoc
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @item.TenLopHoc
+                                        </div>
+                                        <small class="text-muted">
+                                            @item.MaLopHoc
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        @item.NgayHoc.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td class="text-nowrap">
+                                        @item.GioBatDau.ToString("HH:mm")
+                                        –
+                                        @item.GioKetThuc.ToString("HH:mm")
+                                    </td>
+
+                                    <td>@item.LoaiBuoiHoc</td>
+
+                                    <td>@item.TenGiaoVien</td>
+
+                                    <td class="text-center">
+                                        @item.TongHocVien
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-dark">
+                                            @item.DaDiemDanh / @item.TongHocVien
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @if (item.TrangThaiLichHoc == "Đã hoàn thành")
+                                        {
+                                            <span class="badge bg-success">
+                                                @item.TrangThaiLichHoc
+                                            </span>
+                                        }
+                                        else if (lichDaHuy)
+                                        {
+                                            <span class="badge bg-danger">
+                                                @item.TrangThaiLichHoc
+                                            </span>
+                                        }
+                                        else if (item.TrangThaiLichHoc == "Đang học")
+                                        {
+                                            <span class="badge bg-primary">
+                                                @item.TrangThaiLichHoc
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @item.TrangThaiLichHoc
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center pe-3">
+                                        @if (lichDaHuy)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    disabled
+                                                    title="Lịch học đã hủy">
+                                                <i class="bi bi-ban me-1"></i>
+                                                Đã hủy
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="DanhSach"
+                                               asp-route-maLichHoc="@item.MaLichHoc"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="bi bi-clipboard-check me-1"></i>
+                                                Điểm danh
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Phân trang -->
+        @if (Model.TongTrang > 1)
+        {
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <small class="text-muted">
+                        Trang <strong>@Model.TrangHienTai</strong>
+                        / <strong>@Model.TongTrang</strong>
+                        · Tổng <strong>@Model.TongSoBanGhi</strong> lịch học
+                    </small>
+
+                    <nav aria-label="Phân trang lịch học">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(Model.TrangHienTai <= 1 ? "disabled" : "")">
+                                @if (Model.TrangHienTai <= 1)
+                                {
+                                    <span class="page-link">Trước</span>
+                                }
+                                else
+                                {
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tuKhoa="@Model.TuKhoa"
+                                       asp-route-maLopHoc="@Model.MaLopHoc"
+                                       asp-route-ngayTu="@ngayTu"
+                                       asp-route-ngayDen="@ngayDen"
+                                       asp-route-trang="@(Model.TrangHienTai - 1)">
+                                        Trước
+                                    </a>
+                                }
+                            </li>
+
+                            @for (var p = 1; p <= Model.TongTrang; p++)
+                            {
+                                <li class="page-item @(p == Model.TrangHienTai ? "active" : "")">
+                                    @if (p == Model.TrangHienTai)
+                                    {
+                                        <span class="page-link">@p</span>
+                                    }
+                                    else
+                                    {
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-tuKhoa="@Model.TuKhoa"
+                                           asp-route-maLopHoc="@Model.MaLopHoc"
+                                           asp-route-ngayTu="@ngayTu"
+                                           asp-route-ngayDen="@ngayDen"
+                                           asp-route-trang="@p">
+                                            @p
+                                        </a>
+                                    }
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.TrangHienTai >= Model.TongTrang ? "disabled" : "")">
+                                @if (Model.TrangHienTai >= Model.TongTrang)
+                                {
+                                    <span class="page-link">Sau</span>
+                                }
+                                else
+                                {
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tuKhoa="@Model.TuKhoa"
+                                       asp-route-maLopHoc="@Model.MaLopHoc"
+                                       asp-route-ngayTu="@ngayTu"
+                                       asp-route-ngayDen="@ngayDen"
+                                       asp-route-trang="@(Model.TrangHienTai + 1)">
+                                        Sau
+                                    </a>
+                                }
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ngayTu = document.getElementById('ngayTu');
+            const ngayDen = document.getElementById('ngayDen');
+            const formLoc = document.getElementById('formLocDiemDanh');
+
+            if (formLoc) {
+                formLoc.addEventListener('submit', async function (event) {
+                    if (ngayTu.value && ngayDen.value &&
+                        ngayTu.value > ngayDen.value) {
+                        event.preventDefault();
+
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: 'Khoảng ngày không hợp lệ',
+                            text: 'Ngày bắt đầu không được lớn hơn ngày kết thúc.',
+                            confirmButtonText: 'Đóng'
+                        });
+                    }
+                });
+            }
+
+            // Thông báo sau khi thực hiện thao tác.
+            const successMessage =
+                @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    TempData["Success"]?.ToString()));
+
+        const errorMessage =
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                                TempData["Error"]?.ToString()));
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: successMessage,
+                confirmButtonText: 'Đóng'
+            });
+        } else if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: errorMessage,
+                confirmButtonText: 'Đóng'
+            });
+        }
+    });
+</script>
+}
